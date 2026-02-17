@@ -16,7 +16,7 @@ Visual Studio 2022 を使用し、チーム制作での開発を前提として�
 ## ビルド手順
 1. リポジトリを clone
    ```bash
-   git clone <リポジトリURL>
+   https://github.com/higa-shunnosuke/2026GameJam.git
 
 2. Visual Studio 2022 で .sln を開く
   
