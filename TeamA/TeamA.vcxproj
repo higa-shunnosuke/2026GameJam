@@ -135,11 +135,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-<<<<<<< Updated upstream
-    <ClCompile Include="Sources\GameObjects\Player\Player.cpp" />
-=======
-    <ClCompile Include="Sources\GameObjects\Jewel\Jewel.cpp" />
->>>>>>> Stashed changes
+    <ClCompile Include="Sources\GameObjects\ObjectBasse.cpp" />
     <ClCompile Include="Sources\Main.cpp" />
     <ClCompile Include="Sources\App\Application.cpp" />
     <ClCompile Include="Sources\Scenes\End\End.cpp" />
@@ -153,9 +149,8 @@
     <ClCompile Include="Sources\Utilitys\Vector2D.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Sources\GameObjects\Player\Player.h" />
+    <ClInclude Include="Sources\GameObjects\ObjectBasse.h" />
     <ClInclude Include="Sources\App\Application.h" />
-    <ClInclude Include="Sources\GameObjects\Jewel\Jewel.h" />
     <ClInclude Include="Sources\Scenes\End\End.h" />
     <ClInclude Include="Sources\Scenes\InGame\InGame.h" />
     <ClInclude Include="Sources\Scenes\Result\Result.h" />
