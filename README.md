@@ -28,21 +28,93 @@ Visual Studio 2022 を使用し、チーム制作での開発を前提として�
 
 ---
 
-フォルダ構成
+## フォルダ構成
 
-ProjectRoot/  
-├─ Source/          # ゲームロジック  
-|  ├─ App/          # アプリケーション管理  
-|  ├─ GameObjects/  # オブジェクト管理  
-|  ├─ Scenes/       # シーン管理  
-|  ├─ Systems/    　# 入力 & 読み込み管理  
-|  ├─ Utilitys/       
-├─ Assets/          # ゲームで使用する素材  
-│  ├─ Common/  
-│  ├─ Sprites/  
-│  ├─ Textures/  
-│  ├─ Audio/  
-│  ├─ Fonts/  
-│  └─ LocalTest/    # 個人用（Git管理外）  
-├─ Resources/  
-   └─ data/         # スコア・ランキング（Git管理外）  
+    ProjectRoot/  
+    ├─ Source/  
+    │  ├─ App/  
+    │  ├─ GameObjects/  
+    │  ├─ Scenes/  
+    │  ├─ Systems/  
+    │  ├─ Utilitys/         
+    ├─ Assets/  
+    │  ├─ Common/  
+    │  ├─ Sprites/ ----- キャラクター・UI  
+    │  ├─ Textures/ ---- 背景  
+    │  ├─ Audio/ ------- BGM・SE  
+    │  ├─ Fonts/  
+    │  └─ LocalTest/  
+    └─  Resources/  
+       └─ data/  
+
+---
+
+## 命名規則（Naming Convention）
+
+### 基本方針（全体ルール） 
+
+英語のみ（ローマ字禁止）  
+意味が分かる名前を優先  
+略語は控える（HPなどは可）  
+1単語で済むなら1単語  
+スネークケースとキャメルケースを使い分ける  
+
+### 変数名（ローカル変数）  
+
+lowerCamelCase  
+ ```bash
+int playerHp;  
+float moveSpeed;  
+bool isAlive;
+```
+❌ NG
+ ```bash
+int PlayerHP;  
+int a;  
+int hp1;  
+```
+
+### メンバ変数（クラス内）  
+
+lowerCamelCase + m_ プレフィックス  
+ ```bash
+class Player {  
+    int m_hp;  
+    float m_moveSpeed;  
+    bool m_isAlive;  
+};  
+```
+👉 「これはメンバだ」と一目で分かる  
+
+### 定数（const / constexpr）  
+
+UPPER_SNAKE_CASE
+ ```bash
+constexpr int MAX_PLAYER_HP = 100;  
+const float GRAVITY = 9.8f;  
+```
+
+### 関数名  
+ ```bash
+UpperCamelCase（パスカルケース）  
+void Update();  
+void Draw();  
+void TakeDamage(int damage);  
+```
+
+### クラス名  
+UpperCamelCase  
+ ```bash
+class Player;  
+class EnemyManager;  
+class GetLocation;  
+```
+
+### enum
+ ```bash
+enum class EnemyType {  
+    normal,  
+    boss,  
+    fly  
+};  
+```
