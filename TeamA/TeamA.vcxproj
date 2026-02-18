@@ -157,7 +157,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Sources\GameObjects\ObjectBasse.cpp" />
+    <ClCompile Include="Sources\GameObjects\ObjectManager.cpp" />
+    <ClCompile Include="Sources\GameObjects\ObjectBase.cpp" />
     <ClCompile Include="Sources\Main.cpp" />
     <ClCompile Include="Sources\App\Application.cpp" />
     <ClCompile Include="Sources\Scenes\End\End.cpp" />
@@ -171,7 +172,8 @@
     <ClCompile Include="Sources\Utilitys\Vector2D.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Sources\GameObjects\ObjectBasse.h" />
+    <ClInclude Include="Sources\GameObjects\ObjectManager.h" />
+    <ClInclude Include="Sources\GameObjects\ObjectBase.h" />
     <ClInclude Include="Sources\App\Application.h" />
     <ClInclude Include="Sources\Scenes\End\End.h" />
     <ClInclude Include="Sources\Scenes\InGame\InGame.h" />
