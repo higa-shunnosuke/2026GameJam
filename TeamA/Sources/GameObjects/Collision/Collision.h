@@ -14,10 +14,12 @@ class Collision
 {
 private:
 	float m_radius;
+	e_ObjectType type;
 
 public:
 
 	const float& GetRadius() const;
+	const e_ObjectType GetObjectType() const;
 
 	/// <summary>
 	/// ‰~‚Æ‰~‚Ì“–‚½‚è”»’èŠm”F
