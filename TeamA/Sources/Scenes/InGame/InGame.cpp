@@ -11,7 +11,7 @@ void InGame::Initialize()
 {
 	ObjectManager& object = ObjectManager::GetInstance();
 	player = object.RequestSpawn<Player>(Vector2D(580.0f,360.0f));
-	jewel = object.RequestSpawn<Jewel>(Vector2D(7000.0f, 360.0f));
+	jewel = object.RequestSpawn<Jewel>(Vector2D(700.0f, 360.0f));
 }
 
 // 更新処理
