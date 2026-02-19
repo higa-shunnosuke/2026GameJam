@@ -11,8 +11,8 @@ SceneManager::SceneManager() :
 // 初期化処理
 void SceneManager::Initialize()
 {
-	// 最初のシーンをタイトル画面にする
-	ChangeScene(SceneType::title);
+	// 最初のシーンをインゲーム画面にする
+	ChangeScene(SceneType::ingame);
 }
 
 //  更新処理
