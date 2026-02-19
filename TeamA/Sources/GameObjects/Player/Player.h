@@ -1,17 +1,10 @@
 #pragma once
 #include "../ObjectBase.h"
 #include "../../Utilitys/Vector2D.h"
+#include "../../System/MapData/Direction.h"
 
 class Player : public ObjectBase
 {private:
-
-	enum class e_Direction
-	{
-		up,
-		down,
-		left,
-		right,
-	};
 
 	// スタミナ
 	int m_stamina;

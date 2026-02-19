@@ -201,6 +201,7 @@
     <ClInclude Include="Sources\Scenes\Title\Title.h" />
     <ClInclude Include="Sources\System\Camera\Camera.h" />
     <ClInclude Include="Sources\System\InputManager.h" />
+    <ClInclude Include="Sources\System\MapData\Direction.h" />
     <ClInclude Include="Sources\System\MapData\MapData.h" />
     <ClInclude Include="Sources\System\ResourceManager.h" />
     <ClInclude Include="Sources\Utilitys\ComPtr.h" />
