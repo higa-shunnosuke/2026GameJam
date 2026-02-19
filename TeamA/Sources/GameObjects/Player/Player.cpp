@@ -1,6 +1,6 @@
 #include "Player.h"
 
-#include "../../Systems/InputManager.h"
+#include "../../System/InputManager.h"
 #include <DxLib.h>
 #include <math.h>
 
