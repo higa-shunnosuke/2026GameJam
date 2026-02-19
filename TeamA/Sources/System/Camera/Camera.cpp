@@ -33,9 +33,6 @@ void Camera::Initialize()
 // 更新処理
 void Camera::Update()
 {
-	// スクロール
-	Scroll();
-
 	/// ステージ外にいかないようにする処理
 	float maxCameraX = D_STAGE_WIDTH - D_WIN_WIDTH;
 	if (location.x < 0.0f) location.x = 0.0f;
@@ -43,29 +40,6 @@ void Camera::Update()
 	float maxCameraY = D_STAGE_HEIGHT - D_WIN_HEIGHT;
 	if (location.y < 0.0f) location.y = 0.0f;
 	if (location.y > maxCameraY) location.y = maxCameraY;
-}
-
-// スクロール処理
-void Camera::Scroll()
-{
-	// 手動スクロール（キーボード）
-	InputManager& input = InputManager::GetInstance();
-	if (input.GetKeyState(KEY_INPUT_D) == eInputState::Hold)
-	{
-		location.x += 2.0f;
-	}
-	if (input.GetKeyState(KEY_INPUT_A) == eInputState::Hold)
-	{
-		location.x -= 2.0f;
-	}
-	if (input.GetKeyState(KEY_INPUT_S) == eInputState::Hold)
-	{
-		location.y += 2.0f;
-	}
-	if (input.GetKeyState(KEY_INPUT_W) == eInputState::Hold)
-	{
-		location.y -= 2.0f;
-	}
 }
 
 // 描画処理

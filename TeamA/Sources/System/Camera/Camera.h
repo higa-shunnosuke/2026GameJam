@@ -34,11 +34,6 @@ public:
 	void Draw(int back_buffer);
 
 	/// <summary>
-	/// スクロール処理
-	/// </summary>
-	void Scroll();
-
-	/// <summary>
 	///	カメラ座標設定処理
 	/// </summary>
 	/// <param name="location">座標</param>
