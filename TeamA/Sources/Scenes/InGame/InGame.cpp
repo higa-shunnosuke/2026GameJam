@@ -1,4 +1,6 @@
 ﻿#include "InGame.h"
+#include "../../Utilitys/ProjectConfig.h"
+#include "../../System/ResourceManager.h"
 
 InGame::InGame()
 	: player(nullptr)
@@ -9,6 +11,10 @@ InGame::InGame()
 
 void InGame::Initialize()
 {
+	// 背景画像読み込み
+	ResourceManager& rm = ResourceManager::GetInstance();
+	groundImage = rm.GetImageResource("Assets/Textures/InGame/BackGround/Ground.PNG")[0];
+
 	ObjectManager& object = ObjectManager::GetInstance();
 	player = object.RequestSpawn<Player>(Vector2D(580.0f,360.0f));
 	jewel = object.RequestSpawn<Jewel>(Vector2D(700.0f, 360.0f));
@@ -32,6 +38,9 @@ SceneType InGame::Update()
 // 描画処理
 void InGame::Draw() const
 {
+	// 背景画像の描画
+	DrawRotaGraph(D_WIN_MAX_X / 2, D_WIN_MAX_Y / 2, 1.0, 0.0, groundImage, TRUE);
+
 	//	インゲーム表示
 	DrawFormatString(10, 10, 0xffffff, "InGame");
 

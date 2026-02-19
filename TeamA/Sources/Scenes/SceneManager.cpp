@@ -1,6 +1,6 @@
 ﻿#include "SceneManager.h"
 #include "SceneFactory.h"
-#include "../Systems/InputManager.h"
+#include "../System/InputManager.h"
 
 // コンストラクタ
 SceneManager::SceneManager() :

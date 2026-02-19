@@ -11,6 +11,8 @@ private:
 	Player* player;
 	Jewel* jewel;
 
+	int groundImage;	// 地面の画像
+
 public:
 	// コンストラクタ
 	InGame();

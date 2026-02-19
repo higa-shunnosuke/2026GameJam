@@ -1,6 +1,6 @@
 #pragma once
 #include "DxLib.h"
-#include "../Systems/InputManager.h"
+#include "../System/InputManager.h"
 #include "../GameObjects/ObjectManager.h"
 
 /// <summary>

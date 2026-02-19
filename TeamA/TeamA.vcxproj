@@ -169,8 +169,8 @@
     <ClCompile Include="Sources\Scenes\Result\Result.cpp" />
     <ClCompile Include="Sources\Scenes\SceneManager.cpp" />
     <ClCompile Include="Sources\Scenes\Title\Title.cpp" />
-    <ClCompile Include="Sources\Systems\InputManager.cpp" />
-    <ClCompile Include="Sources\Systems\ResourceManager.cpp" />
+    <ClCompile Include="Sources\System\InputManager.cpp" />
+    <ClCompile Include="Sources\System\ResourceManager.cpp" />
     <ClCompile Include="Sources\Utilitys\ProjectConfig.cpp" />
     <ClCompile Include="Sources\Utilitys\Vector2D.cpp" />
   </ItemGroup>
@@ -188,8 +188,8 @@
     <ClInclude Include="Sources\Scenes\SceneFactory.h" />
     <ClInclude Include="Sources\Scenes\SceneManager.h" />
     <ClInclude Include="Sources\Scenes\Title\Title.h" />
-    <ClInclude Include="Sources\Systems\InputManager.h" />
-    <ClInclude Include="Sources\Systems\ResourceManager.h" />
+    <ClInclude Include="Sources\System\InputManager.h" />
+    <ClInclude Include="Sources\System\ResourceManager.h" />
     <ClInclude Include="Sources\Utilitys\ComPtr.h" />
     <ClInclude Include="Sources\Utilitys\ProjectConfig.h" />
     <ClInclude Include="Sources\Utilitys\Singleton.h" />
