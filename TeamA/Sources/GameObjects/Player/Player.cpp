@@ -16,7 +16,8 @@ Player::Player::~Player()
 
 void Player::Initialize()
 {
-	m_stamina = 100;
+	m_staminaMax = 100;
+	m_stamina = m_staminaMax;
 	m_animTime = 0.0f;
 	m_animCount = 0;
 	m_moveSpeed = {};
@@ -65,7 +66,6 @@ void Player::Update()
 	// 加速
 	float maxSpeed = 0.4f;
 	float acceleration = 0.05f;
-
 	if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Hold && m_moveSpeed.x > -maxSpeed)
 	{
 		m_moveSpeed.x -= acceleration;
@@ -83,6 +83,30 @@ void Player::Update()
 		m_moveSpeed.y += acceleration;
 	}
 
+	// テスト用　座標の最大値、最小値、プレイヤーの半径を決めておく
+	Vector2D Min = {};
+	Vector2D Max = Vector2D(1280, 720);
+	float radius = 10;
+
+	// 座標が最大値、最小値を越さないようにする
+	if (m_location.x + m_moveSpeed.x - radius < Min.x)
+	{
+		m_moveSpeed.x = Min.x - (m_location.x - radius);
+	}
+	if (m_location.x + m_moveSpeed.x + radius > Max.x)
+	{
+		m_moveSpeed.x = Max.x - (m_location.x + radius);
+	}
+	if (m_location.y + m_moveSpeed.y - radius < Min.y)
+	{
+		m_moveSpeed.y = Min.y - (m_location.y - radius);
+	}
+	if (m_location.y + m_moveSpeed.y + radius > Max.y)
+	{
+		m_moveSpeed.y = Max.y - (m_location.y + radius);
+	}
+
+
 	m_location += m_moveSpeed.Normalize() *  Vector2D(fabsf(m_moveSpeed.x), fabsf(m_moveSpeed.y));
 
 
@@ -97,9 +121,13 @@ void Player::Update()
 	{
 		m_isDiging = FALSE;
 	}
-
-
 	
+	
+	// スタミナ
+	if (m_stamina > m_staminaMax)
+	{
+		m_stamina = m_staminaMax;
+	}
 
 }
 
@@ -116,4 +144,9 @@ void Player::Finalize()
 void Player::OnHitCollision(ObjectBase& other)
 {
 
+}
+
+const int& Player::GetStamina() const
+{
+	return m_stamina;
 }

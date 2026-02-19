@@ -5,6 +5,7 @@
 class Player : public ObjectBase
 {private:
 	int m_stamina;
+	int m_staminaMax;
 	float m_animTime;
 	int m_animCount;
 	Vector2D m_moveSpeed;
@@ -43,5 +44,8 @@ public:
 	/// </summary>
 	/// <param name="other"></param>
 	void OnHitCollision(ObjectBase& other) override;
+
+public:
+	const int& GetStamina() const;
 };
 
