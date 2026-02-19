@@ -410,3 +410,8 @@ const int& Player::GetStamina() const
 {
 	return m_stamina;
 }
+
+const int& Player::GetStaminaMax() const
+{
+	return m_staminaMax;
+}

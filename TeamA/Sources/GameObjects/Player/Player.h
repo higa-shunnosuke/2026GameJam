@@ -93,5 +93,6 @@ private:
 
 public:
 	const int& GetStamina() const;
+	const int& GetStaminaMax() const;
 };
 
