@@ -13,7 +13,7 @@ public:
 
 public:
 	virtual void Initialize();
-	virtual void Update();
+	virtual void UpDate();
 	virtual void Draw() const;
 	virtual void Finalize();
 
