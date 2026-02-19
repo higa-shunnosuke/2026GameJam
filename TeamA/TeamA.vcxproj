@@ -175,8 +175,10 @@
     <ClCompile Include="Sources\Scenes\Title\Title.cpp" />
     <ClCompile Include="Sources\System\Camera\Camera.cpp" />
     <ClCompile Include="Sources\System\InputManager.cpp" />
+    <ClCompile Include="Sources\System\MapData\MapData.cpp" />
     <ClCompile Include="Sources\System\ResourceManager.cpp" />
     <ClCompile Include="Sources\Utilitys\ProjectConfig.cpp" />
+    <ClCompile Include="Sources\Utilitys\Random.cpp" />
     <ClCompile Include="Sources\Utilitys\Vector2D.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -199,9 +201,11 @@
     <ClInclude Include="Sources\Scenes\Title\Title.h" />
     <ClInclude Include="Sources\System\Camera\Camera.h" />
     <ClInclude Include="Sources\System\InputManager.h" />
+    <ClInclude Include="Sources\System\MapData\MapData.h" />
     <ClInclude Include="Sources\System\ResourceManager.h" />
     <ClInclude Include="Sources\Utilitys\ComPtr.h" />
     <ClInclude Include="Sources\Utilitys\ProjectConfig.h" />
+    <ClInclude Include="Sources\Utilitys\Random.h" />
     <ClInclude Include="Sources\Utilitys\Singleton.h" />
     <ClInclude Include="Sources\Utilitys\Vector2D.h" />
   </ItemGroup>
