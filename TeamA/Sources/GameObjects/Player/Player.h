@@ -5,7 +5,7 @@
 class Player : public ObjectBase
 {private:
 
-	enum class E_Direction
+	enum class e_Direction
 	{
 		up,
 		down,
@@ -16,6 +16,9 @@ class Player : public ObjectBase
 	// スタミナ
 	int m_stamina;
 	int m_staminaMax;
+
+	// 無敵時間
+	float m_invincibleTime;
 
 	// 速度
 	Vector2D m_moveSpeed;
@@ -32,7 +35,7 @@ class Player : public ObjectBase
 	int m_drillAnimCount;
 	float m_effectAnimTime;
 	int m_effectAnimCount;
-	E_Direction m_direction;
+	e_Direction m_direction;
 
 	// 画像のずらす位置
 	Vector2D m_offset;
@@ -84,6 +87,9 @@ public:
 	/// </summary>
 	/// <param name="other"></param>
 	void OnHitCollision(ObjectBase& other) override;
+
+private:
+	void StaminaManager(int value);
 
 public:
 	const int& GetStamina() const;

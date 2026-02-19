@@ -37,7 +37,7 @@ void Player::Initialize()
 	m_effectAnimTime = 0.0f;
 	m_effectAnimCount = 0;
 
-	m_direction = E_Direction::right;
+	m_direction = e_Direction::right;
 
 	// 画像のずらす値
 	m_offset = { 20.f, 5.f };
@@ -87,6 +87,11 @@ void Player::Update()
 	m_walkAnimTime += 0.01f;
 	m_drillAnimTime += 0.01f;
 	m_effectAnimTime += 0.01f;
+	if (m_invincibleTime >= 0.0f)
+	{
+		m_invincibleTime -= 0.01f;
+	}
+
 	if (m_walkAnimTime > 1.0f)
 	{
 		m_walkAnimTime = 0.0f;
@@ -139,22 +144,22 @@ void Player::Update()
 	if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Hold && m_moveSpeed.x > -maxSpeed)
 	{
 		m_moveSpeed.x -= acceleration;
-		m_direction = E_Direction::left;
+		m_direction = e_Direction::left;
 	}
 	if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Hold && m_moveSpeed.x < maxSpeed)
 	{
 		m_moveSpeed.x += acceleration;
-		m_direction = E_Direction::right;
+		m_direction = e_Direction::right;
 	}
 	if (input.GetKeyState(KEY_INPUT_UP) == eInputState::Hold && m_moveSpeed.y > -maxSpeed)
 	{
 		m_moveSpeed.y -= acceleration;
-		m_direction = E_Direction::up;
+		m_direction = e_Direction::up;
 	}
 	if (input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Hold && m_moveSpeed.y < maxSpeed)
 	{
 		m_moveSpeed.y += acceleration;
-		m_direction = E_Direction::down;
+		m_direction = e_Direction::down;
 	}
 
 	// テスト用　座標の最大値、最小値、プレイヤーの半径を決めておく
@@ -236,12 +241,6 @@ void Player::Update()
 		m_flipFlag = TRUE;
 		m_offset = { 35.f, 5.f };
 	}
-	
-	// スタミナ
-	if (m_stamina > m_staminaMax)
-	{
-		m_stamina = m_staminaMax;
-	}
 
 }
 
@@ -250,7 +249,7 @@ void Player::Draw() const
 	// モグラ表示
 	switch (m_direction)
 	{
-	case E_Direction::up:
+	case e_Direction::up:
 		DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_upImage[m_walkAnimCount % 3], TRUE, m_flipFlag);
 		// ドリル表示
 		if (m_digingFlag)
@@ -262,11 +261,11 @@ void Player::Draw() const
 			DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_drillUpImage[0], TRUE, m_flipFlag);
 		}
 		break;
-	case E_Direction::down:
+	case e_Direction::down:
 		DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_downImage[m_walkAnimCount % 3], TRUE, m_flipFlag);
 		break;
-	case E_Direction::left:
-	case E_Direction::right:
+	case e_Direction::left:
+	case e_Direction::right:
 		DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_walkImage[m_walkAnimCount % 2], TRUE, m_flipFlag);
 		// ドリル表示
 		if (m_digingFlag)
@@ -307,7 +306,46 @@ void Player::Finalize()
 
 void Player::OnHitCollision(ObjectBase& other)
 {
+	switch (other.GetCollision().GetObjectType())
+	{
+	case e_ObjectType::potato:
 
+		StaminaManager(20);
+
+		break;
+	case e_ObjectType::poisonpoteto:
+
+		StaminaManager(-30);
+
+		break;
+	case e_ObjectType::rainbowpoteto:
+
+		m_invincibleTime = 10.0f;
+
+		break;
+	case e_ObjectType::jewel:
+		break;
+	}
+}
+
+void Player::StaminaManager(int value)
+{
+	// 無敵時間中は
+	if (m_invincibleTime > 0.0f)
+	{
+		// スタミナが減らない
+		if (value < 0)
+		{
+			return;
+		}
+	}
+	m_stamina += value;
+
+	// スタミナ
+	if (m_stamina > m_staminaMax)
+	{
+		m_stamina = m_staminaMax;
+	}
 }
 
 const int& Player::GetStamina() const
