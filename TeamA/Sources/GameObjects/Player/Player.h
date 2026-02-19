@@ -23,7 +23,7 @@ public:
 	/// <summary>
 	/// XVˆ—
 	/// </summary>
-	void UpDate() override;
+	void Update() override;
 
 	/// <summary>
 	/// •`‰æˆ—

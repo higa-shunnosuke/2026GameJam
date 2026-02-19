@@ -1,6 +1,7 @@
 #pragma once
 #include "DxLib.h"
 #include "../Systems/InputManager.h"
+#include "../GameObjects/ObjectManager.h"
 
 /// <summary>
 /// シーンタイプ
@@ -16,9 +17,8 @@ enum class SceneType
 // シーン基底クラス
 class SceneBase
 {
-protected:
-	
 public:
+	
 	// コンストラクタ
 	SceneBase()
 	{
@@ -33,7 +33,7 @@ public:
 	/// </summary>
 	virtual void Initialize()
 	{
-
+		
 	}
 
 	/// <summary>
@@ -42,6 +42,17 @@ public:
 	/// <returns>現在のシーンタイプ</returns>
 	virtual SceneType Update()
 	{
+		ObjectManager& object = ObjectManager::GetInstance();
+
+			// 生成するオブジェクトがあれば、オブジェクトリスト内に挿入する
+		object.ProcessPendingCreates();
+
+		// リスト内のオブジェクトを更新する
+		for (ObjectBase* obj : object.GetObjects())
+		{
+			obj->Update();
+		}
+
 		// 現在のシーン情報を返す
 		return GetNowSceneType();
 	}
@@ -51,7 +62,13 @@ public:
 	/// </summary>
 	virtual void Draw() const
 	{
-		
+		ObjectManager& object = ObjectManager::GetInstance();
+
+		// リスト内のオブジェクトを描画する
+		for (ObjectBase* obj : object.GetObjects())
+		{
+			obj->Draw();
+		}
 	}
 
 	/// <summary>

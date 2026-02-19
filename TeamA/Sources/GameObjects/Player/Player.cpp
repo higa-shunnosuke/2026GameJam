@@ -20,7 +20,7 @@ void Player::Initialize()
 	m_moveSpeed = {};
 }
 
-void Player::UpDate()
+void Player::Update()
 {
 	m_animTime += 0.01f;
 	if (m_animTime > 1.0f)

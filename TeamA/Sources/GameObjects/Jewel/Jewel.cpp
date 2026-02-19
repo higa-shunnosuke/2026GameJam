@@ -18,7 +18,7 @@ void Jewel::Initialize()
 	m_animeCount = 0;
 }
 
-void Jewel::UpDate()
+void Jewel::Update()
 {
 	m_animeTime += 0.01f;
 	if (m_animeTime > 1.0f)

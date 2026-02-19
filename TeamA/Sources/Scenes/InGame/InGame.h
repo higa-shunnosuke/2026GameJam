@@ -1,9 +1,16 @@
 ﻿#pragma once
 #include "../SceneBase.h"
+#include "../../GameObjects/ObjectManager.h"
+#include "../../GameObjects/Player/Player.h"
+#include "../../GameObjects/Jewel/Jewel.h"
 
 
 class InGame : public SceneBase
 {
+private:
+	Player* player;
+	Jewel* jewel;
+
 public:
 	// コンストラクタ
 	InGame();

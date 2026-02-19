@@ -1,13 +1,17 @@
 ﻿#include "InGame.h"
 
 InGame::InGame()
+	: player(nullptr)
+	, jewel(nullptr)
 {
 
 }
 
 void InGame::Initialize()
 {
-	
+	ObjectManager& object = ObjectManager::GetInstance();
+	player = object.RequestSpawn<Player>(Vector2D(580.0f,360.0f));
+	jewel = object.RequestSpawn<Jewel>(Vector2D(7000.0f, 360.0f));
 }
 
 // 更新処理
@@ -30,6 +34,8 @@ void InGame::Draw() const
 {
 	//	インゲーム表示
 	DrawFormatString(10, 10, 0xffffff, "InGame");
+
+	__super::Draw();
 }
 
 // 終了処理
