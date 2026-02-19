@@ -30,6 +30,7 @@ void ObjectBase::OnHitCollision(ObjectBase& other)
 
 void ObjectBase::SetLocation(const Vector2D& location)
 {
+	m_location = location;
 }
 
 const Vector2D& ObjectBase::GetLocation() const
