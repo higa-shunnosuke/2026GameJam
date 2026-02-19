@@ -8,6 +8,7 @@ class Player : public ObjectBase
 	float m_animTime;
 	int m_animCount;
 	Vector2D m_moveSpeed;
+	bool m_isDiging;
 
 public:
 	Player();
