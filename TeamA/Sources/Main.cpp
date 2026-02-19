@@ -1,4 +1,5 @@
 #include <iostream>
+#include "Utilitys/ProjectConfig.h"
 #include "App/Application.h"
 
 
@@ -22,13 +23,21 @@ int WINAPI WinMain(
 	printf("デバックモード");
 #endif
 
+	try
+	{
+		Application* app = new Application;
 
-	Application* app = new Application;
+		// アプリケーション起動
+		app->StartApp("ここにゲームタイトルを入力");
 
-	// アプリケーション起動
-	app->StartApp("ここにゲームタイトルを入力");
+		delete app;
 
-	delete app;
-
+	}
+	catch (std::string error_log)
+	{
+		// エラー内容を出力する
+		return ErrorThrow(error_log);
+	}
+	
 	return 0;
 }
