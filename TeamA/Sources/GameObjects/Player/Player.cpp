@@ -37,27 +37,48 @@ void Player::Initialize()
 	m_effectAnimTime = 0.0f;
 	m_effectAnimCount = 0;
 
+	m_direction = E_Direction::right;
+
 	// 画像のずらす値
 	m_offset = { 20.f, 5.f };
 
 	// 画像読み込み
 	ResourceManager& rm = ResourceManager::GetInstance();
+	
+	// プレイヤー
 	// 待機画像読み込み
-	m_idleImage = rm.GetImageResource("Assets/Sprites/Characters/Player/Idle/1.PNG")[0];
+	m_idleImage = rm.GetImageResource("Assets/Sprites/Player/Idle1.PNG")[0];
 
 	// 歩く画像読み込み
-	m_walkImage[0] = rm.GetImageResource("Assets/Sprites/Characters/Player/Walk/1.PNG")[0];
-	m_walkImage[1] = rm.GetImageResource("Assets/Sprites/Characters/Player/Walk/2.PNG")[0];
+	m_walkImage[0] = rm.GetImageResource("Assets/Sprites/Player/Walk1.PNG")[0];
+	m_walkImage[1] = rm.GetImageResource("Assets/Sprites/Player/Walk2.PNG")[0];
 
+	// 上に掘る画像読み込み
+	m_upImage[0] = rm.GetImageResource("Assets/Sprites/Player/Up1.PNG")[0];
+	m_upImage[1] = rm.GetImageResource("Assets/Sprites/Player/Up2.PNG")[0];
+	m_upImage[2] = rm.GetImageResource("Assets/Sprites/Player/Up3.PNG")[0];
+
+	// 下に掘る画像読み込み
+	m_downImage[0] = rm.GetImageResource("Assets/Sprites/Player/Down1.PNG")[0];
+	m_downImage[1] = rm.GetImageResource("Assets/Sprites/Player/Down2.PNG")[0];
+	m_downImage[2] = rm.GetImageResource("Assets/Sprites/Player/Down3.PNG")[0];
+
+	// ドリル
 	// ドリル画像読み込み
-	m_drillImage[0] = rm.GetImageResource("Assets/Sprites/Characters/Player/Drill/1.PNG")[0];
-	m_drillImage[1] = rm.GetImageResource("Assets/Sprites/Characters/Player/Drill/2.PNG")[0];
-	m_drillImage[2] = rm.GetImageResource("Assets/Sprites/Characters/Player/Drill/3.PNG")[0];
+	m_drillImage[0] = rm.GetImageResource("Assets/Sprites/Drill/Drill1.PNG")[0];
+	m_drillImage[1] = rm.GetImageResource("Assets/Sprites/Drill/Drill2.PNG")[0];
+	m_drillImage[2] = rm.GetImageResource("Assets/Sprites/Drill/Drill3.PNG")[0];
 
+	// 上に掘る画像読み込み
+	m_drillUpImage[0] = rm.GetImageResource("Assets/Sprites/Drill/Up1.PNG")[0];
+	m_drillUpImage[1] = rm.GetImageResource("Assets/Sprites/Drill/Up2.PNG")[0];
+	m_drillUpImage[2] = rm.GetImageResource("Assets/Sprites/Drill/Up3.PNG")[0];
+
+	// エフェクト
 	// エフェクト画像読み込み
-	m_effectImage[0] = rm.GetImageResource("Assets/Sprites/Characters/Player/Effect/1.PNG")[0];
-	m_effectImage[1] = rm.GetImageResource("Assets/Sprites/Characters/Player/Effect/2.PNG")[0];
-	m_effectImage[2] = rm.GetImageResource("Assets/Sprites/Characters/Player/Effect/3.PNG")[0];
+	m_effectImage[0] = rm.GetImageResource("Assets/Sprites/Effect/Effect1.PNG")[0];
+	m_effectImage[1] = rm.GetImageResource("Assets/Sprites/Effect/Effect2.PNG")[0];
+	m_effectImage[2] = rm.GetImageResource("Assets/Sprites/Effect/Effect3.PNG")[0];
 }
 
 void Player::Update()
@@ -118,18 +139,22 @@ void Player::Update()
 	if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Hold && m_moveSpeed.x > -maxSpeed)
 	{
 		m_moveSpeed.x -= acceleration;
+		m_direction = E_Direction::left;
 	}
 	if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Hold && m_moveSpeed.x < maxSpeed)
 	{
 		m_moveSpeed.x += acceleration;
+		m_direction = E_Direction::right;
 	}
 	if (input.GetKeyState(KEY_INPUT_UP) == eInputState::Hold && m_moveSpeed.y > -maxSpeed)
 	{
 		m_moveSpeed.y -= acceleration;
+		m_direction = E_Direction::up;
 	}
 	if (input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Hold && m_moveSpeed.y < maxSpeed)
 	{
 		m_moveSpeed.y += acceleration;
+		m_direction = E_Direction::down;
 	}
 
 	// テスト用　座標の最大値、最小値、プレイヤーの半径を決めておく
@@ -178,6 +203,12 @@ void Player::Update()
 		}
 	}
 
+	// 上を掘り始める処理
+	if (input.GetKeyState(KEY_INPUT_UP) == eInputState::Pressed)
+	{
+		m_walkingFlag = TRUE;
+	}
+
 
 	// 掘り始める処理
 	if (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Pressed)
@@ -217,24 +248,47 @@ void Player::Update()
 void Player::Draw() const
 {
 	// モグラ表示
-	if (m_walkingFlag)
+	switch (m_direction)
 	{
+	case E_Direction::up:
+		DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_upImage[m_walkAnimCount % 3], TRUE, m_flipFlag);
+		// ドリル表示
+		if (m_digingFlag)
+		{
+			DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_drillUpImage[m_drillAnimCount % 3], TRUE, m_flipFlag);
+		}
+		else
+		{
+			DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_drillUpImage[0], TRUE, m_flipFlag);
+		}
+		break;
+	case E_Direction::down:
+		DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_downImage[m_walkAnimCount % 3], TRUE, m_flipFlag);
+		break;
+	case E_Direction::left:
+	case E_Direction::right:
 		DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_walkImage[m_walkAnimCount % 2], TRUE, m_flipFlag);
+		// ドリル表示
+		if (m_digingFlag)
+		{
+			DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_drillImage[m_drillAnimCount % 3], TRUE, m_flipFlag);
+		}
+		else
+		{
+			DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_drillImage[0], TRUE, m_flipFlag);
+		}
+		break;
 	}
-	else
-	{
-		DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_idleImage, TRUE, m_flipFlag);
-	}
+	//if (m_walkingFlag)
+	//{
+	//	DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_walkImage[m_walkAnimCount % 2], TRUE, m_flipFlag);
+	//}
+	//else
+	//{
+	//	DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_idleImage, TRUE, m_flipFlag);
+	//}
 
-	// ドリル表示
-	if (m_digingFlag)
-	{
-		DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_drillImage[m_drillAnimCount % 3], TRUE, m_flipFlag);
-	}
-	else
-	{
-		DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_drillImage[0], TRUE, m_flipFlag);
-	}
+	
 
 	// エフェクト表示
 	if (m_digingFlag)

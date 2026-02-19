@@ -4,22 +4,51 @@
 
 class Player : public ObjectBase
 {private:
+
+	enum class E_Direction
+	{
+		up,
+		down,
+		left,
+		right,
+	};
+
+	// スタミナ
 	int m_stamina;
 	int m_staminaMax;
+
+	// 速度
+	Vector2D m_moveSpeed;
+
+	// フラグ
+	bool m_walkingFlag;
+	bool m_digingFlag;
+	bool m_flipFlag;
+
+	// アニメーション
 	float m_walkAnimTime;
 	int m_walkAnimCount;
 	float m_drillAnimTime;
 	int m_drillAnimCount;
 	float m_effectAnimTime;
 	int m_effectAnimCount;
-	Vector2D m_moveSpeed;
-	bool m_walkingFlag;
-	bool m_digingFlag;
-	bool m_flipFlag;
+	E_Direction m_direction;
+
+	// 画像のずらす位置
 	Vector2D m_offset;
+
+	// プレイヤーの画像情報
 	int m_idleImage;
 	int m_walkImage[2];
+	int m_upImage[3];
+	int m_downImage[3];
+
+	// ドリルの画像情報
 	int m_drillImage[3];
+	int m_drillUpImage[3];
+	int m_drillDownImage[3];
+
+	// エフェクトの画像情報
 	int m_effectImage[3];
 
 public:
