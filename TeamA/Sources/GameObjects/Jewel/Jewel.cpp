@@ -1,5 +1,6 @@
 #include "Jewel.h"
 
+#include "../ObjectManager.h"
 #include <DxLib.h>
 
 Jewel::Jewel()
@@ -30,7 +31,8 @@ void Jewel::Update()
 
 void Jewel::Draw() const
 {
-	DrawCircle(m_location.x, m_location.y, 10, GetColor(255, 0, 0), TRUE);
+	DrawCircle(m_location.x, m_location.y, 10, GetColor(255, m_animeCount % 255, 0), TRUE);
+	DrawFormatString(0, 0, GetColor(255, 255, 255), "%d", m_animeCount);
 }
 
 void Jewel::Finalize()
@@ -40,5 +42,6 @@ void Jewel::Finalize()
 
 void Jewel::OnHitCollision(ObjectBase& other)
 {
-
+	ObjectManager& manager = ObjectManager::GetInstance();
+	manager.DestroyObject(this);
 }

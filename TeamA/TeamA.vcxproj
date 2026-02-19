@@ -162,6 +162,10 @@
     <ClCompile Include="Sources\GameObjects\ObjectManager.cpp" />
     <ClCompile Include="Sources\GameObjects\ObjectBase.cpp" />
     <ClCompile Include="Sources\GameObjects\Player\Player.cpp" />
+    <ClCompile Include="Sources\GameObjects\Potato\PoisonPotato.cpp" />
+    <ClCompile Include="Sources\GameObjects\Potato\Potato.cpp" />
+    <ClCompile Include="Sources\GameObjects\Potato\RainbowPotato.cpp" />
+    <ClCompile Include="Sources\GameObjects\Rock\Rock.cpp" />
     <ClCompile Include="Sources\Main.cpp" />
     <ClCompile Include="Sources\App\Application.cpp" />
     <ClCompile Include="Sources\Scenes\End\End.cpp" />
@@ -181,6 +185,10 @@
     <ClInclude Include="Sources\GameObjects\ObjectBase.h" />
     <ClInclude Include="Sources\App\Application.h" />
     <ClInclude Include="Sources\GameObjects\Player\Player.h" />
+    <ClInclude Include="Sources\GameObjects\Potato\PoisonPotato.h" />
+    <ClInclude Include="Sources\GameObjects\Potato\Potato.h" />
+    <ClInclude Include="Sources\GameObjects\Potato\RainbowPotato.h" />
+    <ClInclude Include="Sources\GameObjects\Rock\Rock.h" />
     <ClInclude Include="Sources\Scenes\End\End.h" />
     <ClInclude Include="Sources\Scenes\InGame\InGame.h" />
     <ClInclude Include="Sources\Scenes\Result\Result.h" />
