@@ -5,6 +5,7 @@
 InGame::InGame()
 	: player(nullptr)
 	, jewel(nullptr)
+	, groundImage()
 {
 
 }
@@ -38,8 +39,11 @@ SceneType InGame::Update()
 // 描画処理
 void InGame::Draw() const
 {
+	float imageSize = 0.222f;
+	int offset = 400;
+
 	// 背景画像の描画
-	DrawRotaGraph(D_WIN_MAX_X / 2, D_WIN_MAX_Y / 2, 1.0, 0.0, groundImage, TRUE);
+	DrawRotaGraph(D_WIN_MAX_X / 2, D_WIN_MAX_Y / 2 + offset, imageSize, 0.0, groundImage, TRUE);
 
 	//	インゲーム表示
 	DrawFormatString(10, 10, 0xffffff, "InGame");
