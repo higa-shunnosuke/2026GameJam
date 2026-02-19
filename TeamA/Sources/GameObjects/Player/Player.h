@@ -6,8 +6,12 @@ class Player : public ObjectBase
 {private:
 	int m_stamina;
 	int m_staminaMax;
-	float m_animTime;
-	int m_animCount;
+	float m_walkAnimTime;
+	int m_walkAnimCount;
+	float m_drillAnimTime;
+	int m_drillAnimCount;
+	float m_effectAnimTime;
+	int m_effectAnimCount;
 	Vector2D m_moveSpeed;
 	bool m_walkingFlag;
 	bool m_digingFlag;

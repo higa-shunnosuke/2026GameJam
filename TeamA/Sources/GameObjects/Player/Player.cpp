@@ -17,15 +17,27 @@ Player::Player::~Player()
 
 void Player::Initialize()
 {
+	// スタミナ
 	m_staminaMax = 100;
 	m_stamina = m_staminaMax;
-	m_animTime = 0.0f;
-	m_animCount = 0;
+
+	// 速度
 	m_moveSpeed = {};
+
+	// フラグ
 	m_walkingFlag = FALSE;
 	m_digingFlag = FALSE;
 	m_flipFlag = TRUE;
 
+	// アニメーション
+	m_walkAnimTime = 0.0f;
+	m_walkAnimCount = 0;
+	m_drillAnimTime = 0.0f;
+	m_drillAnimCount = 0;
+	m_effectAnimTime = 0.0f;
+	m_effectAnimCount = 0;
+
+	// 画像のずらす値
 	m_offset = { 20.f, 5.f };
 
 	// 画像読み込み
@@ -50,11 +62,24 @@ void Player::Initialize()
 
 void Player::Update()
 {
-	m_animTime += 0.01f;
-	if (m_animTime > 1.0f)
+
+	m_walkAnimTime += 0.01f;
+	m_drillAnimTime += 0.01f;
+	m_effectAnimTime += 0.01f;
+	if (m_walkAnimTime > 1.0f)
 	{
-		m_animTime = 0.0f;
-		m_animCount += 1;
+		m_walkAnimTime = 0.0f;
+		m_walkAnimCount += 1;
+	}
+	if (m_drillAnimTime > 0.5f)
+	{
+		m_drillAnimTime = 0.0f;
+		m_drillAnimCount += 1;
+	}
+	if (m_effectAnimTime > 0.5f)
+	{
+		m_effectAnimTime = 0.0f;
+		m_effectAnimCount += 1;
 	}
 
 	InputManager& input = InputManager::GetInstance();
@@ -144,9 +169,9 @@ void Player::Update()
 	else
 	{
 		// 歩くのをやめる処理
-		if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::None ||
-			input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::None ||
-			input.GetKeyState(KEY_INPUT_UP) == eInputState::None ||
+		if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::None &&
+			input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::None &&
+			input.GetKeyState(KEY_INPUT_UP) == eInputState::None &&
 			input.GetKeyState(KEY_INPUT_DOWN) == eInputState::None)
 		{
 			m_walkingFlag = FALSE;
@@ -194,13 +219,28 @@ void Player::Draw() const
 	// モグラ表示
 	if (m_walkingFlag)
 	{
-
+		DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_walkImage[m_walkAnimCount % 2], TRUE, m_flipFlag);
 	}
-	DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_idleImage, TRUE, m_flipFlag);
+	else
+	{
+		DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_idleImage, TRUE, m_flipFlag);
+	}
+
 	// ドリル表示
+	if (m_digingFlag)
+	{
+		DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_drillImage[m_drillAnimCount % 3], TRUE, m_flipFlag);
+	}
+	else
+	{
+		DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_drillImage[0], TRUE, m_flipFlag);
+	}
 
 	// エフェクト表示
-	
+	if (m_digingFlag)
+	{
+		DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_effectImage[m_effectAnimCount % 3], TRUE, m_flipFlag);
+	}
 
 	// 中心地
 	DrawCircle(m_location.x, m_location.y, 2, 0xFFFF00, TRUE);
