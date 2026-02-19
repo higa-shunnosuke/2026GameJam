@@ -9,7 +9,14 @@ class Player : public ObjectBase
 	float m_animTime;
 	int m_animCount;
 	Vector2D m_moveSpeed;
-	bool m_isDiging;
+	bool m_walkingFlag;
+	bool m_digingFlag;
+	bool m_flipFlag;
+	Vector2D m_offset;
+	int m_idleImage;
+	int m_walkImage[2];
+	int m_drillImage[3];
+	int m_effectImage[3];
 
 public:
 	Player();

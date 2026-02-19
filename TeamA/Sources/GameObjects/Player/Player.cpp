@@ -1,6 +1,7 @@
 #include "Player.h"
 
 #include "../../System/InputManager.h"
+#include "../../System/ResourceManager.h"
 #include <DxLib.h>
 #include <math.h>
 
@@ -21,7 +22,30 @@ void Player::Initialize()
 	m_animTime = 0.0f;
 	m_animCount = 0;
 	m_moveSpeed = {};
-	m_isDiging = FALSE;
+	m_walkingFlag = FALSE;
+	m_digingFlag = FALSE;
+	m_flipFlag = TRUE;
+
+	m_offset = { 20.f, 5.f };
+
+	// 画像読み込み
+	ResourceManager& rm = ResourceManager::GetInstance();
+	// 待機画像読み込み
+	m_idleImage = rm.GetImageResource("Assets/Sprites/Characters/Player/Idle/1.PNG")[0];
+
+	// 歩く画像読み込み
+	m_walkImage[0] = rm.GetImageResource("Assets/Sprites/Characters/Player/Walk/1.PNG")[0];
+	m_walkImage[1] = rm.GetImageResource("Assets/Sprites/Characters/Player/Walk/2.PNG")[0];
+
+	// ドリル画像読み込み
+	m_drillImage[0] = rm.GetImageResource("Assets/Sprites/Characters/Player/Drill/1.PNG")[0];
+	m_drillImage[1] = rm.GetImageResource("Assets/Sprites/Characters/Player/Drill/2.PNG")[0];
+	m_drillImage[2] = rm.GetImageResource("Assets/Sprites/Characters/Player/Drill/3.PNG")[0];
+
+	// エフェクト画像読み込み
+	m_effectImage[0] = rm.GetImageResource("Assets/Sprites/Characters/Player/Effect/1.PNG")[0];
+	m_effectImage[1] = rm.GetImageResource("Assets/Sprites/Characters/Player/Effect/2.PNG")[0];
+	m_effectImage[2] = rm.GetImageResource("Assets/Sprites/Characters/Player/Effect/3.PNG")[0];
 }
 
 void Player::Update()
@@ -85,7 +109,7 @@ void Player::Update()
 
 	// テスト用　座標の最大値、最小値、プレイヤーの半径を決めておく
 	Vector2D Min = {};
-	Vector2D Max = Vector2D(1280, 720);
+	Vector2D Max = { 1280, 720 };
 	float radius = 10;
 
 	// 座標が最大値、最小値を越さないようにする
@@ -109,19 +133,53 @@ void Player::Update()
 
 	m_location += m_moveSpeed.Normalize() *  Vector2D(fabsf(m_moveSpeed.x), fabsf(m_moveSpeed.y));
 
+	// 歩き始める処理
+	if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Pressed ||
+		input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Pressed ||
+		input.GetKeyState(KEY_INPUT_UP) == eInputState::Pressed ||
+		input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Pressed)
+	{
+		m_walkingFlag = TRUE;
+	}
+	else
+	{
+		// 歩くのをやめる処理
+		if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::None ||
+			input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::None ||
+			input.GetKeyState(KEY_INPUT_UP) == eInputState::None ||
+			input.GetKeyState(KEY_INPUT_DOWN) == eInputState::None)
+		{
+			m_walkingFlag = FALSE;
+		}
+	}
+
 
 	// 掘り始める処理
 	if (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Pressed)
 	{
-		m_isDiging = TRUE;
+		m_digingFlag = TRUE;
 	}
-
-	// 掘るのをやめる処理
-	if (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Released)
+	else
 	{
-		m_isDiging = FALSE;
+		// 掘るのをやめる処理
+		if (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Released)
+		{
+			m_digingFlag = FALSE;
+		}
 	}
 	
+	// 振り向き処理
+	if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Hold)
+	{
+		m_flipFlag = FALSE;
+		m_offset = { -35.f, 5.f };
+
+	}
+	if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Hold)
+	{
+		m_flipFlag = TRUE;
+		m_offset = { 35.f, 5.f };
+	}
 	
 	// スタミナ
 	if (m_stamina > m_staminaMax)
@@ -133,7 +191,19 @@ void Player::Update()
 
 void Player::Draw() const
 {
-	DrawCircle(m_location.x, m_location.y, 10, GetColor(0, 255, 255), TRUE);
+	// モグラ表示
+	if (m_walkingFlag)
+	{
+
+	}
+	DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_idleImage, TRUE, m_flipFlag);
+	// ドリル表示
+
+	// エフェクト表示
+	
+
+	// 中心地
+	DrawCircle(m_location.x, m_location.y, 2, 0xFFFF00, TRUE);
 }
 
 void Player::Finalize()
