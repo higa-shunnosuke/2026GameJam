@@ -1,5 +1,13 @@
 #include "ObjectBase.h"
 
+ObjectBase::ObjectBase()
+{
+}
+
+ObjectBase::~ObjectBase()
+{
+}
+
 void ObjectBase::Initialize()
 {
 }
@@ -14,4 +22,22 @@ void ObjectBase::Draw() const
 
 void ObjectBase::Finalize()
 {
+}
+
+void ObjectBase::OnHitCollision(ObjectBase& other)
+{
+}
+
+void ObjectBase::SetLocation(const Vector2D& location)
+{
+}
+
+const Vector2D& ObjectBase::GetLocation() const
+{
+	return m_location;
+}
+
+const int ObjectBase::GetZLayer() const
+{
+	return 0;
 }

@@ -65,7 +65,6 @@ public:
 		if (object == nullptr)
 		{
 			delete instance;
-			throw std::string("オブジェクトが生成できませんでした。");
 		}
 
 		// オブジェクトの初期化
