@@ -162,6 +162,7 @@
     <ClCompile Include="Sources\GameObjects\ObjectManager.cpp" />
     <ClCompile Include="Sources\GameObjects\ObjectBase.cpp" />
     <ClCompile Include="Sources\GameObjects\Player\Player.cpp" />
+    <ClCompile Include="Sources\GameObjects\PotatoPlant\PotatoPlant.cpp" />
     <ClCompile Include="Sources\GameObjects\Potato\PoisonPotato.cpp" />
     <ClCompile Include="Sources\GameObjects\Potato\Potato.cpp" />
     <ClCompile Include="Sources\GameObjects\Potato\RainbowPotato.cpp" />
@@ -188,6 +189,7 @@
     <ClInclude Include="Sources\GameObjects\ObjectBase.h" />
     <ClInclude Include="Sources\App\Application.h" />
     <ClInclude Include="Sources\GameObjects\Player\Player.h" />
+    <ClInclude Include="Sources\GameObjects\PotatoPlant\PotatoPlant.h" />
     <ClInclude Include="Sources\GameObjects\Potato\PoisonPotato.h" />
     <ClInclude Include="Sources\GameObjects\Potato\Potato.h" />
     <ClInclude Include="Sources\GameObjects\Potato\RainbowPotato.h" />
