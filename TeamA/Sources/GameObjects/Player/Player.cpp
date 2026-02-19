@@ -85,7 +85,7 @@ void Player::Update()
 	InputManager& input = InputManager::GetInstance();
 	
 	// Œ¸‘¬
-	float deceleration = 0.002f;
+	float deceleration = 0.005f;
 
 	if (m_moveSpeed.x > deceleration)
 	{
