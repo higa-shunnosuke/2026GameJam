@@ -157,6 +157,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Sources\GameObjects\Collision\Collision.cpp" />
     <ClCompile Include="Sources\GameObjects\Jewel\Jewel.cpp" />
     <ClCompile Include="Sources\GameObjects\ObjectManager.cpp" />
     <ClCompile Include="Sources\GameObjects\ObjectBase.cpp" />
@@ -174,6 +175,7 @@
     <ClCompile Include="Sources\Utilitys\Vector2D.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Sources\GameObjects\Collision\Collision.h" />
     <ClInclude Include="Sources\GameObjects\Jewel\Jewel.h" />
     <ClInclude Include="Sources\GameObjects\ObjectManager.h" />
     <ClInclude Include="Sources\GameObjects\ObjectBase.h" />

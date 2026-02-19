@@ -1,11 +1,13 @@
 #pragma once
 #include "../Utilitys/Vector2D.h"
+#include "Collision/Collision.h"
 
 class ObjectBase
 {
 protected:
 	Vector2D m_location;
 	int m_zLayer;
+	Collision m_collision;
 
 public:
 	ObjectBase();
@@ -21,7 +23,6 @@ public:
 
 	virtual void OnHitCollision(ObjectBase& other);
 
-
 public:
 
 	void SetLocation(const Vector2D& location);
@@ -29,7 +30,6 @@ public:
 
 	const int GetZLayer()const;
 
-
-
+	const Collision& GetCollision() const;
 
 };

@@ -42,3 +42,8 @@ const int ObjectBase::GetZLayer() const
 {
 	return 0;
 }
+
+const Collision& ObjectBase::GetCollision() const
+{
+	return m_collision;
+}

@@ -89,3 +89,26 @@ void ObjectManager::DestroyAllObjects()
 	m_pendingDestroys.clear();
 }
 
+void ObjectManager::CheckPlayerCollisions(ObjectBase* player)
+{
+	// プレイヤーの座標を受け取る
+	Vector2D player_location = player->GetLocation();
+	// プレイヤーのコリジョンを受け取る
+	Collision pc = player->GetCollision();
+
+	for (ObjectBase* object : m_objects)
+	{
+		if (object == player)
+		{
+			continue;
+		}
+
+		if (pc.IsCircleColliding(player_location, object->GetLocation(), object->GetCollision().GetRadius()))
+		{
+			player->OnHitCollision(*object);
+			object->OnHitCollision(*player);
+		}
+	}
+}
+
+

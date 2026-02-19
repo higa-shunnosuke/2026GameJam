@@ -47,6 +47,13 @@ public:
 public:
 
 	/// <summary>
+	/// 当たり反t寧確認処理
+	/// </summary>
+	void CheckPlayerCollisions(ObjectBase* player);
+
+public:
+
+	/// <summary>
 	/// オブジェクトの生成を予約する
 	/// </summary>
 	/// <typeparam name="T">ObjectBaseを継承したクラス</typeparam>
