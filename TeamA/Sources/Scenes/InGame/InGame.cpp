@@ -1,6 +1,7 @@
 ﻿#include "InGame.h"
 #include "../../Utilitys/ProjectConfig.h"
 #include "../../System/ResourceManager.h"
+#include "../../System/MapData/MapData.h"
 
 InGame::InGame()
 	: camera(nullptr)
@@ -17,6 +18,10 @@ void InGame::Initialize()
 	ResourceManager& rm = ResourceManager::GetInstance();
 	groundImage = rm.GetImageResource("Assets/Textures/InGame/BackGround/Ground.PNG")[0];
 
+	// マップの初期化
+	MapData& map = MapData::GetInstance();
+	map.Initialize();
+
 	// 各オブジェクトを生成
 	ObjectManager& object = ObjectManager::GetInstance();
 	player = object.RequestSpawn<Player>(Vector2D(580.0f,360.0f));
@@ -25,9 +30,8 @@ void InGame::Initialize()
 	// カメラを生成
 	Camera& camera = Camera::GetInstance();
 	camera.Initialize();
-	camera.SetPlayer(player);
 
-	back_buffer = MakeScreen(1280, 720, TRUE);
+	back_buffer = MakeScreen(D_STAGE_WIDTH, D_STAGE_HEIGHT, TRUE);
 
 }
 
@@ -60,8 +64,10 @@ SceneType InGame::Update(float delta)
 	// 破棄待ちオブジェクトをm_objectsから削除する
 	object.ProcessPendingDestroys();
 
-	//カメラの更新
 	Camera& camera = Camera::GetInstance();
+	// プレイヤーを追跡
+	camera.SetCameraPos(player->GetLocation());
+	//カメラの更新
 	camera.Update();
 
 	// 親クラスの更新処理
@@ -82,6 +88,10 @@ void InGame::Draw() const
 
 	// 背景画像の描画
 	DrawRotaGraph(D_WIN_WIDTH / 2, D_WIN_HEIGHT / 2 + offset, imageSize, 0.0, groundImage, TRUE);
+
+	// マップの描画
+	MapData& map = MapData::GetInstance();
+	map.Draw();
 
 	//	インゲーム表示
 	DrawFormatString(10, 10, 0xffffff, "InGame");

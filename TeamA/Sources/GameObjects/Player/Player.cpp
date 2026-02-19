@@ -1,5 +1,6 @@
 #include "Player.h"
 
+#include "../../Utilitys/ProjectConfig.h"
 #include "../../System/InputManager.h"
 #include "../../System/ResourceManager.h"
 #include <DxLib.h>
@@ -159,8 +160,8 @@ void Player::Update()
 	}
 
 	// テスト用　座標の最大値、最小値、プレイヤーの半径を決めておく
-	Vector2D Min = {};
-	Vector2D Max = { 1280, 720 };
+	Vector2D Min = { 0.0f,0.0f };
+	Vector2D Max = { D_STAGE_WIDTH, D_STAGE_HEIGHT };
 	float radius = 10;
 
 	// 座標が最大値、最小値を越さないようにする
