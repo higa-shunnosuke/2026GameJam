@@ -22,8 +22,13 @@ int WINAPI WinMain(
 	printf("デバックモード");
 #endif
 
+
+	Application* app = new Application;
+
 	// アプリケーション起動
-	Application::StartApp("ここにゲームタイトルを入力");
+	app->StartApp("ここにゲームタイトルを入力");
+
+	delete app;
 
 	return 0;
 }

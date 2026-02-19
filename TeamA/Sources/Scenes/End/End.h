@@ -23,7 +23,7 @@ public:
 	/// 更新
 	/// </summary>
 	/// <returns>現在のシーンタイプ</returns>
-	virtual SceneType Update() override;
+	virtual SceneType Update(float delta) override;
 
 	/// <summary>
 	/// 描画

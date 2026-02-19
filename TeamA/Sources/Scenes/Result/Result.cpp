@@ -13,7 +13,7 @@ void Result::Initialize()
 }
 
 // 更新
-SceneType Result::Update()
+SceneType Result::Update(float delta)
 {
 	//インスタンス取得
 	InputManager& input = InputManager::GetInstance();
@@ -24,7 +24,7 @@ SceneType Result::Update()
 	}
 
 	// 親クラスの更新
-	return __super::Update();
+	return __super::Update(delta);
 }
 
 // 描画

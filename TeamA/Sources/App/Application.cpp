@@ -74,8 +74,24 @@ void Application::MainLoop()
 
 		// ƒV[ƒ“ŠÇ—
 		SceneManager& manager = SceneManager::GetInstance();
-		manager.Update();
+		manager.Update(m_delta);
 	}
 
 	DxLib_End();
+}
+
+void Application::UpDateDeltaTime()
+{
+	m_nowTime = GetNowHiPerformanceCount();
+
+	float real_delta = (float)(m_nowTime - m_oldTime) * 1.0e-6f;
+	m_oldTime = m_nowTime;
+
+	if (real_delta >= 0.2f)
+	{
+		m_delta = 0.0f;
+		return;
+	}
+
+	m_delta = real_delta;
 }

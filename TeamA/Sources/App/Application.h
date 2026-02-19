@@ -4,12 +4,16 @@
 // アプリケーション管理クラス
 class Application
 {
+private:
+	LONGLONG m_nowTime;
+	LONGLONG m_oldTime;
+	float m_delta;
 public:
 	/// <summary>
 	/// アプリケーションを起動
 	/// </summary>
 	/// <param name="appName">アプリケーション名</param>
-	static void StartApp(const TCHAR* appName);
+	void StartApp(const TCHAR* appName);
 
 private:
 	/// <summary>
@@ -21,6 +25,7 @@ private:
 	/// <summary>
 	/// メインループ
 	/// </summary>
-	static void MainLoop();
-};
+    void MainLoop();
 
+	void UpDateDeltaTime();
+};

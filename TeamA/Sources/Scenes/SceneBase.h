@@ -40,7 +40,7 @@ public:
 	/// 更新
 	/// </summary>
 	/// <returns>現在のシーンタイプ</returns>
-	virtual SceneType Update()
+	virtual SceneType Update(float delta)
 	{
 		// 現在のシーン情報を返す
 		return GetNowSceneType();

@@ -28,7 +28,7 @@ void InGame::Initialize()
 }
 
 // 更新処理
-SceneType InGame::Update()
+SceneType InGame::Update(float delta)
 {
 	//インスタンス取得
 	InputManager& input = InputManager::GetInstance();
@@ -57,7 +57,7 @@ SceneType InGame::Update()
 	object.ProcessPendingDestroys();
 
 	// 親クラスの更新処理
-	return __super::Update();
+	return __super::Update(delta);
 }
 
 // 描画処理

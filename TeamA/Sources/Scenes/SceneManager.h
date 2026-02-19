@@ -23,7 +23,7 @@ public:
 	/// <summary>
 	/// XVˆ—
 	/// </summary>
-	bool Update();
+	bool Update(float delta);
 
 	/// <summary>
 	/// I—¹ˆ—

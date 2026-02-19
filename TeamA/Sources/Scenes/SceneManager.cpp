@@ -16,7 +16,7 @@ void SceneManager::Initialize()
 }
 
 //  更新処理
-bool SceneManager::Update()
+bool SceneManager::Update(float delta)
 {
 	//インスタンス取得
 	InputManager& input = InputManager::GetInstance();
@@ -24,7 +24,7 @@ bool SceneManager::Update()
 	input.Update();	
 
 	// シーンの更新
-	SceneType nextSceneType = currentScene->Update();
+	SceneType nextSceneType = currentScene->Update(delta);
 
 	// 描画処理
 	Draw();

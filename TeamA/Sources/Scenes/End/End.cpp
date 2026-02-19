@@ -11,7 +11,7 @@ void End::Initialize()
 }
 
 // 更新
-SceneType End::Update()
+SceneType End::Update(float delta)
 {
 	//インスタンス取得
 	InputManager& input = InputManager::GetInstance();
@@ -22,7 +22,7 @@ SceneType End::Update()
 	}
 
 	// 親クラスの更新
-	return __super::Update();
+	return __super::Update(delta);
 }
 
 // 描画

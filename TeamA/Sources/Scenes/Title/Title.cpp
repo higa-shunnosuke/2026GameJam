@@ -14,7 +14,7 @@ void Title::Initialize()
 }
 
 // 更新
-SceneType Title::Update()
+SceneType Title::Update(float delta)
 {
 	//インスタンス取得
 	InputManager& input = InputManager::GetInstance();
@@ -25,7 +25,7 @@ SceneType Title::Update()
 	}
 
 	// 親クラスの更新
-	return __super::Update();
+	return __super::Update(delta);
 }
 
 // 描画
