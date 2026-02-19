@@ -8,13 +8,14 @@
 #define	D_SUCCESS		(0)		// 成功
 #define	D_FAILURE		(-1)	// 失敗
 
-#define D_WIN_MAX_X		(1280)	// スクリーンサイズ（幅）
-#define D_WIN_MAX_Y		(720)	// スクリーンサイズ（高さ）
+#define D_WIN_WIDTH		(1280)	// スクリーンの横幅
+#define D_WIN_HEIGHT	(720)	// スクリーンの縦幅
 #define D_COLOR_BIT		(32)	// カラービット
-#define BOX_SIZE		(32)	// カラービット
+#define D_BOX_SIZE		(128)	// ボックスサイズ
 
+#define D_STAGE_WIDTH	(1920)	// ステージ横幅
+#define D_STAGE_HEIGHT	(1920)	// ステージ縦幅
 
-//#define DEBUG		// デバックフラグ
 
 /**********************************************************
 * プロトタイプ宣言

@@ -3,9 +3,11 @@
 #include "../../System/ResourceManager.h"
 
 InGame::InGame()
-	: player(nullptr)
+	: camera(nullptr)
+	, player(nullptr)
 	, jewel(nullptr)
 	, groundImage()
+	, back_buffer()
 {
 }
 
@@ -15,9 +17,18 @@ void InGame::Initialize()
 	ResourceManager& rm = ResourceManager::GetInstance();
 	groundImage = rm.GetImageResource("Assets/Textures/InGame/BackGround/Ground.PNG")[0];
 
+	// 各オブジェクトを生成
 	ObjectManager& object = ObjectManager::GetInstance();
 	player = object.RequestSpawn<Player>(Vector2D(580.0f,360.0f));
 	jewel = object.RequestSpawn<Jewel>(Vector2D(700.0f, 360.0f));
+
+	// カメラを生成
+	Camera& camera = Camera::GetInstance();
+	camera.Initialize();
+	camera.SetPlayer(player);
+
+	back_buffer = MakeScreen(1280, 720, TRUE);
+
 }
 
 // 更新処理
@@ -49,6 +60,10 @@ SceneType InGame::Update(float delta)
 	// 破棄待ちオブジェクトをm_objectsから削除する
 	object.ProcessPendingDestroys();
 
+	//カメラの更新
+	Camera& camera = Camera::GetInstance();
+	camera.Update();
+
 	// 親クラスの更新処理
 	return __super::Update(delta);
 }
@@ -56,16 +71,33 @@ SceneType InGame::Update(float delta)
 // 描画処理
 void InGame::Draw() const
 {
+	//---------------
+	// 仮想画面に描画
+	//---------------
+	SetDrawScreen(back_buffer);
+	ClearDrawScreen();
+
 	float imageSize = 0.222f;
 	int offset = 400;
 
 	// 背景画像の描画
-	DrawRotaGraph(D_WIN_MAX_X / 2, D_WIN_MAX_Y / 2 + offset, imageSize, 0.0, groundImage, TRUE);
+	DrawRotaGraph(D_WIN_WIDTH / 2, D_WIN_HEIGHT / 2 + offset, imageSize, 0.0, groundImage, TRUE);
 
 	//	インゲーム表示
 	DrawFormatString(10, 10, 0xffffff, "InGame");
 
 	__super::Draw();
+
+	//---------------
+	// 表画面に描画
+	//---------------
+	SetDrawScreen(DX_SCREEN_BACK);
+	ClearDrawScreen();
+
+	// 仮想画面を描画
+	Camera& camera = Camera::GetInstance();
+	camera.Draw(back_buffer);
+
 }
 
 // 終了処理

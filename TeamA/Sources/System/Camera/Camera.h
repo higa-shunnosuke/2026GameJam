@@ -9,8 +9,7 @@ class Camera : public Singleton<Camera>
 {
 private:
 	Vector2D location;	// カメラ座標
-	int sizeX;			// スクリーン横幅
-	int sizeY;			// スクリーン縦幅
+	Vector2D size;		// スクリーンサイズ
 	float zoom = 1.0f;	// ズーム倍率
 
 	Player* player;		// プレイヤーのポインタ

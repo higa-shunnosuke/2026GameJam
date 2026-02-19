@@ -6,8 +6,7 @@
 // コンストラクタ
 Camera::Camera():
 	location(),
-	sizeX(),
-	sizeY(),
+	size(),
 	player(nullptr)
 {
 
@@ -26,11 +25,12 @@ void Camera::Initialize()
 	zoom = 1.0f;
 
 	// スクリーンの初期サイズを設定
-	GetDrawScreenSize(&sizeX, &sizeY);
+	size.x = D_WIN_WIDTH;
+	size.y = D_WIN_HEIGHT;
 
 	// カメラの初期座標を設定
-	location.x = sizeX / 2;
-	location.y = sizeY / 2;
+	location.x = D_WIN_WIDTH / 2;
+	location.y = D_WIN_HEIGHT / 2;
 
 }
 
@@ -47,24 +47,12 @@ void Camera::Update()
 	Scroll();
 
 	/// ステージ外にいかないようにする処理
-	float maxCameraX = 1280 - (1280 / zoom);
+	float maxCameraX = D_STAGE_WIDTH - (D_STAGE_WIDTH / zoom);
 	if (location.x < 0) location.x = 0.0f;
 	if (location.x > maxCameraX) location.x = maxCameraX;
-}
-
-// 描画処理
-void Camera::Draw(int back_buffer)
-{
-	// スケーリング後のサイズ
-	int drawW = (int)(D_WIN_MAX_X * zoom);
-	int drawH = (int)(D_WIN_MAX_Y * zoom);
-
-	// 描画位置（X はスクロールに応じて、Y は下合わせ）
-	int drawX = -(int)(location.x * zoom);
-	int drawY = 720 - drawH;  // 画面下端に合わせる
-
-	// 背景を拡大・縮小＋スクロールして描画
-	DrawExtendGraph(drawX, drawY, drawX + drawW, drawY + drawH, back_buffer, TRUE);
+	float maxCameraY = D_STAGE_HEIGHT - (D_STAGE_HEIGHT / zoom);
+	if (location.y < 0) location.y = 0.0f;
+	if (location.y > maxCameraY) location.y = maxCameraY;
 }
 
 // ズーム処理
@@ -72,7 +60,7 @@ void Camera::Zoom()
 {
 	// マウス
 	int wheel = GetMouseWheelRotVol();
-	if (wheel != 0) 
+	if (wheel != 0)
 	{
 		// ズーム倍率を計算
 		zoom += wheel * 0.1f;
@@ -103,9 +91,31 @@ void Camera::Scroll()
 	{
 		location.x -= 2.0f;
 	}
+	if (input.GetKeyState(KEY_INPUT_S) == eInputState::Hold)
+	{
+		location.y += 2.0f;
+	}
+	if (input.GetKeyState(KEY_INPUT_W) == eInputState::Hold)
+	{
+		location.y -= 2.0f;
+	}
 
-	location.x = player->GetLocation().x;
-	location.y = player->GetLocation().y;
+	//location = player->GetLocation();
+}
+
+// 描画処理
+void Camera::Draw(int back_buffer)
+{
+	// スケーリング後のサイズ
+	int drawW = (int)(D_WIN_WIDTH * zoom);
+	int drawH = (int)(D_WIN_HEIGHT * zoom);
+
+	// 描画位置
+	int drawX = -(int)(location.x * zoom);
+	int drawY = -(int)(location.y * zoom);
+
+	// 背景を拡大・縮小＋スクロールして描画
+	DrawExtendGraph(drawX, drawY, drawX + drawW, drawY + drawH, back_buffer, TRUE);
 }
 
 // カメラ座標設定処理
