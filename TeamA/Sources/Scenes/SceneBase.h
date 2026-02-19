@@ -42,17 +42,6 @@ public:
 	/// <returns>現在のシーンタイプ</returns>
 	virtual SceneType Update()
 	{
-		ObjectManager& object = ObjectManager::GetInstance();
-
-			// 生成するオブジェクトがあれば、オブジェクトリスト内に挿入する
-		object.ProcessPendingCreates();
-
-		// リスト内のオブジェクトを更新する
-		for (ObjectBase* obj : object.GetObjects())
-		{
-			obj->Update();
-		}
-
 		// 現在のシーン情報を返す
 		return GetNowSceneType();
 	}
@@ -76,7 +65,6 @@ public:
 	/// </summary>
 	virtual void Finalize()
 	{
-
 	}
 
 	/// <summary>

@@ -10,6 +10,7 @@ class InGame : public SceneBase
 private:
 	Player* player;
 	Jewel* jewel;
+	std::vector<std::vector<char>> m_mapData;
 
 	int groundImage;	// 地面の画像
 
@@ -47,4 +48,11 @@ public:
 	/// </summary>
 	/// <returns>現在のシーンタイプ</returns>
 	virtual const SceneType GetNowSceneType() const override;
+
+private:
+
+	/// <summary>
+	/// マップcsvの読み込み
+	/// </summary>
+	void LoadMapCsv();
 };
