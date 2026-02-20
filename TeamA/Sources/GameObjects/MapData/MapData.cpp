@@ -285,7 +285,7 @@ void MapData::CreateJewel()
 			int value = 0;
 
 			// 深さ 5～14 のときのみ生成率を上げる
-			if (y >= 5 && y <= 14)
+			if (y >= 5 && y <= 3 + D_BOX_COUNT)
 			{
 				// 0.0 ～ 1.0 の乱数に正規化
 				float r = static_cast<float>(Random::GetRand())
@@ -298,7 +298,7 @@ void MapData::CreateJewel()
 				if (r < depthRate)
 				{
 					// 0～5 のランダム個数
-					value = static_cast<int>(Random::GetRand() % 3);
+					value = static_cast<int>(Random::GetRand() % 5);
 				}
 			}
 
@@ -318,20 +318,38 @@ void MapData::CreateJewel()
 		{
 			const int spawnNum = jewel[y][x];
 
-			for (int i = 0; i < spawnNum; ++i)
+			// 中心座標
+			Vector2D pos = GridToWorld({ static_cast<int>(x), static_cast<int>(y) });
+
+			switch (spawnNum)
 			{
-				Vector2D pos = GridToWorld({ static_cast<int>(x), static_cast<int>(y) });
+			case 0:
 
-				// Xオフセット：-64 ～ +64
-				int offsetX = static_cast<int>(Random::GetRand() % (kMaxOffset * 2 + 1)) - kMaxOffset;
-
-				// Yオフセット：-64 ～ +64
-				int offsetY = static_cast<int>(Random::GetRand() % (kMaxOffset * 2 + 1)) - kMaxOffset;
-
-				pos.x += static_cast<float>(offsetX);
-				pos.y += static_cast<float>(offsetY);
-
+				break;
+			case 1:
 				om.RequestSpawn<Jewel>(pos);
+
+				break;
+			case 2:
+				// 左上と右下
+				om.RequestSpawn<Jewel>(pos - 32.0f);
+				om.RequestSpawn<Jewel>(pos + 32.0f);
+
+				break;
+			case 3:
+				// 上と左下と右下
+				om.RequestSpawn<Jewel>({ pos.x,pos.y - 24.0f });
+				om.RequestSpawn<Jewel>({ pos.x - 24.0f,pos.y + 24 });
+				om.RequestSpawn<Jewel>({ pos.x + 24.0f,pos.y + 24 });
+
+				break;
+			case 4:
+				// 左上と右上と左下と右下
+				om.RequestSpawn<Jewel>(pos - 32.0f);
+				om.RequestSpawn<Jewel>({ pos.x + 32.0f,pos.y - 32 });
+				om.RequestSpawn<Jewel>({ pos.x - 32.0f,pos.y + 32 });
+				om.RequestSpawn<Jewel>(pos + 32.0f);
+				break;
 			}
 		}
 	}

@@ -13,7 +13,7 @@ enum class e_ObjectType
 
 class Collision
 {
-private:
+public:
 	float m_radius;
 	e_ObjectType m_type;
 

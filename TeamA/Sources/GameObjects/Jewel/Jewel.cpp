@@ -19,6 +19,8 @@ void Jewel::Initialize()
 	m_animeTime = 0.0f;
 	m_animeCount = 0;
 
+	m_collision.m_radius = 20.0f;
+
 	m_zLayer = 10;
 
 	ResourceManager& rm = ResourceManager::GetInstance();
@@ -32,7 +34,7 @@ void Jewel::Initialize()
 void Jewel::Update(float delta)
 {
 	m_animeTime += delta;
-	if (m_animeTime > 0.4f)
+	if (m_animeTime > 0.2f)
 	{
 		m_animeTime = 0.0f;
 		m_animeCount += 1;
@@ -41,10 +43,11 @@ void Jewel::Update(float delta)
 
 void Jewel::Draw() const
 {
-	DrawCircle(m_location.x, m_location.y, 10, GetColor(255, m_animeCount % 255, 0), TRUE);
-	//DrawFormatString(0, 0, GetColor(255, 255, 255), "%d", m_animeCount);
-
-	DrawRotaGraphF(m_location.x, m_location.y, 0.1f, 0.0f, m_emerald_image[m_animeCount % 4], TRUE);
+	DrawRotaGraphF(m_location.x, m_location.y, 0.04f, 0.0f, m_emerald_image[m_animeCount % 4], TRUE);
+#if _DEBUG
+	// “–‚½‚è”»’è‚ð‰ÂŽ‹‰»
+	DrawCircle(m_location.x, m_location.y,m_collision.GetRadius(), GetColor(255, 0, 0), FALSE);
+#endif
 }
 
 void Jewel::Finalize()
