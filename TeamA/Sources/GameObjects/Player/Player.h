@@ -22,6 +22,7 @@ class Player : public ObjectBase
 	// フラグ
 	bool m_walkingFlag;
 	bool m_digingFlag;
+	bool m_breakFlag;
 	bool m_flipFlag;
 
 	// アニメーション
@@ -31,6 +32,8 @@ class Player : public ObjectBase
 	int m_drillAnimCount;
 	float m_effectAnimTime;
 	int m_effectAnimCount;
+
+	// 向き
 	e_Direction m_direction;
 
 	// 画像のずらす位置

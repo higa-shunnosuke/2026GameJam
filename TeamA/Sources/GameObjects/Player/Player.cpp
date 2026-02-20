@@ -34,6 +34,7 @@ void Player::Initialize()
 	// フラグ
 	m_walkingFlag = FALSE;
 	m_digingFlag = FALSE;
+	m_breakFlag = FALSE;
 	m_flipFlag = TRUE;
 
 	// アニメーション
@@ -90,35 +91,60 @@ void Player::Initialize()
 
 void Player::Update()
 {
+	// 歩くアニメーション
 	m_walkAnimTime += 0.01f;
-	m_drillAnimTime += 0.01f;
-	m_effectAnimTime += 0.01f;
+	if (m_walkAnimTime > 0.5f)
+	{
+		m_walkAnimTime = 0.0f;
+		m_walkAnimCount += 1;
+	}
+
+	// ドリルのアニメーション
+	if (m_drillAnimCount <= 2)
+	{
+		m_drillAnimTime += 0.01f;
+		if (m_drillAnimTime > 0.2f)
+		{
+			m_drillAnimTime = 0.0f;
+			m_drillAnimCount += 1;
+		}
+	}
+	else
+	{
+		// 掘るのをやめる処理
+		m_digingFlag = FALSE;
+	}
+
+	// エフェクトのアニメーション
+	if (m_effectAnimCount <= 2)
+	{
+		m_effectAnimTime += 0.01f;
+		if (m_effectAnimTime > 0.2f)
+		{
+			m_effectAnimTime = 0.0f;
+			m_effectAnimCount += 1;
+		}
+	}
+	else
+	{
+		// 土を壊し終わる処理
+		m_breakFlag = FALSE;
+	}
+
+	// 無敵の時間
 	if (m_invincibleTime >= 0.0f)
 	{
 		m_invincibleTime -= 0.01f;
 	}
 
-	if (m_walkAnimTime > 1.0f)
-	{
-		m_walkAnimTime = 0.0f;
-		m_walkAnimCount += 1;
-	}
-	if (m_drillAnimTime > 0.5f)
-	{
-		m_drillAnimTime = 0.0f;
-		m_drillAnimCount += 1;
-	}
-	if (m_effectAnimTime > 0.5f)
-	{
-		m_effectAnimTime = 0.0f;
-		m_effectAnimCount += 1;
-	}
-
 	InputManager& input = InputManager::GetInstance();
-	
-	// 減速
-	float deceleration = 0.005f;
 
+	// 加速度・減速度の設定
+	float deceleration = 0.05f;	// 減速度
+	float maxSpeed = 1.0f;			// 速度の最大
+	float acceleration = 0.1f;		// 加速度
+
+	// 減速
 	if (m_moveSpeed.x > deceleration)
 	{
 		m_moveSpeed.x -= deceleration;
@@ -144,24 +170,167 @@ void Player::Update()
 		m_moveSpeed.y = 0.0f;
 	}
 
-	// 加速
-	float maxSpeed = 0.5f;
-	float acceleration = 0.05f;
-	if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Hold && m_moveSpeed.x > -maxSpeed)
+	// Aボタンを押していない時にのみ、移動・方向転換処理を受け付ける
+	if (!m_digingFlag)
 	{
-		m_moveSpeed.x -= acceleration;
+		// 歩きの加速
+		if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Hold && m_moveSpeed.x > -maxSpeed)
+		{
+			m_moveSpeed.x -= acceleration;
+		}
+		if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Hold && m_moveSpeed.x < maxSpeed)
+		{
+			m_moveSpeed.x += acceleration;
+		}
+		if (input.GetKeyState(KEY_INPUT_UP) == eInputState::Hold && m_moveSpeed.y > -maxSpeed)
+		{
+			m_moveSpeed.y -= acceleration;
+		}
+		if (input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Hold && m_moveSpeed.y < maxSpeed)
+		{
+			m_moveSpeed.y += acceleration;
+		}
+
+		// 歩き始める処理
+		if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Pressed ||
+			input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Pressed ||
+			input.GetKeyState(KEY_INPUT_UP) == eInputState::Pressed ||
+			input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Pressed)
+		{
+			m_walkingFlag = TRUE;
+		}
+		else
+		{
+			// 歩くのをやめる処理
+			if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::None &&
+				input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::None &&
+				input.GetKeyState(KEY_INPUT_UP) == eInputState::None &&
+				input.GetKeyState(KEY_INPUT_DOWN) == eInputState::None)
+			{
+				m_walkingFlag = FALSE;
+			}
+		}
+
+		// 向きを変える処理
+		// 左入力があるとき
+		if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Hold)
+		{
+			// 上下右入力がないなら
+			if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::None &&
+				input.GetKeyState(KEY_INPUT_UP) == eInputState::None &&
+				input.GetKeyState(KEY_INPUT_DOWN) == eInputState::None)
+			{
+				// 左に向ける
+				m_direction = e_Direction::left;
+
+				// 左右反転処理
+				m_flipFlag = FALSE;
+				if (m_offset.x > 0)
+				{
+					m_offset.x *= -1;
+				}
+			}
+		}
+		// 右入力があるとき
+		if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Hold)
+		{
+			// 上下左入力がないなら
+			if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::None &&
+				input.GetKeyState(KEY_INPUT_UP) == eInputState::None &&
+				input.GetKeyState(KEY_INPUT_DOWN) == eInputState::None)
+			{
+				// 右に向ける
+				m_direction = e_Direction::right;
+
+				// 左右反転処理
+				m_flipFlag = TRUE;
+				if (m_offset.x < 0)
+				{
+					m_offset.x *= -1;
+				}
+			}
+		}
+		// 上入力があるとき
+		if (input.GetKeyState(KEY_INPUT_UP) == eInputState::Hold)
+		{
+			// 下左右入力がないなら
+			if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::None &&
+				input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::None &&
+				input.GetKeyState(KEY_INPUT_DOWN) == eInputState::None)
+			{
+				// 上に向ける
+				m_direction = e_Direction::up;
+			}
+		}
+		// 下入力があるとき
+		if (input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Hold)
+		{
+			// 上左右入力がないなら
+			if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::None &&
+				input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::None &&
+				input.GetKeyState(KEY_INPUT_UP) == eInputState::None)
+			{
+				// 下に向ける
+				m_direction = e_Direction::down;
+			}
+		}
+
+		// 移動・方向転換処理の最後
 	}
-	if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Hold && m_moveSpeed.x < maxSpeed)
+	// 掘り始める処理
+	if (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Pressed)
 	{
-		m_moveSpeed.x += acceleration;
+		m_digingFlag = TRUE;
+		m_drillAnimCount = 0;
+
+		// 土を壊す処理
+		MapData& map = MapData::GetInstance();
+		if (map.DestroySoil(m_location, m_direction))
+		{
+			m_breakFlag = TRUE;
+			m_effectAnimCount = 0;
+		}
 	}
-	if (input.GetKeyState(KEY_INPUT_UP) == eInputState::Hold && m_moveSpeed.y > -maxSpeed)
+
+	// 掘るときに向いている方向に移動する
+	if (m_digingFlag)
 	{
-		m_moveSpeed.y -= acceleration;
-	}
-	if (input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Hold && m_moveSpeed.y < maxSpeed)
-	{
-		m_moveSpeed.y += acceleration;
+		// 歩きの加速
+		switch (m_direction)
+		{
+		case(e_Direction::left):
+
+			if (m_moveSpeed.x > -maxSpeed)
+			{
+				m_moveSpeed.x -= acceleration;
+			}
+
+			break;
+		case(e_Direction::right):
+
+			if (m_moveSpeed.x < maxSpeed)
+			{
+				m_moveSpeed.x += acceleration;
+			}
+
+			break;
+		case(e_Direction::up):
+
+			if (m_moveSpeed.y > -maxSpeed)
+			{
+				m_moveSpeed.y -= acceleration;
+			}
+
+			break;
+		case(e_Direction::down):
+
+			if (m_moveSpeed.y < maxSpeed)
+			{
+				m_moveSpeed.y += acceleration;
+			}
+
+			break;
+		}
 	}
 
 	// 座標の最大値、最小値と、プレイヤーの半径
@@ -186,102 +355,8 @@ void Player::Update()
 		m_moveSpeed.y = Max.y - (m_location.y + m_radius);
 	}
 
-
-	m_location += m_moveSpeed.Normalize() *  Vector2D(fabsf(m_moveSpeed.x), fabsf(m_moveSpeed.y));
-
-	// 向きを変える処理
-	if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Hold)
-	{
-		if (input.GetKeyState(KEY_INPUT_UP) == eInputState::None &&
-			input.GetKeyState(KEY_INPUT_DOWN) == eInputState::None)
-		{
-			m_direction = e_Direction::left;
-		}
-	}
-	if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Hold)
-	{
-		if (input.GetKeyState(KEY_INPUT_UP) == eInputState::None &&
-			input.GetKeyState(KEY_INPUT_DOWN) == eInputState::None)
-		{
-			m_direction = e_Direction::right;
-		}
-	}
-	if (input.GetKeyState(KEY_INPUT_UP) == eInputState::Hold)
-	{
-		if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::None &&
-			input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::None)
-		{
-			m_direction = e_Direction::up;
-		}
-	}
-	if (input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Hold)
-	{
-		if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::None &&
-			input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::None)
-		{
-			m_direction = e_Direction::down;
-		}
-	}
-
-	// 歩き始める処理
-	if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Pressed ||
-		input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Pressed ||
-		input.GetKeyState(KEY_INPUT_UP) == eInputState::Pressed ||
-		input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Pressed)
-	{
-		m_walkingFlag = TRUE;
-	}
-	else
-	{
-		// 歩くのをやめる処理
-		if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::None &&
-			input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::None &&
-			input.GetKeyState(KEY_INPUT_UP) == eInputState::None &&
-			input.GetKeyState(KEY_INPUT_DOWN) == eInputState::None)
-		{
-			m_walkingFlag = FALSE;
-		}
-	}
-	
-	// 振り向き処理
-	if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Hold)
-	{
-		m_flipFlag = FALSE;
-
-		if (m_offset.x > 0)
-		{
-			m_offset.x *= -1;
-		}
-	}
-	if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Hold)
-	{
-		m_flipFlag = TRUE;
-		
-		if (m_offset.x < 0)
-		{
-			m_offset.x *= -1;
-		}
-	}
-
-	// 掘り始める処理
-	if (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Pressed)
-	{
-		m_digingFlag = TRUE;
-	}
-	else
-	{
-		// 掘るのをやめる処理
-		if (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Released)
-		{
-			m_digingFlag = FALSE;
-		}
-	}
-
-	if (m_digingFlag)
-	{
-		MapData& map = MapData::GetInstance();
-		map.DestroySoil(m_location, m_direction);
-	}
+	// 座標に速度を加算
+	m_location += m_moveSpeed.Normalize() * Vector2D(fabsf(m_moveSpeed.x), fabsf(m_moveSpeed.y));
 }
 
 void Player::Draw() const
@@ -318,7 +393,7 @@ void Player::Draw() const
 		}
 
 		// エフェクト表示
-		if (m_digingFlag)
+		if (m_breakFlag)
 		{
 			x -= 5;
 			
@@ -342,7 +417,7 @@ void Player::Draw() const
 		}
 
 		// エフェクト表示
-		if (m_digingFlag)
+		if (m_breakFlag)
 		{
 			x += 8;
 			y -= 10;
@@ -378,7 +453,7 @@ void Player::Draw() const
 		}
 
 		// エフェクト表示
-		if (m_digingFlag)
+		if (m_breakFlag)
 		{
 			DrawRotaGraph(x, y, 0.1, 0.0, m_effectImage[m_effectAnimCount % 3], TRUE, m_flipFlag);
 		}
