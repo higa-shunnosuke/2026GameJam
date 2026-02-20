@@ -3,6 +3,12 @@
 #include "../../Utilitys/ProjectConfig.h"
 #include "../ResourceManager.h"
 
+#include "../../Utilitys/Random.h"
+
+#include "../../GameObjects/ObjectManager.h"
+#include "../../GameObjects/PotatoPlant/PotatoPlant.h"
+#include "../../GameObjects/Jewel/Jewel.h"
+
 #include <fstream>
 #include <string>
 #include <sstream>
@@ -17,11 +23,16 @@ MapData::~MapData()
 
 void MapData::Initialize()
 {
+	// 画像の読み込み
+	ResourceManager& rm = ResourceManager::GetInstance();
+	m_soil = rm.GetImageResource("Assets/Sprites/road.PNG")[0];
+
 	// マップデータの読み込み
 	LoadMapCsv();
 
-	ResourceManager& rm = ResourceManager::GetInstance();
-	m_soil = rm.GetImageResource("Assets/Sprites/road.PNG")[0];
+	// 宝石の生成
+	CreateJewel();
+	CreatePlant();
 }
 
 void MapData::Draw() const
@@ -35,26 +46,34 @@ void MapData::Draw() const
 			float size = D_BOX_SIZE;
 			Vector2D position = { size * x,size * y };
 
+			unsigned int debug_color = 0xffffff;
+
 			switch (ch)
 			{
 			case 's':
-				DrawBoxAA(position.x, position.y, position.x + size, position.y + size, GetColor(255, 0, 0), FALSE);
+				debug_color = GetColor(255, 0, 0);
 				break;
 			case 'r':
-				DrawBoxAA(position.x, position.y, position.x + size, position.y + size, GetColor(0, 255, 0), FALSE);
 				// 画像は中心に補正
-				//DrawRotaGraphF(position.x + D_BOX_SIZE * 0.5f, position.y + D_BOX_SIZE * 0.5f, 1.0f, 0.0f, m_soil, TRUE);
+				DrawRotaGraphF(position.x + D_BOX_SIZE * 0.5f, position.y + D_BOX_SIZE * 0.5f, 1.0f, 0.0f, m_soil, TRUE);
+
+				debug_color = GetColor(0, 255, 0);
 				break;
 			case '#':
-				DrawBoxAA(position.x, position.y, position.x + size, position.y + size, GetColor(0, 0, 255), FALSE);
+				debug_color = GetColor(0, 0, 255);
 				break;
 			}
-			DrawFormatString(position.x, position.y, 0xffffff, "%c", ch);
+
+#if _DEBUG
+			// デバッグ用
+			DrawBoxAA(position.x, position.y, position.x + size, position.y + size, debug_color, FALSE);
+			DrawFormatString(position.x, position.y, 0xffffff, "%c(%d,%d)", ch, x, y);
+#endif
 		}
 	}
 }
 
-void MapData::DestroySoil(const Vector2D& worldPos, const e_Direction& derection)
+bool MapData::DestroySoil(const Vector2D& worldPos, const e_Direction& derection)
 {
 	GridPos grid = WorldToGrid(worldPos);
 
@@ -78,12 +97,15 @@ void MapData::DestroySoil(const Vector2D& worldPos, const e_Direction& derection
 	if (IsGridInBounds(grid))
 	{
 		// 土なら
-		if (m_mapData[grid.y][grid.x] == 'a')
+		if (m_mapData[grid.y][grid.x] == 's')
 		{
 			// 道にする
 			m_mapData[grid.y][grid.x] = 'r';
+
+			return true;
 		}
 	}
+	return false;
 }
 
 e_TileType MapData::TileType(const Vector2D& worldPos) const
@@ -227,5 +249,29 @@ void MapData::LoadMapCsv()
 	{
 		m_mapData.push_back(row);
 	}
+
+}
+
+void MapData::CreatePlant()
+{
+	ObjectManager& om = ObjectManager::GetInstance();
+
+	om.RequestSpawn<PotatoPlant>({ 192.0f,192.0f });
+	om.RequestSpawn<PotatoPlant>({ 640.0f,192.0f });
+	om.RequestSpawn<PotatoPlant>({ 1152.0f,192.0f });
+}
+
+void MapData::CreateJewel()
+{
+	// 深くなるほど多くする
+	// 各タイルで確率で生成、
+
+	std::vector<std::vector<char>> jewel;
+
+	ObjectManager& om = ObjectManager::GetInstance();
+
+	om.RequestSpawn<Jewel>(GridToWorld({ 4,5 }));
+	om.RequestSpawn<Jewel>(GridToWorld({ 7,5 }));
+	om.RequestSpawn<Jewel>(GridToWorld({ 10,8 }));
 
 }

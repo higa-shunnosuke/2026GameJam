@@ -43,7 +43,7 @@ public:
 	/// </summary>
 	/// <param name="worldPos">現在の座標</param>
 	/// <param name="derection">向いている方向</param>
-	void DestroySoil(const Vector2D& worldPos,const e_Direction& derection);
+	bool DestroySoil(const Vector2D& worldPos,const e_Direction& derection);
 
 	/// <summary>
 	/// 移動後のグリッド情報を返す関数
@@ -90,7 +90,7 @@ private:
 	/// </summary>
 	void LoadMapCsv();
 
-	//void CreatePranto();
+	void CreatePlant();
 
-	//void Create
+	void CreateJewel();
 };
