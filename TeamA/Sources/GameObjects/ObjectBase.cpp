@@ -41,7 +41,7 @@ const Vector2D& ObjectBase::GetLocation() const
 
 const int ObjectBase::GetZLayer() const
 {
-	return 0;
+	return m_zLayer;
 }
 
 const Collision& ObjectBase::GetCollision() const

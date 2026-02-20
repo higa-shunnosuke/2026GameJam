@@ -18,12 +18,17 @@ Player::Player::~Player()
 
 void Player::Initialize()
 {
+	// 当たり判定の設定	
+	m_collision.m_radius = 50;
+	m_collision.m_type = e_ObjectType::player;
+
+	// zレイヤーを設定
+	m_zLayer = 12;
+
+
 	// スタミナ
 	m_staminaMax = 100;
 	m_stamina = m_staminaMax;
-
-	// 半径
-	m_radius = 50.0;
 
 	// 速度
 	m_moveSpeed = {};
@@ -420,21 +425,21 @@ void Player::Update(float delta)
 	Vector2D Max = { D_STAGE_WIDTH, D_STAGE_HEIGHT };
 
 	// 座標が最大値、最小値を越さないようにする
-	if (m_location.x + m_moveSpeed.x - m_radius < Min.x)
+	if (m_location.x + m_moveSpeed.x - m_collision.m_radius < Min.x)
 	{
-		m_moveSpeed.x = Min.x - (m_location.x - m_radius);
+		m_moveSpeed.x = Min.x - (m_location.x - m_collision.m_radius);
 	}
-	if (m_location.x + m_moveSpeed.x + m_radius > Max.x)
+	if (m_location.x + m_moveSpeed.x + m_collision.m_radius > Max.x)
 	{
-		m_moveSpeed.x = Max.x - (m_location.x + m_radius);
+		m_moveSpeed.x = Max.x - (m_location.x + m_collision.m_radius);
 	}
-	if (m_location.y + m_moveSpeed.y - m_radius < Min.y)
+	if (m_location.y + m_moveSpeed.y - m_collision.m_radius < Min.y)
 	{
-		m_moveSpeed.y = Min.y - (m_location.y - m_radius);
+		m_moveSpeed.y = Min.y - (m_location.y - m_collision.m_radius);
 	}
-	if (m_location.y + m_moveSpeed.y + m_radius > Max.y)
+	if (m_location.y + m_moveSpeed.y + m_collision.m_radius > Max.y)
 	{
-		m_moveSpeed.y = Max.y - (m_location.y + m_radius);
+		m_moveSpeed.y = Max.y - (m_location.y + m_collision.m_radius);
 	}
 
 	// 
@@ -445,9 +450,9 @@ void Player::Update(float delta)
 		float distance = tileLocation - m_location.x;
 		float diff = 0.0f;
 
-		if (D_BOX_SIZE / 2 + m_radius > fabsf(distance))
+		if (D_BOX_SIZE / 2 + m_collision.m_radius > fabsf(distance))
 		{
-			diff = (tileLocation - D_BOX_SIZE / 2) - m_location.x + m_radius;
+			diff = (tileLocation - D_BOX_SIZE / 2) - m_location.x + m_collision.m_radius;
 		}
 
 		m_moveSpeed.x = diff;
@@ -584,9 +589,9 @@ void Player::Draw() const
 	}
 
 	// 中心地
-	DrawCircle((int)m_location.x, (int)m_location.y, 0.5, 0xFF0000, TRUE);
+	DrawCircleAA(m_location.x,m_location.y, 1.5,30, 0x000000, TRUE);
 	// 当たり判定
-	DrawCircle((int)m_location.x, (int)m_location.y, m_radius, 0xFF0000, FALSE);
+	DrawCircleAA(m_location.x, m_location.y, m_collision.m_radius, 30, GetColor(255, 0, 0), FALSE);
 }
 
 void Player::Finalize()
