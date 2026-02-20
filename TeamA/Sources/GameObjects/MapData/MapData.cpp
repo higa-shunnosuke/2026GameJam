@@ -26,7 +26,10 @@ void MapData::Initialize()
 {
 	// 画像の読み込み
 	ResourceManager& rm = ResourceManager::GetInstance();
-	m_soil[0] = rm.GetImageResource("Assets/Sprites/soil/soil1.PNG")[0];
+	m_soil[0] = rm.GetImageResource("Assets/Sprites/soil/soil0.PNG")[0];
+	m_soil[1] = rm.GetImageResource("Assets/Sprites/soil/soil1.PNG")[0];
+	m_soil[2] = rm.GetImageResource("Assets/Sprites/soil/soil2.PNG")[0];
+	m_soil[3] = rm.GetImageResource("Assets/Sprites/soil/soil3.PNG")[0];
 
 	// 道のzlayer
 	m_zLayer = 2;
@@ -43,47 +46,52 @@ void MapData::Initialize()
 
 void MapData::Draw() const
 {
+	// ラムダ式（無名関数）を作成
+	auto DrawPiece = [&](const TilePiece& p, const Vector2D& center)
+		{
+			const float angle = (float)p.rot90 * DX_PI_F * 0.5f;
+			DrawRotaGraphF(center.x, center.y, 1.0f, angle, p.img, TRUE);
+		};
+
 	for (size_t y = 0; y < m_mapData.size(); ++y)
 	{
 		for (size_t x = 0; x < m_mapData[y].size(); ++x)
 		{
-			const char& ch = m_mapData[y][x];
+			const char ch = m_mapData[y][x];
 
-			float size = D_BOX_SIZE;
-			Vector2D position = { size * x,size * y };
+			const float size = D_BOX_SIZE;
+			const Vector2D position = { size * (float)x, size * (float)y };
 
-			Vector2D pos[4] = {
-				{position.x + 32.0f,position.y + 32.0f},
-				{position.x + 96.0f,position.y + 32.0f},
-				{position.x + 32.0f,position.y + 96.0f},
-				{position.x + 96.0f,position.y + 96.0f},
+			// 4分割（64x64想定）を中央座標で描く
+			const Vector2D pos[4] = {
+				{ position.x + 32.0f, position.y + 32.0f }, // LU
+				{ position.x + 96.0f, position.y + 32.0f }, // RU
+				{ position.x + 32.0f, position.y + 96.0f }, // LD
+				{ position.x + 96.0f, position.y + 96.0f }, // RD
 			};
 
-			unsigned int debug_color = 0xffffff;
-
-			switch (ch)
+			if (ch == 'r')
 			{
-			case 'r':
-				DrawRotaGraphF(pos[0].x, pos[0].y, 1.0f, 0.0f, m_soil[0], TRUE);
-				DrawRotaGraphF(pos[1].x, pos[1].y, 1.0f, 0.0f, m_soil[0], TRUE);
-				DrawRotaGraphF(pos[2].x, pos[2].y, 1.0f, 0.0f, m_soil[0], TRUE);
-				DrawRotaGraphF(pos[3].x, pos[3].y, 1.0f, 0.0f, m_soil[0], TRUE);
-			
-				debug_color = GetColor(0, 255, 0);
-				break;
-			case 's':
-				debug_color = GetColor(255, 0, 0);
-				break;
-			case 'w':
-				debug_color = GetColor(0, 0, 255);
-				break;
+				const int mask = GetRoadMask(GridPos{ (int)x, (int)y });
+				const AutoTile4 tile = ConvertMaskToTile(GridPos{ (int)x,(int)y }, mask);
+
+				DrawPiece(tile.lu, pos[0]);
+				DrawPiece(tile.ru, pos[1]);
+				DrawPiece(tile.ld, pos[2]);
+				DrawPiece(tile.rd, pos[3]);
 			}
 
 #if _DEBUG
-			// デバッグ用
-			DrawBoxAA(position.x, position.y, position.x + size, position.y + size, debug_color, FALSE);
-			DrawFormatString(position.x, position.y, 0xffffff, "%c(%d,%d)", ch, x, y);
+			//// デバッグ
+			//unsigned int debug_color = 0xffffff;
+			//if (ch == 'r') debug_color = GetColor(0, 255, 0);
+			//else if (ch == 's') debug_color = GetColor(255, 0, 0);
+			//else if (ch == 'w') debug_color = GetColor(0, 0, 255);
+
+			//DrawBoxAA(position.x, position.y, position.x + size, position.y + size, debug_color, FALSE);
+			//DrawFormatString(position.x, position.y, 0xffffff, "%c(%d,%d)", ch, (int)x, (int)y);
 #endif
+
 		}
 	}
 }
@@ -276,9 +284,9 @@ void MapData::CreatePlant()
 {
 	ObjectManager& om = ObjectManager::GetInstance();
 
-	om.RequestSpawn<PotatoPlant>({ 192.0f,192.0f });
-	om.RequestSpawn<PotatoPlant>({ 640.0f,192.0f });
-	om.RequestSpawn<PotatoPlant>({ 1152.0f,192.0f });
+	om.RequestSpawn<PotatoPlant>({ 192.0f,260.0f });
+	om.RequestSpawn<PotatoPlant>({ 640.0f,260.0f });
+	om.RequestSpawn<PotatoPlant>({ 1152.0f,260.0f });
 }
 
 void MapData::CreateJewel()
@@ -370,4 +378,121 @@ void MapData::CreateJewel()
 			}
 		}
 	}
+}
+
+int MapData::GetRoadMask(GridPos gridPos) const
+{
+	int mask = 0;
+
+	// 上,右,下,左
+	const GridPos dir[4] = { {0,-1}, {1,0}, {0,1}, {-1,0} };
+	const int bit[4] = { 1,2,4,8 };
+
+	for (int i = 0; i < 4; ++i)
+	{
+		GridPos n = { gridPos.x + dir[i].x, gridPos.y + dir[i].y };
+
+		// 配列外なら見ない
+		if (!IsGridInBounds(n)) continue;
+
+		if (m_mapData[n.y][n.x] == 'r')
+		{
+			mask |= bit[i];
+		}
+	}
+
+	return mask;
+}
+
+MapData::AutoTile4 MapData::ConvertMaskToTile(GridPos gridPos, int mask) const
+{
+	AutoTile4 result;
+	const bool up = (mask & 1) != 0;
+	const bool right = (mask & 2) != 0;
+	const bool down = (mask & 4) != 0;
+	const bool left = (mask & 8) != 0;
+
+	// 斜めチェック
+	// ラムダ式（無名関数）を作成
+	auto IsRoad = [&](int x, int y)
+		{
+			GridPos p{ x, y };
+			return IsGridInBounds(p) && m_mapData[p.y][p.x] == 'r';
+		};
+
+	const bool nw = !IsRoad(gridPos.x - 1, gridPos.y - 1);
+	const bool ne = !IsRoad(gridPos.x + 1, gridPos.y - 1);
+	const bool sw = !IsRoad(gridPos.x - 1, gridPos.y + 1);
+	const bool se = !IsRoad(gridPos.x + 1, gridPos.y + 1);
+
+	// -------------------------
+	// LU（左上）：上 & 左
+	// -------------------------
+	if (!up && !left)
+		result.lu = { m_soil[2],3 };
+	else if (up && !left)
+		result.lu = { m_soil[1],3 };
+	else if (!up && left)
+		result.lu = { m_soil[1],0 };
+	else
+	{
+		if (nw)
+			result.lu = { m_soil[3],3 };
+		else
+			result.lu = { m_soil[0],0 };
+	}
+
+
+	// -------------------------
+	// RU（右上）：上 & 右
+	// -------------------------
+	if (!up && !right)
+		result.ru = { m_soil[2],0 };
+	else if (up && !right)
+		result.ru = { m_soil[1],1 };
+	else if (!up && right)
+		result.ru = { m_soil[1],0 };
+	else
+	{
+		if (ne)
+			result.ru = { m_soil[3],0 };
+		else
+			result.ru = { m_soil[0],0 };
+	}
+
+	// -------------------------
+	// LD（左下）：下 & 左
+	// -------------------------
+	if (!down && !left)
+		result.ld = { m_soil[2],2 };
+	else if (down && !left)
+		result.ld = { m_soil[1],3 };
+	else if (!down && left)
+		result.ld = { m_soil[1],2 };
+	else
+	{
+		if (sw)
+			result.ld = { m_soil[3],2 };
+		else
+			result.ld = { m_soil[0],0 };
+	}
+
+	// -------------------------
+	// RD（右下）：下 & 右
+	// -------------------------
+	if (!down && !right)
+		result.rd = { m_soil[2],1 };
+	else if (down && !right)
+		result.rd = { m_soil[1],1 };
+	else if (!down && right)
+		result.rd = { m_soil[1],2 };
+	else
+	{
+		if (se)
+			result.rd = { m_soil[3],1 };
+		else
+			result.rd = { m_soil[0],0 };
+	}
+
+	return result;
 }

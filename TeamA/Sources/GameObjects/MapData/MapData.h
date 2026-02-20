@@ -18,10 +18,33 @@ class MapData : public ObjectBase
 {
 private:
 
+	/// <summary>
+	/// グリッド座標を入れる構造体
+	/// </summary>
 	struct GridPos
 	{
 		int x;
 		int y;
+	};
+
+	/// <summary>
+	/// 画像情報
+	/// </summary>
+	struct TilePiece
+	{
+		int img;	// 画像ハンドル
+		int rot90;	// 回転回数
+	};
+
+	/// <summary>
+	/// タイル1マスの画像情報
+	/// </summary>
+	struct AutoTile4
+	{
+		TilePiece lu; // 左上
+		TilePiece ru; // 右上
+		TilePiece ld; // 左下
+		TilePiece rd; // 右下
 	};
 
 	std::vector<std::vector<char>> m_mapData;	// マップ配列
@@ -106,4 +129,22 @@ private:
 	/// 宝石を生成する処理
 	/// </summary>
 	void CreateJewel();
+
+
+private:
+
+	/// <summary>
+	/// 上下左右に道があるかを確認する
+	/// </summary>
+	/// <param name="gridPos"></param>
+	/// <returns></returns>
+	int GetRoadMask(GridPos gridPos) const;
+
+	/// <summary>
+	/// maskから分割画像構造体を返す
+	/// </summary>
+	/// <param name="gridPos"></param>
+	/// <param name="mask"></param>
+	/// <returns></returns>
+	AutoTile4 ConvertMaskToTile(GridPos gridPos, int mask) const;
 };
