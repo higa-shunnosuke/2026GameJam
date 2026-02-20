@@ -1,5 +1,15 @@
 #include "Collision.h"
 
+Collision::Collision()
+    :m_type(e_ObjectType::none)
+    ,m_radius(0)
+{
+}
+
+Collision::~Collision()
+{
+}
+
 const float& Collision::GetRadius() const
 {
     return m_radius;
@@ -7,7 +17,7 @@ const float& Collision::GetRadius() const
 
 const e_ObjectType Collision::GetObjectType() const
 {
-    return type;
+    return m_type;
 }
 
 const bool Collision::IsCircleColliding(const Vector2D& centerA, const Vector2D& centerB, const float& radiusB) const

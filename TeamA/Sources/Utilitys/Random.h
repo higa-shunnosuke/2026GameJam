@@ -6,10 +6,8 @@ private:
 	static unsigned int seed;
 
 public:
-	Random();
-	~Random();
 
-	static void SetSeed(unsigned int s);
+	static void SetSeed();
 	static unsigned int GetRand();
 
 };

@@ -3,6 +3,7 @@
 
 enum class e_ObjectType
 {
+	none,
 	player,			// プレイヤー
 	potato,			// ポテト
 	poisonpoteto,	// 毒ポテト
@@ -14,7 +15,12 @@ class Collision
 {
 private:
 	float m_radius;
-	e_ObjectType type;
+	e_ObjectType m_type;
+
+
+public:
+	Collision();
+	~Collision();
 
 public:
 

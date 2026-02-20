@@ -1,6 +1,6 @@
 #pragma once
-#include "../../Utilitys/Singleton.h"
 
+#include "../ObjectBase.h"
 #include "../../Utilitys/Vector2D.h"
 #include "Direction.h"
 
@@ -15,7 +15,7 @@ enum class e_TileType
 
 };
 
-class MapData : public Singleton<MapData>
+class MapData : public ObjectBase
 {
 private:
 

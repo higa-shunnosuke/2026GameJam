@@ -1,6 +1,7 @@
 #include "ObjectBase.h"
 
 ObjectBase::ObjectBase()
+	:m_zLayer(0)
 {
 }
 

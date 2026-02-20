@@ -1,17 +1,14 @@
 ﻿#pragma once
 #include "../SceneBase.h"
-#include "../../System/Camera/Camera.h"
 #include "../../GameObjects/ObjectManager.h"
 #include "../../GameObjects/Player/Player.h"
-#include "../../GameObjects/Jewel/Jewel.h"
-
+#include "../../GameObjects/MapData/MapData.h"
 
 class InGame : public SceneBase
 {
 private:
-	Camera* camera;
-	Player* player;
-	Jewel* jewel;
+	MapData* m_map;
+	Player* m_player;
 
 	int groundImage;	// 地面の画像
 	int back_buffer;	// 仮想画面

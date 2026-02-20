@@ -1,19 +1,20 @@
 #include "MapData.h"
 
 #include "../../Utilitys/ProjectConfig.h"
-#include "../ResourceManager.h"
+#include "../../System/ResourceManager.h"
 
 #include "../../Utilitys/Random.h"
 
-#include "../../GameObjects/ObjectManager.h"
-#include "../../GameObjects/PotatoPlant/PotatoPlant.h"
-#include "../../GameObjects/Jewel/Jewel.h"
+#include "..//ObjectManager.h"
+#include "..//PotatoPlant/PotatoPlant.h"
+#include "..//Jewel/Jewel.h"
 
 #include <fstream>
 #include <string>
 #include <sstream>
 
 MapData::MapData()
+	:m_soil(0)
 {
 }
 
@@ -29,9 +30,11 @@ void MapData::Initialize()
 
 	// マップデータの読み込み
 	LoadMapCsv();
-
+	// ランダムの種を設定
+	Random::SetSeed();
 	// 宝石の生成
 	CreateJewel();
+	// プラントの生成
 	CreatePlant();
 }
 
@@ -263,15 +266,73 @@ void MapData::CreatePlant()
 
 void MapData::CreateJewel()
 {
-	// 深くなるほど多くする
-	// 各タイルで確率で生成、
 
-	std::vector<std::vector<char>> jewel;
+	// 各マスに宝石を生成する数を決める処理
 
+	// 宝石の生成数を入れる配列
+	std::vector<std::vector<int>> jewel;
+
+	// 要素数を同じにする
+	jewel = std::vector<std::vector<int>>(
+		m_mapData.size(),
+		std::vector<int>(m_mapData[0].size(), 0)
+	);
+
+	for (size_t y = 0; y < jewel.size(); ++y)
+	{
+		for (size_t x = 0; x < jewel[y].size(); ++x)
+		{
+			int value = 0;
+
+			// 深さ 5～14 のときのみ生成率を上げる
+			if (y >= 5 && y <= 14)
+			{
+				// 0.0 ～ 1.0 の乱数に正規化
+				float r = static_cast<float>(Random::GetRand())
+					/ static_cast<float>(UINT_MAX);
+
+				// 生成するかしないかを決める処理
+				// 深くなるほど確率を上げる（5 → 0%、14 → 100%）
+				float depthRate = static_cast<float>(y - 5) / 10.0f;
+
+				if (r < depthRate)
+				{
+					// 0～5 のランダム個数
+					value = static_cast<int>(Random::GetRand() % 3);
+				}
+			}
+
+			jewel[y][x] = value;
+		}
+	}
+
+
+	// 生成する処理
 	ObjectManager& om = ObjectManager::GetInstance();
 
-	om.RequestSpawn<Jewel>(GridToWorld({ 4,5 }));
-	om.RequestSpawn<Jewel>(GridToWorld({ 7,5 }));
-	om.RequestSpawn<Jewel>(GridToWorld({ 10,8 }));
+	constexpr int kMaxOffset = 64;
 
+	for (size_t y = 0; y < jewel.size(); ++y)
+	{
+		for (size_t x = 0; x < jewel[y].size(); ++x)
+		{
+			const int spawnNum = jewel[y][x];
+
+			for (int i = 0; i < spawnNum; ++i)
+			{
+				Vector2D pos = GridToWorld({ static_cast<int>(x), static_cast<int>(y) });
+
+				// Xオフセット：-64 ～ +64
+				int offsetX = static_cast<int>(Random::GetRand() % (kMaxOffset * 2 + 1)) - kMaxOffset;
+
+				// Yオフセット：-64 ～ +64
+				int offsetY = static_cast<int>(Random::GetRand() % (kMaxOffset * 2 + 1)) - kMaxOffset;
+
+				pos.x += static_cast<float>(offsetX);
+				pos.y += static_cast<float>(offsetY);
+
+				om.RequestSpawn<Jewel>(pos);
+			}
+		}
+	}
 }

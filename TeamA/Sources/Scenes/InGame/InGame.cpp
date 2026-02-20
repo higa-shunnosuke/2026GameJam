@@ -1,12 +1,11 @@
 ﻿#include "InGame.h"
 #include "../../Utilitys/ProjectConfig.h"
 #include "../../System/ResourceManager.h"
-#include "../../System/MapData/MapData.h"
+#include "../../System/Camera/Camera.h"
 
 InGame::InGame()
-	: camera(nullptr)
-	, player(nullptr)
-	, jewel(nullptr)
+	: m_map(nullptr)
+	, m_player(nullptr)
 	, groundImage()
 	, back_buffer()
 {
@@ -18,14 +17,12 @@ void InGame::Initialize()
 	ResourceManager& rm = ResourceManager::GetInstance();
 	groundImage = rm.GetImageResource("Assets/Textures/InGame/BackGround/Ground.PNG")[0];
 
-	// マップの初期化
-	MapData& map = MapData::GetInstance();
-	map.Initialize();
-
 	// 各オブジェクトを生成
 	ObjectManager& object = ObjectManager::GetInstance();
-	player = object.RequestSpawn<Player>(Vector2D(580.0f,360.0f));
-	jewel = object.RequestSpawn<Jewel>(Vector2D(700.0f, 360.0f));
+	// マップの初期化
+	m_map = object.RequestSpawn<MapData>({ 0,0 });
+	m_player = object.RequestSpawn<Player>(Vector2D(580.0f,360.0f));
+	m_player->SetMap(m_map);
 
 	// カメラを生成
 	Camera& camera = Camera::GetInstance();
@@ -59,14 +56,14 @@ SceneType InGame::Update(float delta)
 	}
 
 	// オブジェクトの当たり判定を確認する
-	object.CheckPlayerCollisions(dynamic_cast<ObjectBase*>(player));
+	object.CheckPlayerCollisions(dynamic_cast<ObjectBase*>(m_player));
 
 	// 破棄待ちオブジェクトをm_objectsから削除する
 	object.ProcessPendingDestroys();
 
 	Camera& camera = Camera::GetInstance();
 	// プレイヤーを追跡
-	camera.SetCameraPos(player->GetLocation());
+	camera.SetCameraPos(m_player->GetLocation());
 	//カメラの更新
 	camera.Update();
 
@@ -89,10 +86,6 @@ void InGame::Draw() const
 	// 背景画像の描画
 	DrawRotaGraph(D_WIN_WIDTH / 2, D_WIN_HEIGHT / 2 + offset, imageSize, 0.0, groundImage, TRUE);
 
-	// マップの描画
-	MapData& map = MapData::GetInstance();
-	map.Draw();
-
 	//	インゲーム表示
 	DrawFormatString(10, 10, 0xffffff, "InGame");
 
@@ -107,7 +100,6 @@ void InGame::Draw() const
 	// 仮想画面を描画
 	Camera& camera = Camera::GetInstance();
 	camera.Draw(back_buffer);
-
 }
 
 // 終了処理

@@ -176,7 +176,7 @@
     <ClCompile Include="Sources\Scenes\Title\Title.cpp" />
     <ClCompile Include="Sources\System\Camera\Camera.cpp" />
     <ClCompile Include="Sources\System\InputManager.cpp" />
-    <ClCompile Include="Sources\System\MapData\MapData.cpp" />
+    <ClCompile Include="Sources\GameObjects\MapData\MapData.cpp" />
     <ClCompile Include="Sources\System\ResourceManager.cpp" />
     <ClCompile Include="Sources\Utilitys\ProjectConfig.cpp" />
     <ClCompile Include="Sources\Utilitys\Random.cpp" />
@@ -203,8 +203,8 @@
     <ClInclude Include="Sources\Scenes\Title\Title.h" />
     <ClInclude Include="Sources\System\Camera\Camera.h" />
     <ClInclude Include="Sources\System\InputManager.h" />
-    <ClInclude Include="Sources\System\MapData\Direction.h" />
-    <ClInclude Include="Sources\System\MapData\MapData.h" />
+    <ClInclude Include="Sources\GameObjects\MapData\Direction.h" />
+    <ClInclude Include="Sources\GameObjects\MapData\MapData.h" />
     <ClInclude Include="Sources\System\ResourceManager.h" />
     <ClInclude Include="Sources\Utilitys\ComPtr.h" />
     <ClInclude Include="Sources\Utilitys\ProjectConfig.h" />
