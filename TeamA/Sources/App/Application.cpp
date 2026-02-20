@@ -13,12 +13,6 @@ void Application::StartApp(const TCHAR* appName)
 	// ウィンドウ生成
 	InitWindow(appName);
 
-	// DXライブラリ初期化
-	if (DxLib_Init() == -1)
-	{
-		return;
-	}
-
 	// シーン初期化
 	SceneManager& manager = SceneManager::GetInstance();
 	manager.Initialize();
@@ -31,10 +25,10 @@ void Application::StartApp(const TCHAR* appName)
 void Application::InitWindow(const TCHAR* appName)
 {
 	// ウィンドウモードで起動する
-	ChangeWindowMode(TRUE);
+	ChangeWindowMode(FALSE);
 
 	// ウィンドウサイズの設定
-	SetGraphMode(D_WIN_MAX_X, D_WIN_MAX_Y, D_COLOR_BIT);
+	SetGraphMode(D_WIN_WIDTH, D_WIN_HEIGHT, D_COLOR_BIT);
 
 	// ウィンドウタイトルの設定
 	SetWindowText(appName);

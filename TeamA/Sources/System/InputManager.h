@@ -53,13 +53,6 @@ public:
 	/// <returns>押した瞬間：Pressed、押している間：Hold、離した瞬間：Released</returns>
 	eInputState GetButtonState(int buttoncode) const;
 
-	///// <summary>
-	///// マウスの入力状態を確認する
-	///// </summary>
-	///// <param name="button">割り当てられたボタン</param>
-	///// <returns>押した瞬間：Pressed、押している間：Hold、離した瞬間：Released</returns>
-	//eInputState GetMouseButtonState(int mouse_button) const;
-
 	/// <summary>
 	/// 左トリガー入力状態取得
 	/// </summary>

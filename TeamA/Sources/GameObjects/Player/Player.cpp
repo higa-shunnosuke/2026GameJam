@@ -1,5 +1,6 @@
 #include "Player.h"
 
+#include "../../Utilitys/ProjectConfig.h"
 #include "../../System/InputManager.h"
 #include "../../System/ResourceManager.h"
 #include <DxLib.h>
@@ -144,27 +145,23 @@ void Player::Update()
 	if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Hold && m_moveSpeed.x > -maxSpeed)
 	{
 		m_moveSpeed.x -= acceleration;
-		m_direction = e_Direction::left;
 	}
 	if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Hold && m_moveSpeed.x < maxSpeed)
 	{
 		m_moveSpeed.x += acceleration;
-		m_direction = e_Direction::right;
 	}
 	if (input.GetKeyState(KEY_INPUT_UP) == eInputState::Hold && m_moveSpeed.y > -maxSpeed)
 	{
 		m_moveSpeed.y -= acceleration;
-		m_direction = e_Direction::up;
 	}
 	if (input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Hold && m_moveSpeed.y < maxSpeed)
 	{
 		m_moveSpeed.y += acceleration;
-		m_direction = e_Direction::down;
 	}
 
 	// テスト用　座標の最大値、最小値、プレイヤーの半径を決めておく
-	Vector2D Min = {};
-	Vector2D Max = { 1280, 720 };
+	Vector2D Min = { 0.0f,0.0f };
+	Vector2D Max = { D_STAGE_WIDTH, D_STAGE_HEIGHT };
 	float radius = 10;
 
 	// 座標が最大値、最小値を越さないようにする
@@ -188,6 +185,40 @@ void Player::Update()
 
 	m_location += m_moveSpeed.Normalize() *  Vector2D(fabsf(m_moveSpeed.x), fabsf(m_moveSpeed.y));
 
+	// 向きを変える処理
+	if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Hold)
+	{
+		if (input.GetKeyState(KEY_INPUT_UP) == eInputState::None &&
+			input.GetKeyState(KEY_INPUT_DOWN) == eInputState::None)
+		{
+			m_direction = e_Direction::left;
+		}
+	}
+	if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Hold)
+	{
+		if (input.GetKeyState(KEY_INPUT_UP) == eInputState::None &&
+			input.GetKeyState(KEY_INPUT_DOWN) == eInputState::None)
+		{
+			m_direction = e_Direction::right;
+		}
+	}
+	if (input.GetKeyState(KEY_INPUT_UP) == eInputState::Hold)
+	{
+		if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::None &&
+			input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::None)
+		{
+			m_direction = e_Direction::up;
+		}
+	}
+	if (input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Hold)
+	{
+		if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::None &&
+			input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::None)
+		{
+			m_direction = e_Direction::down;
+		}
+	}
+
 	// 歩き始める処理
 	if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Pressed ||
 		input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Pressed ||
@@ -207,13 +238,6 @@ void Player::Update()
 			m_walkingFlag = FALSE;
 		}
 	}
-
-	// 上を掘り始める処理
-	if (input.GetKeyState(KEY_INPUT_UP) == eInputState::Pressed)
-	{
-		m_walkingFlag = TRUE;
-	}
-
 
 	// 掘り始める処理
 	if (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Pressed)
@@ -250,53 +274,88 @@ void Player::Draw() const
 	switch (m_direction)
 	{
 	case e_Direction::up:
-		DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_upImage[m_walkAnimCount % 3], TRUE, m_flipFlag);
-		// ドリル表示
-		if (m_digingFlag)
+
+		// モグラ表示
+		if (m_walkingFlag || m_digingFlag)
 		{
-			DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_drillUpImage[m_drillAnimCount % 3], TRUE, m_flipFlag);
+			DrawRotaGraph((int)m_location.x, (int)m_location.y, 0.1, 0.0, m_upImage[m_walkAnimCount % 3], TRUE);
 		}
 		else
 		{
-			DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_drillUpImage[0], TRUE, m_flipFlag);
+			DrawRotaGraph((int)m_location.x, (int)m_location.y, 0.1, 0.0, m_upImage[0], TRUE);
 		}
+		// ドリル表示
+		if (m_digingFlag)
+		{
+			DrawRotaGraph((int)m_location.x, (int)m_location.y, 0.1, 0.0, m_drillUpImage[m_drillAnimCount % 3], TRUE);
+		}
+		else
+		{
+			DrawRotaGraph((int)m_location.x, (int)m_location.y, 0.1, 0.0, m_drillUpImage[0], TRUE);
+		}
+
+		// エフェクト表示
+		if (m_digingFlag)
+		{
+			DrawRotaGraph((int)(m_location.x - 5), (int)m_location.y, 0.1, 0.65 * 3.14, m_effectImage[m_effectAnimCount % 3], TRUE);
+		}
+
 		break;
 	case e_Direction::down:
-		DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_downImage[m_walkAnimCount % 3], TRUE, m_flipFlag);
+
+		// モグラ表示
+		if (m_walkingFlag || m_digingFlag)
+		{
+			DrawRotaGraph((int)m_location.x, (int)m_location.y, 0.1, 0.0, m_downImage[m_walkAnimCount % 3], TRUE);
+		}
+		else
+		{
+			DrawRotaGraph((int)m_location.x, (int)m_location.y, 0.1, 0.0, m_downImage[0], TRUE);
+		}
+
+		// エフェクト表示
+		if (m_digingFlag)
+		{
+			DrawRotaGraph((int)(m_location.x + 8.0f), (int)(m_location.y - 10.0f), 0.1, 1.65 * 3.14, m_effectImage[m_effectAnimCount % 3], TRUE);
+		}
+		
 		break;
 	case e_Direction::left:
 	case e_Direction::right:
-		DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_walkImage[m_walkAnimCount % 2], TRUE, m_flipFlag);
-		// ドリル表示
-		if (m_digingFlag)
+
+		// モグラ表示
+		if (m_walkingFlag || m_digingFlag)
 		{
-			DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_drillImage[m_drillAnimCount % 3], TRUE, m_flipFlag);
+			DrawRotaGraph((int)(m_location.x + m_offset.x), (int)(m_location.y + m_offset.y), 0.1, 0.0, m_walkImage[m_walkAnimCount % 2], TRUE, m_flipFlag);
 		}
 		else
 		{
-			DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_drillImage[0], TRUE, m_flipFlag);
+			DrawRotaGraph((int)(m_location.x + m_offset.x), (int)(m_location.y + m_offset.y), 0.1, 0.0, m_idleImage, TRUE, m_flipFlag);
 		}
+
+		// ドリル表示
+		if (m_digingFlag)
+		{
+			DrawRotaGraph((int)(m_location.x + m_offset.x), (int)(m_location.y + m_offset.y), 0.1, 0.0, m_drillImage[m_drillAnimCount % 3], TRUE, m_flipFlag);
+		}
+		else
+		{
+			DrawRotaGraph((int)(m_location.x + m_offset.x), (int)(m_location.y + m_offset.y), 0.1, 0.0, m_drillImage[0], TRUE, m_flipFlag);
+		}
+
+		// エフェクト表示
+		if (m_digingFlag)
+		{
+			DrawRotaGraph((int)(m_location.x + m_offset.x), (int)(m_location.y + m_offset.y), 0.1, 0.0, m_effectImage[m_effectAnimCount % 3], TRUE, m_flipFlag);
+		}
+
 		break;
-	}
-	//if (m_walkingFlag)
-	//{
-	//	DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_walkImage[m_walkAnimCount % 2], TRUE, m_flipFlag);
-	//}
-	//else
-	//{
-	//	DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_idleImage, TRUE, m_flipFlag);
-	//}
-
-	
-
-	// エフェクト表示
-	if (m_digingFlag)
-	{
-		DrawRotaGraph(m_location.x + m_offset.x, m_location.y + m_offset.y, 0.1, 0.0, m_effectImage[m_effectAnimCount % 3], TRUE, m_flipFlag);
 	}
 
 	// 中心地
-	DrawCircle(m_location.x, m_location.y, 2, 0xFFFF00, TRUE);
+	DrawCircle((int)m_location.x, (int)m_location.y, 2, 0xFFFF00, TRUE);
+
+	DrawFormatString(10, 50, 0xFFFFFF, "%d", (int)m_direction);
 }
 
 void Player::Finalize()
@@ -351,4 +410,9 @@ void Player::StaminaManager(int value)
 const int& Player::GetStamina() const
 {
 	return m_stamina;
+}
+
+const int& Player::GetStaminaMax() const
+{
+	return m_staminaMax;
 }

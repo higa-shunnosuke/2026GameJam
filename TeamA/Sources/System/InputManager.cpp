@@ -24,16 +24,13 @@ void InputManager::Update()
 	stick[0].y = StickNormalize(input.ThumbLY);
 	stick[1].x = StickNormalize(input.ThumbRX);
 	stick[1].y = StickNormalize(input.ThumbRY);
-
-	//マウスの入力値更新
-
 }
 
 /// <summary>
-	/// キーボードの入力状態を確認する
-	/// </summary>
-	/// <param name="button">割り当てられたキー</param>
-	/// <returns>押した瞬間：Pressed、押している間：Hold、離した瞬間：Released</returns>
+/// キーボードの入力状態を確認する
+/// </summary>
+/// <param name="button">割り当てられたキー</param>
+/// <returns>押した瞬間：Pressed、押している間：Hold、離した瞬間：Released</returns>
 eInputState InputManager::GetKeyState(int keycode) const
 {
 	if (CheckKeyCodeRange(keycode))
@@ -98,16 +95,6 @@ eInputState InputManager::GetButtonState(int button) const
 	}
 	return eInputState::None;
 }
-
-///// <summary>
-///// マウスの入力状態を確認する
-///// </summary>
-///// <param name="button">割り当てられたボタン</param>
-///// <returns>押した瞬間：Pressed、押している間：Hold、離した瞬間：Released</returns>
-//eInputState InputManager::GetMouseButtonState(int mousemouse_buttonbutton) const
-//{
-//
-//}
 
 /// <summary>
 /// 左トリガー入力状態取得

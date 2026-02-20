@@ -1,6 +1,7 @@
 #include "MapData.h"
 
-#include "../../Utilitys/Vector2D.h"
+#include "../../Utilitys/ProjectConfig.h"
+#include "../ResourceManager.h"
 
 #include <fstream>
 #include <string>
@@ -18,6 +19,9 @@ void MapData::Initialize()
 {
 	// マップデータの読み込み
 	LoadMapCsv();
+
+	ResourceManager& rm = ResourceManager::GetInstance();
+	m_soil = rm.GetImageResource("Assets/Sprites/road.PNG")[0];
 }
 
 void MapData::Draw() const
@@ -28,24 +32,158 @@ void MapData::Draw() const
 		{
 			const char& ch = m_mapData[y][x];
 
-			float size = 128.0f;
+			float size = D_BOX_SIZE;
 			Vector2D position = { size * x,size * y };
+
 			switch (ch)
 			{
-			case '#':
+			case 's':
 				DrawBoxAA(position.x, position.y, position.x + size, position.y + size, GetColor(255, 0, 0), FALSE);
 				break;
 			case 'r':
 				DrawBoxAA(position.x, position.y, position.x + size, position.y + size, GetColor(0, 255, 0), FALSE);
+				// 画像は中心に補正
+				//DrawRotaGraphF(position.x + D_BOX_SIZE * 0.5f, position.y + D_BOX_SIZE * 0.5f, 1.0f, 0.0f, m_soil, TRUE);
 				break;
-			case 'g':
+			case '#':
 				DrawBoxAA(position.x, position.y, position.x + size, position.y + size, GetColor(0, 0, 255), FALSE);
 				break;
-
 			}
 			DrawFormatString(position.x, position.y, 0xffffff, "%c", ch);
 		}
 	}
+}
+
+void MapData::DestroySoil(const Vector2D& worldPos, const e_Direction& derection)
+{
+	GridPos grid = WorldToGrid(worldPos);
+
+	switch (derection)
+	{
+	case e_Direction::up:
+		grid.y--;
+		break;
+	case e_Direction::down:
+		grid.y++;
+		break;
+	case e_Direction::left:
+		grid.x--;
+		break;
+	case e_Direction::right:
+		grid.x++;
+		break;
+	}
+
+	// 配列範囲内か確認
+	if (IsGridInBounds(grid))
+	{
+		// 土なら
+		if (m_mapData[grid.y][grid.x] == 'a')
+		{
+			// 道にする
+			m_mapData[grid.y][grid.x] = 'r';
+		}
+	}
+}
+
+e_TileType MapData::TileType(const Vector2D& worldPos) const
+{
+	GridPos gridPos = WorldToGrid(worldPos);
+	switch (m_mapData[gridPos.y][gridPos.x])
+	{
+	case 'r':
+		return e_TileType::soil;
+		break;
+	case 's':
+		return e_TileType::road;
+		break;
+	case 'w':
+		return e_TileType::wall;
+		break;
+	}
+
+	return e_TileType::none;
+}
+
+MapData::GridPos MapData::WorldToGrid(const Vector2D& worldPos) const
+{
+	// ワールド座標をステージ内に収める
+	Vector2D clampedWorld = ClampWorldPosition(worldPos);
+
+	// グリッドに変換
+	GridPos grid;
+	grid.x = static_cast<int>(clampedWorld.x / D_BOX_SIZE);
+	grid.y = static_cast<int>(clampedWorld.y / D_BOX_SIZE);
+
+	// グリッドを範囲内に収めて返す
+	return ClampGridPosition(grid);
+}
+
+Vector2D MapData::GridToWorld(const GridPos& gridPos) const
+{
+	// グリッド座標をワールド座標に変換
+	Vector2D world = { static_cast<float>(gridPos.x * D_BOX_SIZE) , static_cast<float>(gridPos.y * D_BOX_SIZE) };
+	// 中心に補正
+	world += D_BOX_SIZE * 0.5f;
+	// ワールド座標を範囲内に収めて返す
+	return ClampWorldPosition(world);
+}
+
+Vector2D MapData::ClampWorldPosition(const Vector2D& worldPos) const
+{
+	Vector2D clamped = worldPos;
+	// xを0から最大座標に収める
+	if (clamped.x < 0)  clamped.x = 0;
+	if (clamped.x > D_STAGE_WIDTH)  clamped.x = D_STAGE_WIDTH;
+	// yを0から最大座標に収める
+	if (clamped.y < 0)  clamped.y = 0;
+	if (clamped.y > D_STAGE_HEIGHT)  clamped.y = D_STAGE_HEIGHT;
+
+	return clamped;
+}
+
+MapData::GridPos MapData::ClampGridPosition(const GridPos& gridPos) const
+{
+	// 空チェック
+	if (m_mapData.empty() || m_mapData[0].empty())
+		return GridPos{ 0, 0 };
+
+	// 最大インデックスを取得
+	GridPos clamped = gridPos;
+	const int maxX = static_cast<int>(m_mapData[0].size()) - 1;
+	const int maxY = static_cast<int>(m_mapData.size()) - 1;
+
+	// xを0から最大インデックスに収める
+	if (clamped.x < 0) clamped.x = 0;
+	if (clamped.x > maxX) clamped.x = maxX;
+	// yを0から最大インデックスに収める
+	if (clamped.y < 0) clamped.y = 0;
+	if (clamped.y > maxY) clamped.y = maxY;
+
+	return clamped;
+}
+
+bool MapData::IsWorldInBounds(const Vector2D& worldPos) const
+{
+	return worldPos.x >= 0 &&
+		worldPos.x <= D_STAGE_WIDTH &&
+		worldPos.y >= 0 &&
+		worldPos.y <= D_STAGE_HEIGHT;
+}
+
+bool MapData::IsGridInBounds(const GridPos& gridPos) const
+{
+	// 空チェック
+	if (m_mapData.empty() || m_mapData[0].empty())
+		return false;
+
+	const int maxX = static_cast<int>(m_mapData[0].size()) - 1;
+	const int maxY = static_cast<int>(m_mapData.size()) - 1;
+
+	return gridPos.x >= 0 &&
+		gridPos.x <= maxX &&
+		gridPos.y >= 0 &&
+		gridPos.y <= maxY;
 }
 
 void MapData::LoadMapCsv()
