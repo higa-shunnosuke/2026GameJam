@@ -17,7 +17,7 @@ public:
 	{
 
 	}
-	~Application() {};
+	~Application() = default;
 
 public:
 	/// <summary>
