@@ -32,7 +32,7 @@ void Jewel::Update()
 void Jewel::Draw() const
 {
 	DrawCircle(m_location.x, m_location.y, 10, GetColor(255, m_animeCount % 255, 0), TRUE);
-	DrawFormatString(0, 0, GetColor(255, 255, 255), "%d", m_animeCount);
+	//DrawFormatString(0, 0, GetColor(255, 255, 255), "%d", m_animeCount);
 }
 
 void Jewel::Finalize()
