@@ -88,19 +88,113 @@ void Player::Initialize()
 
 void Player::Update(float delta)
 {
+	// 操作を変数に当てはめる
+	InputManager& input = InputManager::GetInstance();
+	eInputState up = eInputState::None;
+	eInputState down = eInputState::None;
+	eInputState left = eInputState::None;
+	eInputState right = eInputState::None;
+	eInputState buttonA = eInputState::None;
+
+	// 左操作
+	if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Hold ||
+		input.GetKeyState(KEY_INPUT_A)==eInputState::Hold)
+	{
+		left = eInputState::Hold;
+	}
+	else if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Pressed ||
+		input.GetKeyState(KEY_INPUT_A) == eInputState::Pressed)
+	{
+		left = eInputState::Pressed;
+	}
+	else if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Released ||
+		input.GetKeyState(KEY_INPUT_A) == eInputState::Released)
+	{
+		left = eInputState::Released;
+	}
+
+	// 右操作
+	if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Hold ||
+		input.GetKeyState(KEY_INPUT_D) == eInputState::Hold)
+	{
+		right = eInputState::Hold;
+	}
+	else if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Pressed ||
+		input.GetKeyState(KEY_INPUT_D) == eInputState::Pressed)
+	{
+		right = eInputState::Pressed;
+	}
+	else if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Released ||
+		input.GetKeyState(KEY_INPUT_D) == eInputState::Released)
+	{
+		right = eInputState::Released;
+	}
+
+	// 上操作
+	if (input.GetKeyState(KEY_INPUT_UP) == eInputState::Hold ||
+		input.GetKeyState(KEY_INPUT_W) == eInputState::Hold)
+	{
+		up = eInputState::Hold;
+	}
+	else if (input.GetKeyState(KEY_INPUT_UP) == eInputState::Pressed ||
+		input.GetKeyState(KEY_INPUT_W) == eInputState::Pressed)
+	{
+		up = eInputState::Pressed;
+	}
+	else if (input.GetKeyState(KEY_INPUT_UP) == eInputState::Released ||
+		input.GetKeyState(KEY_INPUT_W) == eInputState::Released)
+	{
+		up = eInputState::Released;
+	}
+
+	// 下操作
+	if (input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Hold ||
+		input.GetKeyState(KEY_INPUT_S) == eInputState::Hold)
+	{
+		down = eInputState::Hold;
+	}
+	else if (input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Pressed ||
+		input.GetKeyState(KEY_INPUT_S) == eInputState::Pressed)
+	{
+		down = eInputState::Pressed;
+	}
+	else if (input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Released ||
+		input.GetKeyState(KEY_INPUT_S) == eInputState::Released)
+	{
+		down = eInputState::Released;
+	}
+
+	// 掘る操作
+	if (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Hold ||
+		input.GetKeyState(KEY_INPUT_F) == eInputState::Hold)
+	{
+		buttonA = eInputState::Hold;
+	}
+	else if (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Pressed ||
+		input.GetKeyState(KEY_INPUT_F) == eInputState::Pressed)
+	{
+		buttonA = eInputState::Pressed;
+	}
+	else if (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Released ||
+		input.GetKeyState(KEY_INPUT_F) == eInputState::Released)
+	{
+		buttonA = eInputState::Released;
+	}
+
+	// アニメーション時間の加算減算
 	// 歩くアニメーション
 	m_walkAnimTime += 0.01f;
-	if (m_walkAnimTime > 0.5f)
+	if (m_walkAnimTime > 0.2f)
 	{
 		m_walkAnimTime = 0.0f;
 		m_walkAnimCount += 1;
 	}
 
 	// ドリルのアニメーション
-	if (m_drillAnimCount <= 2)
+	if (m_drillAnimCount <= 4)
 	{
 		m_drillAnimTime += 0.01f;
-		if (m_drillAnimTime > 0.2f)
+		if (m_drillAnimTime > 0.1f)
 		{
 			m_drillAnimTime = 0.0f;
 			m_drillAnimCount += 1;
@@ -113,10 +207,10 @@ void Player::Update(float delta)
 	}
 
 	// エフェクトのアニメーション
-	if (m_effectAnimCount <= 2)
+	if (m_effectAnimCount <= 4)
 	{
 		m_effectAnimTime += 0.01f;
-		if (m_effectAnimTime > 0.2f)
+		if (m_effectAnimTime > 0.1f)
 		{
 			m_effectAnimTime = 0.0f;
 			m_effectAnimCount += 1;
@@ -134,12 +228,12 @@ void Player::Update(float delta)
 		m_invincibleTime -= 0.01f;
 	}
 
-	InputManager& input = InputManager::GetInstance();
-
 	// 加速度・減速度の設定
-	float deceleration = 0.05f;	// 減速度
-	float maxSpeed = 1.0f;			// 速度の最大
-	float acceleration = 0.1f;		// 加速度
+	float deceleration = 0.1f;	// 減速度
+	float maxSpeed = 2.0f;			// 速度の最大
+	float acceleration = 0.2f;		// 加速度
+	// 移動後の座標
+	Vector2D afterTheMove;
 
 	// 減速
 	if (m_moveSpeed.x > deceleration)
@@ -167,42 +261,38 @@ void Player::Update(float delta)
 		m_moveSpeed.y = 0.0f;
 	}
 
-	// Aボタンを押していない時にのみ、移動・方向転換処理を受け付ける
+	// 掘っていない時にのみ、移動・方向転換処理を受け付ける
 	if (!m_digingFlag)
 	{
 		// 歩きの加速
-		if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Hold && m_moveSpeed.x > -maxSpeed)
+		if (left == eInputState::Hold && m_moveSpeed.x > -maxSpeed)
 		{
 			m_moveSpeed.x -= acceleration;
 		}
-		if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Hold && m_moveSpeed.x < maxSpeed)
+		if (right == eInputState::Hold && m_moveSpeed.x < maxSpeed)
 		{
 			m_moveSpeed.x += acceleration;
 		}
-		if (input.GetKeyState(KEY_INPUT_UP) == eInputState::Hold && m_moveSpeed.y > -maxSpeed)
+		if (up == eInputState::Hold && m_moveSpeed.y > -maxSpeed)
 		{
 			m_moveSpeed.y -= acceleration;
 		}
-		if (input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Hold && m_moveSpeed.y < maxSpeed)
+		if (down == eInputState::Hold && m_moveSpeed.y < maxSpeed)
 		{
 			m_moveSpeed.y += acceleration;
 		}
 
 		// 歩き始める処理
-		if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Pressed ||
-			input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Pressed ||
-			input.GetKeyState(KEY_INPUT_UP) == eInputState::Pressed ||
-			input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Pressed)
+		if (left == eInputState::Pressed || right == eInputState::Pressed ||
+			up == eInputState::Pressed || down == eInputState::Pressed)
 		{
 			m_walkingFlag = TRUE;
 		}
 		else
 		{
 			// 歩くのをやめる処理
-			if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::None &&
-				input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::None &&
-				input.GetKeyState(KEY_INPUT_UP) == eInputState::None &&
-				input.GetKeyState(KEY_INPUT_DOWN) == eInputState::None)
+			if (left == eInputState::None && right == eInputState::None &&
+				up == eInputState::None && down == eInputState::None)
 			{
 				m_walkingFlag = FALSE;
 			}
@@ -210,12 +300,11 @@ void Player::Update(float delta)
 
 		// 向きを変える処理
 		// 左入力があるとき
-		if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Hold)
+		if (left == eInputState::Hold)
 		{
 			// 上下右入力がないなら
-			if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::None &&
-				input.GetKeyState(KEY_INPUT_UP) == eInputState::None &&
-				input.GetKeyState(KEY_INPUT_DOWN) == eInputState::None)
+			if (right == eInputState::None &&
+				up == eInputState::None && down == eInputState::None)
 			{
 				// 左に向ける
 				m_direction = e_Direction::left;
@@ -229,12 +318,11 @@ void Player::Update(float delta)
 			}
 		}
 		// 右入力があるとき
-		if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Hold)
+		if (right == eInputState::Hold)
 		{
 			// 上下左入力がないなら
-			if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::None &&
-				input.GetKeyState(KEY_INPUT_UP) == eInputState::None &&
-				input.GetKeyState(KEY_INPUT_DOWN) == eInputState::None)
+			if (left == eInputState::None &&
+				up == eInputState::None && down == eInputState::None)
 			{
 				// 右に向ける
 				m_direction = e_Direction::right;
@@ -248,24 +336,22 @@ void Player::Update(float delta)
 			}
 		}
 		// 上入力があるとき
-		if (input.GetKeyState(KEY_INPUT_UP) == eInputState::Hold)
+		if (up == eInputState::Hold)
 		{
 			// 下左右入力がないなら
-			if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::None &&
-				input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::None &&
-				input.GetKeyState(KEY_INPUT_DOWN) == eInputState::None)
+			if (left == eInputState::None && right == eInputState::None &&
+				down == eInputState::None)
 			{
 				// 上に向ける
 				m_direction = e_Direction::up;
 			}
 		}
 		// 下入力があるとき
-		if (input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Hold)
+		if (down == eInputState::Hold)
 		{
 			// 上左右入力がないなら
-			if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::None &&
-				input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::None &&
-				input.GetKeyState(KEY_INPUT_UP) == eInputState::None)
+			if (left == eInputState::None && right == eInputState::None &&
+				up == eInputState::None)
 			{
 				// 下に向ける
 				m_direction = e_Direction::down;
@@ -275,7 +361,7 @@ void Player::Update(float delta)
 		// 移動・方向転換処理の最後
 	}
 	// 掘り始める処理
-	if (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Pressed)
+	if (buttonA == eInputState::Pressed)
 	{
 		m_digingFlag = TRUE;
 		m_drillAnimCount = 0;
@@ -349,6 +435,36 @@ void Player::Update(float delta)
 	if (m_location.y + m_moveSpeed.y + m_radius > Max.y)
 	{
 		m_moveSpeed.y = Max.y - (m_location.y + m_radius);
+	}
+
+	// 
+	afterTheMove = m_location + m_moveSpeed.Normalize() * Vector2D(fabsf(m_moveSpeed.x), 0);
+	if (m_map->TileType(afterTheMove) != e_TileType::road)
+	{
+		m_moveSpeed.x = 0;
+	}
+	afterTheMove = m_location + m_moveSpeed.Normalize() * Vector2D(0, fabsf(m_moveSpeed.y));
+	if (m_map->TileType(afterTheMove) != e_TileType::road)
+	{
+		m_moveSpeed.y = 0;
+	}
+
+	// テスト用
+	if (input.GetKeyState(KEY_INPUT_U) == eInputState::Hold)
+	{
+		m_location.x += 1;
+	}
+	if (input.GetKeyState(KEY_INPUT_I) == eInputState::Hold)
+	{
+		m_location.x -= 1;
+	}
+	if (input.GetKeyState(KEY_INPUT_O) == eInputState::Hold)
+	{
+		m_location.y += 1;
+	}
+	if (input.GetKeyState(KEY_INPUT_P) == eInputState::Hold)
+	{
+		m_location.y -= 1;
 	}
 
 	// 座標に速度を加算
