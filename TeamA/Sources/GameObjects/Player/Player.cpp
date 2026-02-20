@@ -237,8 +237,6 @@ void Player::Update(float delta)
 	float deceleration = 0.1f;	// 減速度
 	float maxSpeed = 2.0f;			// 速度の最大
 	float acceleration = 0.2f;		// 加速度
-	// 移動後の座標
-	Vector2D afterTheMove;
 
 	// 減速
 	if (m_moveSpeed.x > deceleration)
@@ -442,27 +440,34 @@ void Player::Update(float delta)
 		m_moveSpeed.y = Max.y - (m_location.y + m_collision.m_radius);
 	}
 
-	// 
-	afterTheMove = m_location + m_moveSpeed.Normalize() * Vector2D(fabsf(m_moveSpeed.x), 0);
-	if (m_map->TileType(afterTheMove) != e_TileType::road)
+	// ブロックとの当たり判定
 	{
-		float tileLocation = m_map->GetTileLocation(afterTheMove).x;
-		float distance = tileLocation - m_location.x;
-		float diff = 0.0f;
-
-		if (D_BOX_SIZE / 2 + m_collision.m_radius > fabsf(distance))
+		// 進行方向のタイル座標を取得
+		Vector2D position;
+		switch (m_direction)
 		{
-			diff = (tileLocation - D_BOX_SIZE / 2) - m_location.x + m_collision.m_radius;
+		case e_Direction::up:
+			position = { m_location.x,m_location.y - m_collision.m_radius };
+			break;
+		case e_Direction::down:
+			position = { m_location.x,m_location.y + m_collision.m_radius };
+			break;
+		case e_Direction::left:
+			position = { m_location.x - m_collision.m_radius,m_location.y };
+			break;
+		case e_Direction::right:
+			position = { m_location.x + m_collision.m_radius,m_location.y };
+			break;
 		}
+		Vector2D nextTileLocation = m_map->GetTileLocation(position);
 
-		m_moveSpeed.x = diff;
+		// 道でなければ移動速度を削除
+		if (m_map->TileType(nextTileLocation) != e_TileType::road)
+		{
+			m_moveSpeed = { 0.0f,0.0f };
+		}
+	}
 
-	}
-	afterTheMove = m_location + m_moveSpeed.Normalize() * Vector2D(0, fabsf(m_moveSpeed.y));
-	if (m_map->TileType(afterTheMove) != e_TileType::road)
-	{
-		m_moveSpeed.y = 0;
-	}
 
 	// テスト用
 	if (input.GetKeyState(KEY_INPUT_U) == eInputState::Hold)
