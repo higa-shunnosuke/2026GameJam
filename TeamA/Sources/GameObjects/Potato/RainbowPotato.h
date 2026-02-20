@@ -22,7 +22,7 @@ public:
 	 //<summary>
 	 //更新処理
 	 //</summary>
-	void Update() override; //虹色の更新使うかも
+	void Update(float delta) override; //虹色の更新使うかも
 
 	/// <summary>
 	/// 描画処理

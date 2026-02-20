@@ -66,6 +66,9 @@ void Application::MainLoop()
 			break;
 		}
 
+		// デルタタイムを計算
+		UpDateDeltaTime();
+
 		// シーン管理
 		SceneManager& manager = SceneManager::GetInstance();
 		manager.Update(m_delta);

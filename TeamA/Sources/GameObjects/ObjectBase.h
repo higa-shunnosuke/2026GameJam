@@ -15,7 +15,7 @@ public:
 
 public:
 	virtual void Initialize();
-	virtual void Update();
+	virtual void Update(float delta);
 	virtual void Draw() const;
 	virtual void Finalize();
 

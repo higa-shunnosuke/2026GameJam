@@ -6,6 +6,7 @@ class Jewel : public ObjectBase
 private:
 	float m_animeTime;
 	int m_animeCount;
+	int m_emerald_image[4];
 
 public:
 	Jewel();
@@ -21,7 +22,7 @@ public:
 	/// <summary>
 	/// XVˆ—
 	/// </summary>
-	void Update() override;
+	void Update(float delta) override;
 
 	/// <summary>
 	/// •`‰æˆ—

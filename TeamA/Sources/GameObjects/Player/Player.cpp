@@ -1,11 +1,8 @@
 #include "Player.h"
 
-
 #include "../../System/InputManager.h"
 #include "../../System/ResourceManager.h"
-#include "../../System/MapData/MapData.h"
 #include "../../Utilitys/ProjectConfig.h"
-#include "../../Utilitys/Random.h"
 #include <DxLib.h>
 #include <math.h>
 
@@ -89,7 +86,7 @@ void Player::Initialize()
 	m_effectImage[2] = rm.GetImageResource("Assets/Sprites/Effect/Effect3.PNG")[0];
 }
 
-void Player::Update()
+void Player::Update(float delta)
 {
 	// 歩くアニメーション
 	m_walkAnimTime += 0.01f;
@@ -284,8 +281,7 @@ void Player::Update()
 		m_drillAnimCount = 0;
 
 		// 土を壊す処理
-		MapData& map = MapData::GetInstance();
-		if (map.DestroySoil(m_location, m_direction))
+		if (m_map->DestroySoil(m_location, m_direction))
 		{
 			m_breakFlag = TRUE;
 			m_effectAnimCount = 0;
@@ -524,4 +520,9 @@ const int& Player::GetStamina() const
 const int& Player::GetStaminaMax() const
 {
 	return m_staminaMax;
+}
+
+void Player::SetMap(MapData* mapdata)
+{
+	m_map = mapdata;
 }

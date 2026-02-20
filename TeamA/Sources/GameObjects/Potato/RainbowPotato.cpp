@@ -24,7 +24,7 @@ void RainbowPotato::Initialize()
 
 }
 
-void  RainbowPotato::Update() //虹色更新処理で使うかも
+void  RainbowPotato::Update(float delta) //虹色更新処理で使うかも
 {
 	m_animeTime += 0.01f;
 	if (m_animeTime > 1.0f)

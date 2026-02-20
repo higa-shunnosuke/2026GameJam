@@ -52,7 +52,7 @@ SceneType InGame::Update(float delta)
 	// リスト内のオブジェクトを更新する
 	for (ObjectBase* obj : object.GetObjects())
 	{
-		obj->Update();
+		obj->Update(delta);
 	}
 
 	// オブジェクトの当たり判定を確認する

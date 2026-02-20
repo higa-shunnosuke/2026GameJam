@@ -9,6 +9,17 @@ private:
 	LONGLONG m_oldTime;
 	float m_delta;
 public:
+
+	Application()
+		:m_nowTime(0)
+		, m_oldTime(0)
+		, m_delta(0)
+	{
+
+	}
+	~Application();
+
+public:
 	/// <summary>
 	/// アプリケーションを起動
 	/// </summary>
@@ -27,5 +38,8 @@ private:
 	/// </summary>
     void MainLoop();
 
+	/// <summary>
+	/// デルタタイムの更新
+	/// </summary>
 	void UpDateDeltaTime();
 };

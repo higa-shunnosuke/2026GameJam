@@ -1,10 +1,14 @@
 #pragma once
 #include "../ObjectBase.h"
 #include "../../Utilitys/Vector2D.h"
-#include "../../System/MapData/Direction.h"
+#include "../MapData/Direction.h"
+#include "../MapData/MapData.h"
 
 class Player : public ObjectBase
-{private:
+{
+private:
+
+	MapData* m_map;
 
 	// スタミナ
 	int m_stamina;
@@ -67,7 +71,7 @@ public:
 	/// <summary>
 	/// 更新処理
 	/// </summary>
-	void Update() override;
+	void Update(float delta) override;
 
 	/// <summary>
 	/// 描画処理
@@ -93,5 +97,7 @@ private:
 public:
 	const int& GetStamina() const;
 	const int& GetStaminaMax() const;
+
+	void SetMap(MapData* mapdata);
 };
 

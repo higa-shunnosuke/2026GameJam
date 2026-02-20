@@ -13,7 +13,7 @@ void ObjectBase::Initialize()
 {
 }
 
-void ObjectBase::Update()
+void ObjectBase::Update(float delta)
 {
 }
 

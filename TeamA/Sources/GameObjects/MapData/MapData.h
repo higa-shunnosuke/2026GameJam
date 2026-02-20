@@ -33,8 +33,8 @@ public:
 	~MapData();
 
 public:
-	void Initialize();
-	void Draw() const;
+	void Initialize() override;
+	void Draw() const override;
 
 public:
 
