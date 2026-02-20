@@ -3,6 +3,7 @@
 #include "../../Utilitys/ProjectConfig.h"
 #include "../../System/InputManager.h"
 #include "../../System/ResourceManager.h"
+#include "../../Utilitys/Random.h"
 #include <DxLib.h>
 #include <math.h>
 
@@ -21,6 +22,9 @@ void Player::Initialize()
 	// スタミナ
 	m_staminaMax = 100;
 	m_stamina = m_staminaMax;
+
+	// 半径
+	m_radius = 50.0;
 
 	// 速度
 	m_moveSpeed = {};
@@ -41,7 +45,7 @@ void Player::Initialize()
 	m_direction = e_Direction::right;
 
 	// 画像のずらす値
-	m_offset = { 20.f, 5.f };
+	m_offset = { 35.0f, 15.0f };
 
 	// 画像読み込み
 	ResourceManager& rm = ResourceManager::GetInstance();
@@ -84,7 +88,6 @@ void Player::Initialize()
 
 void Player::Update()
 {
-
 	m_walkAnimTime += 0.01f;
 	m_drillAnimTime += 0.01f;
 	m_effectAnimTime += 0.01f;
@@ -162,24 +165,23 @@ void Player::Update()
 	// 座標の最大値、最小値と、プレイヤーの半径
 	Vector2D Min = { 0.0f,0.0f };
 	Vector2D Max = { D_STAGE_WIDTH, D_STAGE_HEIGHT };
-	float radius = 40;
 
 	// 座標が最大値、最小値を越さないようにする
-	if (m_location.x + m_moveSpeed.x - radius < Min.x)
+	if (m_location.x + m_moveSpeed.x - m_radius < Min.x)
 	{
-		m_moveSpeed.x = Min.x - (m_location.x - radius);
+		m_moveSpeed.x = Min.x - (m_location.x - m_radius);
 	}
-	if (m_location.x + m_moveSpeed.x + radius > Max.x)
+	if (m_location.x + m_moveSpeed.x + m_radius > Max.x)
 	{
-		m_moveSpeed.x = Max.x - (m_location.x + radius);
+		m_moveSpeed.x = Max.x - (m_location.x + m_radius);
 	}
-	if (m_location.y + m_moveSpeed.y - radius < Min.y)
+	if (m_location.y + m_moveSpeed.y - m_radius < Min.y)
 	{
-		m_moveSpeed.y = Min.y - (m_location.y - radius);
+		m_moveSpeed.y = Min.y - (m_location.y - m_radius);
 	}
-	if (m_location.y + m_moveSpeed.y + radius > Max.y)
+	if (m_location.y + m_moveSpeed.y + m_radius > Max.y)
 	{
-		m_moveSpeed.y = Max.y - (m_location.y + radius);
+		m_moveSpeed.y = Max.y - (m_location.y + m_radius);
 	}
 
 
@@ -257,13 +259,20 @@ void Player::Update()
 	if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Hold)
 	{
 		m_flipFlag = FALSE;
-		m_offset = { -35.f, 5.f };
 
+		if (m_offset.x > 0)
+		{
+			m_offset.x *= -1;
+		}
 	}
 	if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Hold)
 	{
 		m_flipFlag = TRUE;
-		m_offset = { 35.f, 5.f };
+		
+		if (m_offset.x < 0)
+		{
+			m_offset.x *= -1;
+		}
 	}
 
 }
@@ -279,7 +288,8 @@ void Player::Draw() const
 	{
 	case e_Direction::up:
 
-		y -= 25;
+		y += (int)m_offset.y;
+		y -= 30;
 
 		// モグラ表示
 		if (m_walkingFlag || m_digingFlag)
@@ -311,7 +321,8 @@ void Player::Draw() const
 		break;
 	case e_Direction::down:
 
-		y += 10;
+		y += (int)m_offset.y;
+		y += 5;
 
 		// モグラ表示
 		if (m_walkingFlag || m_digingFlag)
@@ -369,7 +380,9 @@ void Player::Draw() const
 	}
 
 	// 中心地
-	//DrawCircle((int)m_location.x, (int)m_location.y, 2, 0xFFFF00, TRUE);
+	DrawCircle((int)m_location.x, (int)m_location.y, 0.5, 0xFF0000, TRUE);
+	// 当たり判定
+	DrawCircle((int)m_location.x, (int)m_location.y, m_radius, 0xFF0000, FALSE);
 }
 
 void Player::Finalize()

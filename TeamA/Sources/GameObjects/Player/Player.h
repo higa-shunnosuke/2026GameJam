@@ -10,6 +10,9 @@ class Player : public ObjectBase
 	int m_stamina;
 	int m_staminaMax;
 
+	// ”¼Œa
+	float m_radius;
+
 	// –³“GŠÔ
 	float m_invincibleTime;
 
