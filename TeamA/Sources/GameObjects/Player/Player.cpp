@@ -1,8 +1,10 @@
 #include "Player.h"
 
-#include "../../Utilitys/ProjectConfig.h"
+
 #include "../../System/InputManager.h"
 #include "../../System/ResourceManager.h"
+#include "../../System/MapData/MapData.h"
+#include "../../Utilitys/ProjectConfig.h"
 #include "../../Utilitys/Random.h"
 #include <DxLib.h>
 #include <math.h>
@@ -240,20 +242,6 @@ void Player::Update()
 			m_walkingFlag = FALSE;
 		}
 	}
-
-	// Œ@‚èn‚ß‚éˆ—
-	if (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Pressed)
-	{
-		m_digingFlag = TRUE;
-	}
-	else
-	{
-		// Œ@‚é‚Ì‚ğ‚â‚ß‚éˆ—
-		if (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Released)
-		{
-			m_digingFlag = FALSE;
-		}
-	}
 	
 	// U‚èŒü‚«ˆ—
 	if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Hold)
@@ -275,6 +263,25 @@ void Player::Update()
 		}
 	}
 
+	// Œ@‚èn‚ß‚éˆ—
+	if (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Pressed)
+	{
+		m_digingFlag = TRUE;
+	}
+	else
+	{
+		// Œ@‚é‚Ì‚ğ‚â‚ß‚éˆ—
+		if (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Released)
+		{
+			m_digingFlag = FALSE;
+		}
+	}
+
+	if (m_digingFlag)
+	{
+		MapData& map = MapData::GetInstance();
+		map.DestroySoil(m_location, m_direction);
+	}
 }
 
 void Player::Draw() const
