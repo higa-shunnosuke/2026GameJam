@@ -25,15 +25,15 @@ void Potato::Initialize()
 
 void Potato::Draw() const
 {
-	DrawRotaGraph(m_location.x, m_location.y, 0.1, 0.0, m_potatoImage, TRUE);
+	DrawRotaGraph(m_location.x, m_location.y, 0.03, 0.0, m_potatoImage, TRUE);
 
 }
 
 
 void Potato::OnHitCollision(ObjectBase& other)
 {
-	ObjectManager& manager = ObjectManager::GetInstance();
-	manager.DestroyObject(this);
+	//ObjectManager& manager = ObjectManager::GetInstance();
+	//manager.DestroyObject(this);
 
 
 }

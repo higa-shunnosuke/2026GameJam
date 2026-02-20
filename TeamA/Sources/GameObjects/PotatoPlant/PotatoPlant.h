@@ -7,10 +7,8 @@
 class PotatoPlant : public ObjectBase
 {
 private:
-	int m_leavesImages[3]; //—t‚Á‚Ï‚Ì‰æ‘œ
-	int m_nekkoImages[3]; //ª‚Á‚±‚Ì‰æ‘œ
+	int m_leavesnekkoImages[3]; //—t‚Á‚Ï‚Æª‚Á‚±‚Ì‰æ‘œ
 	int m_rank;
-	std::vector<Vector2D> m_potatolocation;
 
 public:
 	PotatoPlant();
@@ -33,4 +31,5 @@ public:
 	/// </summary>
 	void Finalize() override;
 
+	void CreationPotato();
 };

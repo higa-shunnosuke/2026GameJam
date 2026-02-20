@@ -74,11 +74,11 @@ public:
 			delete instance;
 		}
 
-		// オブジェクトの初期化
-		object->Initialize();
-
 		// 位置情報設定
 		object->SetLocation(location);
+
+		// オブジェクトの初期化
+		object->Initialize();
 
 		// 生成予約を行う
 		m_pendingCreates.push_back(object);
