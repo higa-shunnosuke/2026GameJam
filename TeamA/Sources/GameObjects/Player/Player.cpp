@@ -140,7 +140,7 @@ void Player::Update()
 	}
 
 	// 加速
-	float maxSpeed = 0.4f;
+	float maxSpeed = 0.5f;
 	float acceleration = 0.05f;
 	if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Hold && m_moveSpeed.x > -maxSpeed)
 	{
@@ -159,10 +159,10 @@ void Player::Update()
 		m_moveSpeed.y += acceleration;
 	}
 
-	// テスト用　座標の最大値、最小値、プレイヤーの半径を決めておく
+	// 座標の最大値、最小値と、プレイヤーの半径
 	Vector2D Min = { 0.0f,0.0f };
 	Vector2D Max = { D_STAGE_WIDTH, D_STAGE_HEIGHT };
-	float radius = 10;
+	float radius = 40;
 
 	// 座標が最大値、最小値を越さないようにする
 	if (m_location.x + m_moveSpeed.x - radius < Min.x)
@@ -270,92 +270,106 @@ void Player::Update()
 
 void Player::Draw() const
 {
+	// 座標を見やすく、int型に
+	int x = (int)m_location.x;
+	int y = (int)m_location.y;
+
 	// モグラ表示
 	switch (m_direction)
 	{
 	case e_Direction::up:
 
+		y -= 25;
+
 		// モグラ表示
 		if (m_walkingFlag || m_digingFlag)
 		{
-			DrawRotaGraph((int)m_location.x, (int)m_location.y, 0.1, 0.0, m_upImage[m_walkAnimCount % 3], TRUE);
+			DrawRotaGraph(x, y, 0.1, 0.0, m_upImage[m_walkAnimCount % 3], TRUE);
 		}
 		else
 		{
-			DrawRotaGraph((int)m_location.x, (int)m_location.y, 0.1, 0.0, m_upImage[0], TRUE);
+			DrawRotaGraph(x, y, 0.1, 0.0, m_upImage[0], TRUE);
 		}
 		// ドリル表示
 		if (m_digingFlag)
 		{
-			DrawRotaGraph((int)m_location.x, (int)m_location.y, 0.1, 0.0, m_drillUpImage[m_drillAnimCount % 3], TRUE);
+			DrawRotaGraph(x, y, 0.1, 0.0, m_drillUpImage[m_drillAnimCount % 3], TRUE);
 		}
 		else
 		{
-			DrawRotaGraph((int)m_location.x, (int)m_location.y, 0.1, 0.0, m_drillUpImage[0], TRUE);
+			DrawRotaGraph(x, y, 0.1, 0.0, m_drillUpImage[0], TRUE);
 		}
 
 		// エフェクト表示
 		if (m_digingFlag)
 		{
-			DrawRotaGraph((int)(m_location.x - 5), (int)m_location.y, 0.1, 0.65 * 3.14, m_effectImage[m_effectAnimCount % 3], TRUE);
+			x -= 5;
+			
+			DrawRotaGraph(x - 5, y, 0.1, 0.65 * 3.14, m_effectImage[m_effectAnimCount % 3], TRUE);
 		}
 
 		break;
 	case e_Direction::down:
 
+		y += 10;
+
 		// モグラ表示
 		if (m_walkingFlag || m_digingFlag)
 		{
-			DrawRotaGraph((int)m_location.x, (int)m_location.y, 0.1, 0.0, m_downImage[m_walkAnimCount % 3], TRUE);
+			DrawRotaGraph(x, y, 0.1, 0.0, m_downImage[m_walkAnimCount % 3], TRUE);
 		}
 		else
 		{
-			DrawRotaGraph((int)m_location.x, (int)m_location.y, 0.1, 0.0, m_downImage[0], TRUE);
+			DrawRotaGraph(x, y, 0.1, 0.0, m_downImage[0], TRUE);
 		}
 
 		// エフェクト表示
 		if (m_digingFlag)
 		{
-			DrawRotaGraph((int)(m_location.x + 8.0f), (int)(m_location.y - 10.0f), 0.1, 1.65 * 3.14, m_effectImage[m_effectAnimCount % 3], TRUE);
+			x += 8;
+			y -= 10;
+
+			DrawRotaGraph(x, y, 0.1, 1.65 * 3.14, m_effectImage[m_effectAnimCount % 3], TRUE);
 		}
 		
 		break;
 	case e_Direction::left:
 	case e_Direction::right:
 
+		x += (int)m_offset.x;
+		y += (int)m_offset.y;
+
 		// モグラ表示
 		if (m_walkingFlag || m_digingFlag)
 		{
-			DrawRotaGraph((int)(m_location.x + m_offset.x), (int)(m_location.y + m_offset.y), 0.1, 0.0, m_walkImage[m_walkAnimCount % 2], TRUE, m_flipFlag);
+			DrawRotaGraph(x, y, 0.1, 0.0, m_walkImage[m_walkAnimCount % 2], TRUE, m_flipFlag);
 		}
 		else
 		{
-			DrawRotaGraph((int)(m_location.x + m_offset.x), (int)(m_location.y + m_offset.y), 0.1, 0.0, m_idleImage, TRUE, m_flipFlag);
+			DrawRotaGraph(x, y, 0.1, 0.0, m_idleImage, TRUE, m_flipFlag);
 		}
 
 		// ドリル表示
 		if (m_digingFlag)
 		{
-			DrawRotaGraph((int)(m_location.x + m_offset.x), (int)(m_location.y + m_offset.y), 0.1, 0.0, m_drillImage[m_drillAnimCount % 3], TRUE, m_flipFlag);
+			DrawRotaGraph(x, y, 0.1, 0.0, m_drillImage[m_drillAnimCount % 3], TRUE, m_flipFlag);
 		}
 		else
 		{
-			DrawRotaGraph((int)(m_location.x + m_offset.x), (int)(m_location.y + m_offset.y), 0.1, 0.0, m_drillImage[0], TRUE, m_flipFlag);
+			DrawRotaGraph(x, y, 0.1, 0.0, m_drillImage[0], TRUE, m_flipFlag);
 		}
 
 		// エフェクト表示
 		if (m_digingFlag)
 		{
-			DrawRotaGraph((int)(m_location.x + m_offset.x), (int)(m_location.y + m_offset.y), 0.1, 0.0, m_effectImage[m_effectAnimCount % 3], TRUE, m_flipFlag);
+			DrawRotaGraph(x, y, 0.1, 0.0, m_effectImage[m_effectAnimCount % 3], TRUE, m_flipFlag);
 		}
 
 		break;
 	}
 
 	// 中心地
-	DrawCircle((int)m_location.x, (int)m_location.y, 2, 0xFFFF00, TRUE);
-
-	DrawFormatString(10, 50, 0xFFFFFF, "%d", (int)m_direction);
+	//DrawCircle((int)m_location.x, (int)m_location.y, 2, 0xFFFF00, TRUE);
 }
 
 void Player::Finalize()
