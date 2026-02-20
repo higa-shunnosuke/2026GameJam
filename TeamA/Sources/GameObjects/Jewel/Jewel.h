@@ -6,7 +6,12 @@ class Jewel : public ObjectBase
 private:
 	float m_animeTime;
 	int m_animeCount;
+
+	float m_animeTime_e;
+	int m_animeCount_e;
+
 	int m_emerald_image[4];
+	int m_effect_image[3];
 
 public:
 	Jewel();

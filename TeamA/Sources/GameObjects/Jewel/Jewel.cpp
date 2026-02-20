@@ -19,6 +19,9 @@ void Jewel::Initialize()
 	m_animeTime = 0.0f;
 	m_animeCount = 0;
 
+	m_animeTime_e = 0.0f;
+	m_animeCount_e = 0;
+
 	m_collision.m_radius = 20.0f;
 
 	m_zLayer = 10;
@@ -29,6 +32,10 @@ void Jewel::Initialize()
 	m_emerald_image[1] = rm.GetImageResource("Assets/Sprites/Jewel/emerald/emerald2.PNG")[0];
 	m_emerald_image[2] = rm.GetImageResource("Assets/Sprites/Jewel/emerald/emerald3.PNG")[0];
 	m_emerald_image[3] = rm.GetImageResource("Assets/Sprites/Jewel/emerald/emerald4.PNG")[0];
+
+	m_effect_image[0] = rm.GetImageResource("Assets/Sprites/Jewel/effect/ƒLƒ‰ƒLƒ‰‚P.PNG")[0];
+	m_effect_image[1] = rm.GetImageResource("Assets/Sprites/Jewel/effect/ƒLƒ‰ƒLƒ‰‚Q.PNG")[0];
+	m_effect_image[2] = rm.GetImageResource("Assets/Sprites/Jewel/effect/ƒLƒ‰ƒLƒ‰‚R.PNG")[0];
 
 	m_collision.m_radius = 10;
 	m_collision.m_type = e_ObjectType::jewel;
@@ -44,13 +51,23 @@ void Jewel::Update(float delta)
 		m_animeCount += 1;
 
 	}
+
+	m_animeTime_e += delta;
+	if (m_animeTime_e > 0.13f)
+	{
+		m_animeTime_e = 0.0f;
+		m_animeCount_e += 1;
+	}
 }
 
 void Jewel::Draw() const
 {
 	DrawRotaGraphF(m_location.x, m_location.y, 0.04f, 0.0f, m_emerald_image[m_animeCount % 4], TRUE);
+
+	DrawRotaGraphF(m_location.x, m_location.y, 0.04f, 0.0f, m_effect_image[m_animeCount_e % 3], TRUE);
 #if _DEBUG
 	// “–‚½‚è”»’è‚ð‰ÂŽ‹‰»
+
 	DrawCircle(m_location.x, m_location.y,m_collision.GetRadius(), GetColor(255, 0, 0), FALSE);
 #endif
 }

@@ -34,6 +34,7 @@ void PotatoPlant::Initialize()
 	m_leavesnekkoImages[1] = rm.GetImageResource("Assets/Sprites/Potato/Leaves_Nekko2.PNG")[0];
 	m_leavesnekkoImages[2] = rm.GetImageResource("Assets/Sprites/Potato/Leaves_Nekko3.PNG")[0];
 
+
 	m_zLayer = 0;
 
 	CreationPotato();

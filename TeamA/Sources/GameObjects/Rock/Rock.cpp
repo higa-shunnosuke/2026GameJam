@@ -1,5 +1,6 @@
 #include "Rock.h"
 
+#include "../../System/ResourceManager.h"
 #include "../ObjectManager.h"
 #include <DxLib.h>
 
@@ -15,7 +16,9 @@ Rock::~Rock()
 
 void Rock::Initialize()
 {
+	ResourceManager& rm = ResourceManager::GetInstance();
 
+	m_rockImage = rm.GetImageResource("Assets/Sprites/Rock/Rock.PNG")[0];
 }
 
 

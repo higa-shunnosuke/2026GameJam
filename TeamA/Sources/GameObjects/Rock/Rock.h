@@ -7,6 +7,8 @@ private:
 	float m_animeTime;
 	int m_animeCount;
 
+	int m_rockImage;
+
 public:
 	Rock();
 	~Rock();
