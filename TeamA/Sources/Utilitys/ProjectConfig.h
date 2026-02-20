@@ -12,9 +12,10 @@
 #define D_WIN_HEIGHT	(720)	// スクリーンの縦幅
 #define D_COLOR_BIT		(32)	// カラービット
 #define D_BOX_SIZE		(128)	// ボックスサイズ
+#define D_BOX_COUNT		(15)	// ボックスカウント
 
-#define D_STAGE_WIDTH	(1920)	// ステージ横幅
-#define D_STAGE_HEIGHT	(1920)	// ステージ縦幅
+#define D_STAGE_WIDTH	(D_BOX_SIZE * D_BOX_COUNT)		// ステージ横幅
+#define D_STAGE_HEIGHT	(D_BOX_SIZE * (D_BOX_COUNT + 3))// ステージ縦幅
 
 
 /**********************************************************
