@@ -5,6 +5,7 @@
 #include "../../Utilitys/ProjectConfig.h"
 #include <DxLib.h>
 #include <math.h>
+#include <algorithm>
 
 Player::Player()
 {
@@ -442,29 +443,54 @@ void Player::Update(float delta)
 
 	// ブロックとの当たり判定
 	{
-		// 進行方向のタイル座標を取得
+		// 判定開始位置
 		Vector2D position;
 		switch (m_direction)
 		{
 		case e_Direction::up:
-			position = { m_location.x,m_location.y - m_collision.m_radius };
+			position = { m_location.x,m_location.y - D_BOX_SIZE / 2 };
 			break;
 		case e_Direction::down:
-			position = { m_location.x,m_location.y + m_collision.m_radius };
+			position = { m_location.x,m_location.y + D_BOX_SIZE / 2 };
 			break;
 		case e_Direction::left:
-			position = { m_location.x - m_collision.m_radius,m_location.y };
+			position = { m_location.x - D_BOX_SIZE / 2,m_location.y };
 			break;
 		case e_Direction::right:
-			position = { m_location.x + m_collision.m_radius,m_location.y };
+			position = { m_location.x + D_BOX_SIZE / 2,m_location.y };
 			break;
 		}
-		Vector2D nextTileLocation = m_map->GetTileLocation(position);
 
-		// 道でなければ移動速度を削除
+		// 進行方向のタイルの左上座標を取得
+		Vector2D nextTileLocation = m_map->GetTileLocation(position) - Vector2D{ D_BOX_SIZE / 2,D_BOX_SIZE / 2 };
+
+		// 道でなければめり込みを判定
 		if (m_map->TileType(nextTileLocation) != e_TileType::road)
 		{
-			m_moveSpeed = { 0.0f,0.0f };
+			// 最近接点
+			float closestX = std::clamp(m_location.x, nextTileLocation.x, nextTileLocation.x + D_BOX_SIZE);
+			float closestY = std::clamp(m_location.y, nextTileLocation.y, nextTileLocation.y + D_BOX_SIZE);
+			
+			// 差分
+			Vector2D diff = { m_location.x - closestX,m_location.y - closestY };
+
+			// 距離
+			float distance = std::sqrt(diff.x * diff.x + diff.y * diff.y);
+
+			// 半径
+			float radius = std::sqrt(m_collision.m_radius * m_collision.m_radius);
+
+			// めり込み判定
+			if (distance < radius)
+			{
+				// めり込み
+				float overlap = radius - distance;
+
+				// 押し出し
+				m_location.x += (diff.x / distance) * overlap;
+				m_location.y += (diff.y / distance) * overlap;
+			}
+
 		}
 	}
 
