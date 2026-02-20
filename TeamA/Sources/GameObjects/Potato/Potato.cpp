@@ -40,8 +40,7 @@ void Potato::Draw() const
 
 void Potato::OnHitCollision(ObjectBase& other)
 {
-	//ObjectManager& manager = ObjectManager::GetInstance();
-	//manager.DestroyObject(this);
-
+	ObjectManager& manager = ObjectManager::GetInstance();
+	manager.DestroyObject(this);
 
 }

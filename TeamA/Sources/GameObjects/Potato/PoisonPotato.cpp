@@ -43,5 +43,4 @@ void PoisonPotato::OnHitCollision(ObjectBase& other)
 	ObjectManager& manager = ObjectManager::GetInstance();
 	manager.DestroyObject(this);
 
-
 }

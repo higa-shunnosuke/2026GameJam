@@ -42,6 +42,7 @@ void Jewel::Update(float delta)
 	{
 		m_animeTime = 0.0f;
 		m_animeCount += 1;
+
 	}
 }
 
