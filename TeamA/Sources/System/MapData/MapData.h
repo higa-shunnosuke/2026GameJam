@@ -89,4 +89,8 @@ private:
 	/// ƒ}ƒbƒvcsv‚Ì“Ç‚İ‚İ
 	/// </summary>
 	void LoadMapCsv();
+
+	//void CreatePranto();
+
+	//void Create
 };
