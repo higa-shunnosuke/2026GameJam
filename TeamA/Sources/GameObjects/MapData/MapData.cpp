@@ -36,7 +36,7 @@ void MapData::Initialize()
 	// ƒ‰ƒ“ƒ_ƒ€‚Ìí‚ğİ’è
 	Random::SetSeed();
 	// •óÎ‚Ì¶¬
-	//CreateJewel();
+	CreateJewel();
 	// ƒvƒ‰ƒ“ƒg‚Ì¶¬
 	CreatePlant();
 }
