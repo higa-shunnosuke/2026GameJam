@@ -12,7 +12,6 @@ enum class e_TileType
 	road,		// 道
 	soil,		// 土
 	wall,		// 壁
-
 };
 
 class MapData : public ObjectBase
@@ -26,7 +25,7 @@ private:
 	};
 
 	std::vector<std::vector<char>> m_mapData;	// マップ配列
-	int m_soil;
+	int m_soil[4];								// 道の画像
 
 public:
 	MapData();
@@ -51,6 +50,14 @@ public:
 	/// <param name="location">移動後の座標</param>
 	/// <returns>移動後の座標のグリッド情報</returns>
 	e_TileType TileType(const Vector2D& worldPos) const;
+
+
+	/// <summary>
+	/// ワールド座標をグリッド中央に寄せる
+	/// </summary>
+	/// <param name="worldPos"></param>
+	/// <returns></returns>
+	Vector2D GetTileLocation(const Vector2D& worldPos);
 
 private:
 	/// <summary>

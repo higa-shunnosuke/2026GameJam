@@ -14,7 +14,7 @@
 #include <sstream>
 
 MapData::MapData()
-	:m_soil(0)
+	:m_soil{}
 {
 }
 
@@ -26,8 +26,11 @@ void MapData::Initialize()
 {
 	// 画像の読み込み
 	ResourceManager& rm = ResourceManager::GetInstance();
-	m_soil = rm.GetImageResource("Assets/Sprites/road.PNG")[0];
+	m_soil[0] = rm.GetImageResource("Assets/Sprites/soil/soil1.PNG")[0];
 
+	// 道のzlayer
+	m_zLayer = 2;
+	 
 	// マップデータの読み込み
 	LoadMapCsv();
 	// ランダムの種を設定
@@ -40,6 +43,8 @@ void MapData::Initialize()
 
 void MapData::Draw() const
 {
+
+
 	for (size_t y = 0; y < m_mapData.size(); ++y)
 	{
 		for (size_t x = 0; x < m_mapData[y].size(); ++x)
@@ -49,20 +54,29 @@ void MapData::Draw() const
 			float size = D_BOX_SIZE;
 			Vector2D position = { size * x,size * y };
 
+			Vector2D pos[4] = {
+				{position.x + 32.0f,position.y + 32.0f},
+				{position.x + 96.0f,position.y + 32.0f},
+				{position.x + 32.0f,position.y + 96.0f},
+				{position.x + 96.0f,position.y + 96.0f},
+			};
+
 			unsigned int debug_color = 0xffffff;
 
 			switch (ch)
 			{
+			case 'r':
+				DrawRotaGraphF(pos[0].x, pos[0].y, 1.0f, 0.0f, m_soil[0], TRUE);
+				DrawRotaGraphF(pos[1].x, pos[1].y, 1.0f, 0.0f, m_soil[0], TRUE);
+				DrawRotaGraphF(pos[2].x, pos[2].y, 1.0f, 0.0f, m_soil[0], TRUE);
+				DrawRotaGraphF(pos[3].x, pos[3].y, 1.0f, 0.0f, m_soil[0], TRUE);
+			
+				debug_color = GetColor(0, 255, 0);
+				break;
 			case 's':
 				debug_color = GetColor(255, 0, 0);
 				break;
-			case 'r':
-				// 画像は中心に補正
-				DrawRotaGraphF(position.x + D_BOX_SIZE * 0.5f, position.y + D_BOX_SIZE * 0.5f, 1.0f, 0.0f, m_soil, TRUE);
-
-				debug_color = GetColor(0, 255, 0);
-				break;
-			case '#':
+			case 'w':
 				debug_color = GetColor(0, 0, 255);
 				break;
 			}
@@ -117,10 +131,10 @@ e_TileType MapData::TileType(const Vector2D& worldPos) const
 	switch (m_mapData[gridPos.y][gridPos.x])
 	{
 	case 'r':
-		return e_TileType::soil;
+		return e_TileType::road;
 		break;
 	case 's':
-		return e_TileType::road;
+		return e_TileType::soil;
 		break;
 	case 'w':
 		return e_TileType::wall;
@@ -128,6 +142,11 @@ e_TileType MapData::TileType(const Vector2D& worldPos) const
 	}
 
 	return e_TileType::none;
+}
+
+Vector2D MapData::GetTileLocation(const Vector2D& worldPos)
+{
+	return GridToWorld(WorldToGrid(worldPos));
 }
 
 MapData::GridPos MapData::WorldToGrid(const Vector2D& worldPos) const

@@ -17,10 +17,13 @@ enum class SceneType
 // シーン基底クラス
 class SceneBase
 {
+protected:
+	float m_time;			// 制限時間
+
 public:
-	
 	// コンストラクタ
 	SceneBase()
+		: m_time()
 	{
 
 	}
@@ -39,7 +42,8 @@ public:
 	/// <summary>
 	/// 更新
 	/// </summary>
-	/// <returns>現在のシーンタイプ</returns>
+	/// <param name="delta">デルタタイム</param>
+	/// <returns>現在のシーン情報</returns>
 	virtual SceneType Update(float delta)
 	{
 		// 現在のシーン情報を返す
@@ -65,6 +69,7 @@ public:
 	/// </summary>
 	virtual void Finalize()
 	{
+
 	}
 
 	/// <summary>
@@ -72,4 +77,19 @@ public:
 	/// </summary>
 	/// <returns>現在のシーンタイプ</returns>
 	virtual const SceneType GetNowSceneType() const = 0;
+
+	/// <summary>
+	/// タイマー
+	/// </summary>
+	/// <param name="delta">デルタタイム</param>
+	virtual void Timer(float delta)
+	{
+		// 制限時間が０になるまで経過時間を減算
+		if (m_time > 0.0f) {
+			m_time -= delta;
+		}
+		else {
+			m_time = 0.0f;
+		}
+	}
 };

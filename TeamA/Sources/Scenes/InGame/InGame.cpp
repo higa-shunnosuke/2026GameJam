@@ -21,7 +21,7 @@ void InGame::Initialize()
 	ObjectManager& object = ObjectManager::GetInstance();
 	// マップの初期化
 	m_map = object.RequestSpawn<MapData>({ 0,0 });
-	m_player = object.RequestSpawn<Player>(Vector2D(580.0f,360.0f));
+	m_player = object.RequestSpawn<Player>(Vector2D(64.0f,448.0f));
 	m_player->SetMap(m_map);
 
 	// カメラを生成
@@ -29,6 +29,9 @@ void InGame::Initialize()
 	camera.Initialize();
 
 	back_buffer = MakeScreen(D_STAGE_WIDTH, D_STAGE_HEIGHT, TRUE);
+
+	// 制限時間の初期化
+	m_time = 60.0f;
 
 }
 
@@ -67,6 +70,9 @@ SceneType InGame::Update(float delta)
 	//カメラの更新
 	camera.Update();
 
+	// タイマーの更新
+	__super::Timer(delta);
+
 	// 親クラスの更新処理
 	return __super::Update(delta);
 }
@@ -88,6 +94,10 @@ void InGame::Draw() const
 
 	//	インゲーム表示
 	DrawFormatString(10, 10, 0xffffff, "InGame");
+
+	SetFontSize(64);
+	DrawFormatString(1000, 80, 0xffffff, "%.2f",m_time);
+	SetFontSize(12);
 
 	__super::Draw();
 
