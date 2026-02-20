@@ -17,7 +17,7 @@ public:
 	{
 
 	}
-	~Application();
+	~Application() {};
 
 public:
 	/// <summary>
