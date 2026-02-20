@@ -84,7 +84,7 @@ void InGame::Draw() const
 	ClearDrawScreen();
 
 	float imageSize = 0.222f;
-	int offset = 400;
+	int offset = 582;
 
 	// 背景画像の描画
 	DrawRotaGraph(D_WIN_WIDTH / 2, D_WIN_HEIGHT / 2 + offset, imageSize, 0.0, groundImage, TRUE);
