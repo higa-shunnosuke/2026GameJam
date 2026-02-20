@@ -97,7 +97,13 @@ private:
 	/// </summary>
 	void LoadMapCsv();
 
+	/// <summary>
+	/// ƒvƒ‰ƒ“ƒg‚ğ¶¬‚·‚éˆ—
+	/// </summary>
 	void CreatePlant();
 
+	/// <summary>
+	/// •óÎ‚ğ¶¬‚·‚éˆ—
+	/// </summary>
 	void CreateJewel();
 };

@@ -441,7 +441,7 @@ void Player::Update(float delta)
 	afterTheMove = m_location + m_moveSpeed.Normalize() * Vector2D(fabsf(m_moveSpeed.x), 0);
 	if (m_map->TileType(afterTheMove) != e_TileType::road)
 	{
-		float tileLocation = m_map->GridToWorld(m_map->WorldToGrid(afterTheMove)).x;
+		float tileLocation = m_map->GetTileLocation(afterTheMove).x;
 		float distance = tileLocation - m_location.x;
 		float diff = 0.0f;
 

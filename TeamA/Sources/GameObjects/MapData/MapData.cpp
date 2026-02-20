@@ -43,8 +43,6 @@ void MapData::Initialize()
 
 void MapData::Draw() const
 {
-
-
 	for (size_t y = 0; y < m_mapData.size(); ++y)
 	{
 		for (size_t x = 0; x < m_mapData[y].size(); ++x)
