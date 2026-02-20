@@ -25,10 +25,10 @@ const bool Collision::IsCircleColliding(const Vector2D& centerA, const Vector2D&
     Vector2D diff = centerA - centerB; //２点間の距離ベクトルを求める
     
     float sum = m_radius + radiusB; //半径の合計
-    float c = diff.x + diff.y; //中心の距離
+    float c = diff.x * diff.x + diff.y * diff.y; //2点間の距離の2乗
 
-//半径の合計の２乗<=距離の２乗の合計なら衝突
-    if (sum * sum <= c * c)
+//半径の合計の２乗>=距離の合計(2乗)なら衝突
+    if (sum * sum >= c )
     {
         return true;
     }

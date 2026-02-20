@@ -22,6 +22,10 @@ void RainbowPotato::Initialize()
 
 	m_rainbowpotatoImage = rm.GetImageResource("Assets/Sprites/Potato/RainbowPotato.PNG")[0];
 
+	m_collision.m_radius = 35;
+	m_collision.m_type = e_ObjectType::rainbowpoteto;
+	m_zLayer = 10;
+
 }
 
 void  RainbowPotato::Update(float delta) //虹色更新処理で使うかも
@@ -36,7 +40,12 @@ void  RainbowPotato::Update(float delta) //虹色更新処理で使うかも
 
 void RainbowPotato::Draw() const
 {
-	DrawRotaGraph(m_location.x, m_location.y, 0.1, 0.0, m_rainbowpotatoImage, TRUE);
+	DrawRotaGraph(m_location.x, m_location.y, 0.03, 0.0, m_rainbowpotatoImage, TRUE);
+
+#if _DEBUG
+	// 当たり判定を可視化
+	DrawCircle(m_location.x, m_location.y, m_collision.GetRadius(), GetColor(255, 0, 0), FALSE);
+#endif
 
 }
 

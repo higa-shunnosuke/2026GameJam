@@ -29,6 +29,10 @@ void Jewel::Initialize()
 	m_emerald_image[1] = rm.GetImageResource("Assets/Sprites/Jewel/emerald/emerald2.PNG")[0];
 	m_emerald_image[2] = rm.GetImageResource("Assets/Sprites/Jewel/emerald/emerald3.PNG")[0];
 	m_emerald_image[3] = rm.GetImageResource("Assets/Sprites/Jewel/emerald/emerald4.PNG")[0];
+
+	m_collision.m_radius = 10;
+	m_collision.m_type = e_ObjectType::jewel;
+	m_zLayer = 10;
 }
 
 void Jewel::Update(float delta)
@@ -58,5 +62,5 @@ void Jewel::Finalize()
 void Jewel::OnHitCollision(ObjectBase& other)
 {
 	ObjectManager& manager = ObjectManager::GetInstance();
-	//manager.DestroyObject(this);
+	manager.DestroyObject(this);
 }

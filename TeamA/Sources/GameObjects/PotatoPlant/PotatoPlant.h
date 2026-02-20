@@ -32,4 +32,8 @@ public:
 	void Finalize() override;
 
 	void CreationPotato();
+
+	void DecideSpawnPosition();
+
+	void SpawnPotatoByType(Vector2D position);
 };
