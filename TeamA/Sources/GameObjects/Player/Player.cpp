@@ -96,9 +96,8 @@ void Player::Initialize()
 
 void Player::Update(float delta)
 {
-
 	// 対応入力の変数化
-	ApplyAllInput();
+	ApplyInput();
 	// アニメーション
 	LapseAnimation(delta);
 	// 操作
@@ -278,7 +277,7 @@ void Player::ScoreManager(int value)
 	}
 }
 
-void Player::ApplyAllInput()
+void Player::ApplyInput()
 {
 	InputManager& input = InputManager::GetInstance();
 
@@ -287,27 +286,26 @@ void Player::ApplyAllInput()
 	getInput[0] = KEY_INPUT_UP;
 	getInput[1] = KEY_INPUT_W;
 	getInput[2] = XINPUT_BUTTON_DPAD_UP;
-	input.ApplyOneInput(m_up, getInput, 3);
+	m_up = input.ApplyOneInput(getInput, 3);
 
 	getInput[0] = KEY_INPUT_DOWN;
 	getInput[1] = KEY_INPUT_S;
 	getInput[2] = XINPUT_BUTTON_DPAD_DOWN;
-	input.ApplyOneInput(m_down, getInput, 3);
+	m_down = input.ApplyOneInput(getInput, 3);
 
 	getInput[0] = KEY_INPUT_LEFT;
 	getInput[1] = KEY_INPUT_A;
 	getInput[2] = XINPUT_BUTTON_DPAD_LEFT;
-	input.ApplyOneInput(m_left, getInput, 3);
+	m_left = input.ApplyOneInput(getInput, 3);
 
 	getInput[0] = KEY_INPUT_RIGHT;
 	getInput[1] = KEY_INPUT_D;
 	getInput[2] = XINPUT_BUTTON_DPAD_RIGHT;
-	input.ApplyOneInput(m_right, getInput, 3);
+	m_right = input.ApplyOneInput(getInput, 3);
 
 	getInput[0] = KEY_INPUT_SPACE;
-	getInput[1] = KEY_INPUT_F;
 	getInput[2] = XINPUT_BUTTON_A;
-	input.ApplyOneInput(m_digButton, getInput, 3);
+	m_digButton = input.ApplyOneInput(getInput, 2);
 
 	
 }

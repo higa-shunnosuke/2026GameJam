@@ -119,7 +119,7 @@ private:
 	/// <summary>
 	/// 全ての入力を各対応変数にまとめる
 	/// </summary>
-	void ApplyAllInput();
+	void ApplyInput();
 
 	/// <summary>
 	/// アニメーション時間の経過

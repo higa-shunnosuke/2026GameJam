@@ -188,7 +188,7 @@ bool InputManager::CheckButtonRange(int button) const
 	return (0 <= button && button < D_BUTTON_MAX);
 }
 
-void InputManager::ApplyOneInput(eInputState& variable, int getInput[], int getInputSize)
+eInputState InputManager::ApplyOneInput(int getInput[], int getInputSize)
 {
 	GetInstance();
 
@@ -198,8 +198,7 @@ void InputManager::ApplyOneInput(eInputState& variable, int getInput[], int getI
 		if (GetKeyState(getInput[i]) == eInputState::Hold || GetButtonState(getInput[i]) == eInputState::Hold)
 		{
 			// 変数にHoldを当てはめる
-			variable = eInputState::Hold;
-			return;
+			return eInputState::Hold;
 		}
 	}
 
@@ -213,12 +212,10 @@ void InputManager::ApplyOneInput(eInputState& variable, int getInput[], int getI
 			{
 				if (GetKeyState(getInput[i]) == eInputState::Released || GetButtonState(getInput[i]) == eInputState::Released)
 				{
-					variable = eInputState::Hold;
-					return;
+					return eInputState::Hold;
 				}
 			}
-			variable = eInputState::Pressed;
-			return;
+			return eInputState::Pressed;
 		}
 	}
 
@@ -227,14 +224,13 @@ void InputManager::ApplyOneInput(eInputState& variable, int getInput[], int getI
 		// もし、対応入力のうち、どれか一つでもReleasedなら
 		if (GetKeyState(getInput[i]) == eInputState::Released || GetButtonState(getInput[i]) == eInputState::Released)
 		{
-			variable = eInputState::Released;
-			return;
+			return eInputState::Released;
 		}
 	}
 
 	for (int i = 0;i < getInputSize;i++)
 	{
 		// 変数にNoneを当てはめる
-		variable = eInputState::None;
+		return eInputState::None;
 	}
 }
