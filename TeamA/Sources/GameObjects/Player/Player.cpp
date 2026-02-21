@@ -107,100 +107,110 @@ void Player::Update(float delta)
 void Player::Draw() const
 {
 	// 座標を見やすく、int型に
-	int x = (int)m_location.x;
-	int y = (int)m_location.y;
+	float x = m_location.x;
+	float y = m_location.y;
 
 	// モグラ表示
 	switch (m_direction)
 	{
 	case e_Direction::up:
 
-		y += (int)m_offset.y;
-		y -= 30;
+		y += m_offset.y;
+		y -= 30.0f;
 
 		// モグラ表示
 		if (m_walkingFlag || m_diggingFlag)
 		{
-			DrawRotaGraph(x, y, 0.1, 0.0, m_upImage[m_walkAnimCount % 3], TRUE);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_upImage[m_walkAnimCount % 3], TRUE);
 		}
 		else
 		{
-			DrawRotaGraph(x, y, 0.1, 0.0, m_upImage[0], TRUE);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_upImage[0], TRUE);
 		}
 		// ドリル表示
 		if (m_diggingFlag)
 		{
-			DrawRotaGraph(x, y, 0.1, 0.0, m_drillUpImage[m_diggingAnimCount % 3], TRUE);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_drillUpImage[m_diggingAnimCount % 3], TRUE);
 		}
 		else
 		{
-			DrawRotaGraph(x, y, 0.1, 0.0, m_drillUpImage[0], TRUE);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_drillUpImage[0], TRUE);
 		}
 
 		// エフェクト表示
 		if (m_breakFlag)
 		{
-			x -= 5;
+			x -= 5.0f;
 			
-			DrawRotaGraph(x - 5, y, 0.1, 0.65 * 3.14, m_effectImage[m_diggingAnimCount % 3], TRUE);
+			DrawRotaGraphF(x - 5, y, 0.1, 0.65 * 3.14, m_effectImage[m_diggingAnimCount % 3], TRUE);
 		}
 
 		break;
 	case e_Direction::down:
 
-		y += (int)m_offset.y;
-		y += 5;
+		y += m_offset.y;
+		y += 5.0f;
 
 		// モグラ表示
 		if (m_walkingFlag || m_diggingFlag)
 		{
-			DrawRotaGraph(x, y, 0.1, 0.0, m_downImage[m_walkAnimCount % 3], TRUE);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_downImage[m_walkAnimCount % 3], TRUE);
 		}
 		else
 		{
-			DrawRotaGraph(x, y, 0.1, 0.0, m_downImage[0], TRUE);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_downImage[0], TRUE);
+		}
+
+		// ドリル表示
+		if (m_diggingFlag)
+		{
+			//DrawRotaGraphF(x, y, 0.1, 0.0, m_drillDownImage[m_diggingAnimCount % 3], TRUE);
+		}
+		else
+		{
+			//DrawRotaGraphF(x, y, 0.1, 0.0, m_drillDownImage[0], TRUE);
 		}
 
 		// エフェクト表示
 		if (m_breakFlag)
 		{
-			x += 8;
-			y -= 10;
+			x += 8.0f;
+			y -= 10.0f;
 
-			DrawRotaGraph(x, y, 0.1, 1.65 * 3.14, m_effectImage[m_diggingAnimCount % 3], TRUE);
+			DrawRotaGraphF(x, y, 0.1, 1.65 * 3.14, m_effectImage[m_diggingAnimCount % 3], TRUE);
 		}
 		
 		break;
 	case e_Direction::left:
 	case e_Direction::right:
 
-		x += (int)m_offset.x;
-		y += (int)m_offset.y;
+		x += m_offset.x;
+		y += m_offset.y;
 
 		// モグラ表示
 		if (m_walkingFlag || m_diggingFlag)
 		{
-			DrawRotaGraph(x, y, 0.1, 0.0, m_walkImage[m_walkAnimCount % 2], TRUE, m_flipFlag);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_walkImage[m_walkAnimCount % 2], TRUE, m_flipFlag);
 		}
 		else
 		{
-			DrawRotaGraph(x, y, 0.1, 0.0, m_idleImage, TRUE, m_flipFlag);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_idleImage, TRUE, m_flipFlag);
 		}
 
 		// ドリル表示
 		if (m_diggingFlag)
 		{
-			DrawRotaGraph(x, y, 0.1, 0.0, m_drillImage[m_diggingAnimCount % 3], TRUE, m_flipFlag);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_drillImage[m_diggingAnimCount % 3], TRUE, m_flipFlag);
 		}
 		else
 		{
-			DrawRotaGraph(x, y, 0.1, 0.0, m_drillImage[0], TRUE, m_flipFlag);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_drillImage[0], TRUE, m_flipFlag);
 		}
 
 		// エフェクト表示
 		if (m_breakFlag)
 		{
-			DrawRotaGraph(x, y, 0.1, 0.0, m_effectImage[m_diggingAnimCount % 3], TRUE, m_flipFlag);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_effectImage[m_diggingAnimCount % 3], TRUE, m_flipFlag);
 		}
 
 		break;
@@ -209,7 +219,7 @@ void Player::Draw() const
 	// 中心地
 	DrawCircleAA(m_location.x,m_location.y, 1.5,30, 0x000000, TRUE);
 	// 当たり判定
-	DrawCircleAA(m_location.x, m_location.y, m_collision.m_radius, 30, GetColor(255, 0, 0), FALSE);
+	//DrawCircleAA(m_location.x, m_location.y, m_collision.m_radius, 30, GetColor(255, 0, 0), FALSE);
 }
 
 void Player::Finalize()
@@ -305,7 +315,8 @@ void Player::ApplyInput()
 
 	getInput[0] = KEY_INPUT_SPACE;
 	getInput[1] = XINPUT_BUTTON_A;
-	m_digButton = input.ApplyOneInput(getInput, 2);
+	getInput[2] = XINPUT_BUTTON_B;
+	m_digButton = input.ApplyOneInput(getInput, 3);
 
 	
 }
@@ -666,17 +677,20 @@ void Player::CollisionDetectionWithBlocks(float deltaSecond)
 		m_moveSpeed.x = 0.0f;
 	}
 	// 左上のブロック
-	PlayerPushingByBlocks({ m_location.x - D_BOX_SIZE / 2, m_location.y - D_BOX_SIZE / 2 }, deltaSecond);
+	PlayerPushingByBlocks({ m_location.x - D_BOX_SIZE, m_location.y - D_BOX_SIZE }, deltaSecond);
 	// 右上のブロック
-	PlayerPushingByBlocks({ m_location.x + D_BOX_SIZE / 2, m_location.y - D_BOX_SIZE / 2 }, deltaSecond);
+	PlayerPushingByBlocks({ m_location.x + D_BOX_SIZE, m_location.y - D_BOX_SIZE }, deltaSecond);
 	// 左下のブロック
-	PlayerPushingByBlocks({ m_location.x - D_BOX_SIZE / 2, m_location.y + D_BOX_SIZE / 2 }, deltaSecond);
+	PlayerPushingByBlocks({ m_location.x - D_BOX_SIZE, m_location.y + D_BOX_SIZE }, deltaSecond);
 	// 右下のブロック
-	PlayerPushingByBlocks({ m_location.x + D_BOX_SIZE / 2, m_location.y + D_BOX_SIZE / 2 }, deltaSecond);
+	PlayerPushingByBlocks({ m_location.x + D_BOX_SIZE, m_location.y + D_BOX_SIZE }, deltaSecond);
 }
 
 bool Player::PlayerPushingByBlocks(Vector2D position, float deltaSecond)
 {
+	// ブロックの膨らみ radius
+	float blockBulge = 12.0f;
+
 	// 移動速度をフレーム単位に変換
 	Vector2D deltaMoveSpeed = { m_moveSpeed.x * deltaSecond,m_moveSpeed.y * deltaSecond };
 	// 移動後の位置を設定
@@ -699,7 +713,7 @@ bool Player::PlayerPushingByBlocks(Vector2D position, float deltaSecond)
 		float distance = std::sqrt(diff.x * diff.x + diff.y * diff.y);
 
 		// 半径
-		float radius = std::sqrt(m_collision.m_radius * m_collision.m_radius);
+		float radius = std::sqrt(m_collision.m_radius * m_collision.m_radius) + blockBulge;
 
 		// めり込み判定
 		if (distance < radius)
