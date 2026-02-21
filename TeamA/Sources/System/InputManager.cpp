@@ -187,3 +187,54 @@ bool InputManager::CheckButtonRange(int button) const
 {
 	return (0 <= button && button < D_BUTTON_MAX);
 }
+
+void InputManager::ApplyOneInput(eInputState& variable, int getInput[], int getInputSize)
+{
+	GetInstance();
+
+	for (int i = 0;i < getInputSize;i++)
+	{
+		// もし、対応入力のうち、どれか一つでもHoldなら
+		if (GetKeyState(getInput[i]) == eInputState::Hold || GetButtonState(getInput[i]) == eInputState::Hold)
+		{
+			// 変数にHoldを当てはめる
+			variable = eInputState::Hold;
+			return;
+		}
+	}
+
+	for (int i = 0;i < getInputSize;i++)
+	{
+		// もし、対応入力のうち、どれか一つでもPressedなら
+		if (GetKeyState(getInput[i]) == eInputState::Pressed || GetButtonState(getInput[i]) == eInputState::Pressed)
+		{
+			// 前フレームで別の対応ボタンが押されているなら
+			for (int i = 0;i < getInputSize;i++)
+			{
+				if (GetKeyState(getInput[i]) == eInputState::Released || GetButtonState(getInput[i]) == eInputState::Released)
+				{
+					variable = eInputState::Hold;
+					return;
+				}
+			}
+			variable = eInputState::Pressed;
+			return;
+		}
+	}
+
+	for (int i = 0;i < getInputSize;i++)
+	{
+		// もし、対応入力のうち、どれか一つでもReleasedなら
+		if (GetKeyState(getInput[i]) == eInputState::Released || GetButtonState(getInput[i]) == eInputState::Released)
+		{
+			variable = eInputState::Released;
+			return;
+		}
+	}
+
+	for (int i = 0;i < getInputSize;i++)
+	{
+		// 変数にNoneを当てはめる
+		variable = eInputState::None;
+	}
+}

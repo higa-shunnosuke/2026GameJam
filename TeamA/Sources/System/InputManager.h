@@ -106,4 +106,12 @@ private:
 	/// <returns>範囲内なら、true</returns>
 	bool CheckButtonRange(int button) const;
 
+public:
+	/// <summary>
+	/// 入力を一つの対応変数にまとめる
+	/// </summary>
+	/// <param name="variable">対応変数</param>
+	/// <param name="getInput">対応入力のマクロを格納した配列</param>
+	/// <param name="getInputSize">対応入力の数</param>
+	void ApplyOneInput(eInputState& variable, int getInput[], int getInputSize);
 };

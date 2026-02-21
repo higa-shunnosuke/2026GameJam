@@ -96,14 +96,13 @@ void Player::Initialize()
 
 void Player::Update(float delta)
 {
-	float deltaSecond = 0.01f;
 
 	// 対応入力の変数化
 	ApplyAllInput();
 	// アニメーション
-	LapseAnimation(deltaSecond);
+	LapseAnimation(delta);
 	// 操作
-	PlayerOperate(deltaSecond);
+	PlayerOperate(delta);
 }
 
 void Player::Draw() const
@@ -288,87 +287,36 @@ void Player::ApplyAllInput()
 	getInput[0] = KEY_INPUT_UP;
 	getInput[1] = KEY_INPUT_W;
 	getInput[2] = XINPUT_BUTTON_DPAD_UP;
-	ApplyOneInput(m_up, getInput, 2);
+	input.ApplyOneInput(m_up, getInput, 3);
 
 	getInput[0] = KEY_INPUT_DOWN;
 	getInput[1] = KEY_INPUT_S;
 	getInput[2] = XINPUT_BUTTON_DPAD_DOWN;
-	ApplyOneInput(m_down, getInput, 2);
+	input.ApplyOneInput(m_down, getInput, 3);
 
 	getInput[0] = KEY_INPUT_LEFT;
 	getInput[1] = KEY_INPUT_A;
 	getInput[2] = XINPUT_BUTTON_DPAD_LEFT;
-	ApplyOneInput(m_left, getInput, 2);
+	input.ApplyOneInput(m_left, getInput, 3);
 
 	getInput[0] = KEY_INPUT_RIGHT;
 	getInput[1] = KEY_INPUT_D;
 	getInput[2] = XINPUT_BUTTON_DPAD_RIGHT;
-	ApplyOneInput(m_right, getInput, 2);
+	input.ApplyOneInput(m_right, getInput, 3);
 
 	getInput[0] = KEY_INPUT_SPACE;
 	getInput[1] = KEY_INPUT_F;
 	getInput[2] = XINPUT_BUTTON_A;
-	ApplyOneInput(m_digButton, getInput, 2);
+	input.ApplyOneInput(m_digButton, getInput, 3);
 
 	
-}
-
-void Player::ApplyOneInput(eInputState& variable, int getInput[], int getInputSize)
-{
-	InputManager& input = InputManager::GetInstance();
-
-	for (int i = 0;i < getInputSize;i++)
-	{
-		// もし、対応入力のうち、どれか一つでもHoldなら
-		if (input.GetKeyState(getInput[i]) == eInputState::Hold || input.GetButtonState(getInput[i]) == eInputState::Hold)
-		{
-			// 変数にHoldを当てはめる
-			variable = eInputState::Hold;
-			return;
-		}
-	}
-
-	for (int i = 0;i < getInputSize;i++)
-	{
-		// もし、対応入力のうち、どれか一つでもPressedなら
-		if (input.GetKeyState(getInput[i]) == eInputState::Pressed || input.GetButtonState(getInput[i]) == eInputState::Pressed)
-		{
-			// 前フレームで別の対応ボタンが押されているなら
-			for (int i = 0;i < getInputSize;i++)
-			{
-				if (input.GetKeyState(getInput[i]) == eInputState::Released || input.GetButtonState(getInput[i]) == eInputState::Released)
-				{
-					variable = eInputState::Hold;
-					return;
-				}
-			}
-			variable = eInputState::Pressed;
-			return;
-		}
-	}
-
-	for (int i = 0;i < getInputSize;i++)
-	{
-		// もし、対応入力のうち、どれか一つでもReleasedなら
-		if (input.GetKeyState(getInput[i]) == eInputState::Released || input.GetButtonState(getInput[i]) == eInputState::Released)
-		{
-			variable = eInputState::Released;
-			return;
-		}
-	}
-
-	for (int i = 0;i < getInputSize;i++)
-	{
-		// 変数にNoneを当てはめる
-		variable = eInputState::None;
-	}
 }
 
 void Player::LapseAnimation(float deltaSecond)
 {
 	// 歩くアニメーション
 	m_walkAnimTime += deltaSecond;
-	if (m_walkAnimTime > deltaSecond * 20)
+	if (m_walkAnimTime > 0.2)
 	{
 		m_walkAnimTime = 0.0f;
 		m_walkAnimCount += 1;
@@ -378,7 +326,7 @@ void Player::LapseAnimation(float deltaSecond)
 	if (m_diggingAnimCount <= 1 || m_digButton == eInputState::Hold)
 	{
 		m_diggingAnimTime += deltaSecond;
-		if (m_diggingAnimTime > deltaSecond * 10)
+		if (m_diggingAnimTime > 0.1)
 		{
 			m_diggingAnimTime = 0.0f;
 			m_diggingAnimCount += 1;
@@ -406,7 +354,7 @@ void Player::PlayerOperate(float deltaSecond)
 	// 加速度の設定
 	float acceleration = m_maxSpeed * 4 * deltaSecond;
 	// 減速度の設定
-	float deceleration = m_maxSpeed * 2 * deltaSecond;
+	float deceleration = m_maxSpeed * 3 * deltaSecond;
 
 	PlayerDeceleration(deceleration);
 
@@ -782,11 +730,6 @@ bool Player::PlayerPushingByBlocks(Vector2D position, float deltaSecond)
 const int& Player::GetStamina() const
 {
 	return m_stamina;
-}
-
-const int& Player::GetStaminaMax() const
-{
-	return m_staminaMax;
 }
 
 const int& Player::GetScore() const
