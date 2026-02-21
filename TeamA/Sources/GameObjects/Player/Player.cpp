@@ -304,7 +304,7 @@ void Player::ApplyInput()
 	m_right = input.ApplyOneInput(getInput, 3);
 
 	getInput[0] = KEY_INPUT_SPACE;
-	getInput[2] = XINPUT_BUTTON_A;
+	getInput[1] = XINPUT_BUTTON_A;
 	m_digButton = input.ApplyOneInput(getInput, 2);
 
 	
