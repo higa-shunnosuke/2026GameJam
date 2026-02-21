@@ -87,13 +87,13 @@ void MapData::Draw() const
 
 #if _DEBUG
 			// デバッグ
-			//unsigned int debug_color = 0xffffff;
-			//if (ch == 'r') debug_color = GetColor(0, 255, 0);
-			//else if (ch == 's') debug_color = GetColor(255, 0, 0);
-			//else if (ch == 'w') debug_color = GetColor(0, 0, 255);
+			unsigned int debug_color = 0xffffff;
+			if (ch == 'r') debug_color = GetColor(0, 255, 0);
+			else if (ch == 's') debug_color = GetColor(255, 0, 0);
+			else if (ch == 'w') debug_color = GetColor(0, 0, 255);
 
-			//DrawBoxAA(position.x, position.y, position.x + size, position.y + size, debug_color, FALSE);
-			//DrawFormatString(position.x, position.y, 0xffffff, "%c(%d,%d)", ch, (int)x, (int)y);
+			DrawBoxAA(position.x, position.y, position.x + size, position.y + size, debug_color, FALSE);
+			DrawFormatString(position.x, position.y, 0xffffff, "%c(%d,%d)", ch, (int)x, (int)y);
 #endif
 
 		}
@@ -288,14 +288,14 @@ void MapData::SpawnPlant()
 {
 	ObjectManager& om = ObjectManager::GetInstance();
 
-	om.RequestSpawn<PotatoPlant>({ 192.0f,260.0f });
-	om.RequestSpawn<PotatoPlant>({ 640.0f,260.0f });
-	om.RequestSpawn<PotatoPlant>({ 1152.0f,260.0f });
+	om.RequestSpawn<PotatoPlant>({ 292.0f,320.0f });
+	om.RequestSpawn<PotatoPlant>({ 1000.0f,320.0f });
+	om.RequestSpawn<PotatoPlant>({ 1700.0f,320.0f });
 }
 
 void MapData::GenerateMapObjects()
 {
-	const int start_y = D_BOX_OFFSET;
+	const int start_y = D_START_Y;		// プレイヤーの深さ
 	const int end_y = D_BOX_OFFSET + D_BOX_COUNT;
 
 	// 生成中だけ使う岩占有配列（ローカル）

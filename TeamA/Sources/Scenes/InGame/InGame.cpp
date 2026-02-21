@@ -24,7 +24,7 @@ void InGame::Initialize()
 	ObjectManager& object = ObjectManager::GetInstance();
 	// マップの初期化
 	m_map = object.RequestSpawn<MapData>({ 0,0 });
-	m_player = object.RequestSpawn<Player>(Vector2D(64.0f,448.0f));
+	m_player = object.RequestSpawn<Player>(Vector2D(64.0f, D_BOX_SIZE * D_START_Y - D_BOX_SIZE / 2));
 	m_player->SetMap(m_map);
 
 	// カメラを生成
