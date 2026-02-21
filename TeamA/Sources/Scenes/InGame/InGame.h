@@ -10,9 +10,9 @@ private:
 	MapData* m_map;
 	Player* m_player;
 
-	int m_groundImage;	// 地面の画像
-	int m_skyImage[3];	// 空の画像
-	int m_back_buffer;	// 仮想画面
+	int m_groundImage;				// 地面の画像
+	std::vector<int> m_skyImage;	// 空の画像
+	int m_back_buffer;				// 仮想画面
 
 public:
 	// コンストラクタ
@@ -50,6 +50,5 @@ public:
 	virtual const SceneType GetNowSceneType() const override;
 
 private:
-
 
 };

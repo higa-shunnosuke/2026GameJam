@@ -28,7 +28,7 @@ int WINAPI WinMain(
 		Application* app = new Application;
 
 		// アプリケーション起動
-		app->StartApp("ここにゲームタイトルを入力");
+		app->StartApp("ベジトレジャー");
 
 		delete app;
 

@@ -19,6 +19,7 @@ class SceneBase
 {
 protected:
 	float m_time;			// 制限時間
+	float m_elapsedTime;	// 経過時間
 
 public:
 	// コンストラクタ
@@ -84,12 +85,12 @@ public:
 	/// <param name="delta">デルタタイム</param>
 	virtual void Timer(float delta)
 	{
-		// 制限時間が０になるまで経過時間を減算
-		if (m_time > 0.0f) {
-			m_time -= delta;
+		// 経過時間が制限時間を超えるまでdeltaを加算
+		if (m_elapsedTime < m_time) {
+			m_elapsedTime += delta;
 		}
 		else {
-			m_time = 0.0f;
+			m_elapsedTime = m_time;
 		}
 	}
 };

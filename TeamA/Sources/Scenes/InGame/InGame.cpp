@@ -16,7 +16,9 @@ void InGame::Initialize()
 	// 背景画像読み込み
 	ResourceManager& rm = ResourceManager::GetInstance();
 	m_groundImage = rm.GetImageResource("Assets/Textures/InGame/Ground.PNG")[0];
-	m_skyImage[1] = rm.GetImageResource("Assets/Textures/InGame/Sky1.PNG")[0];
+	m_skyImage.push_back(rm.GetImageResource("Assets/Textures/InGame/Sky3.PNG")[0]);
+	m_skyImage.push_back(rm.GetImageResource("Assets/Textures/InGame/Sky2.PNG")[0]);
+	m_skyImage.push_back(rm.GetImageResource("Assets/Textures/InGame/Sky1.PNG")[0]);
 
 	// 各オブジェクトを生成
 	ObjectManager& object = ObjectManager::GetInstance();
@@ -39,10 +41,17 @@ void InGame::Initialize()
 // 更新処理
 SceneType InGame::Update(float delta)
 {
+	// タイマーの更新
+	__super::Timer(delta);
+
 	//インスタンス取得
 	InputManager& input = InputManager::GetInstance();
 	// リザルトシーンに遷移する
 	if (input.GetKeyState(KEY_INPUT_RETURN) == eInputState::Pressed)
+	{
+		return SceneType::resutart;
+	}
+	if (m_elapsedTime > m_time)
 	{
 		return SceneType::resutart;
 	}
@@ -71,8 +80,7 @@ SceneType InGame::Update(float delta)
 	//カメラの更新
 	camera.Update();
 
-	// タイマーの更新
-	__super::Timer(delta);
+
 
 	// 親クラスの更新処理
 	return __super::Update(delta);
@@ -81,27 +89,62 @@ SceneType InGame::Update(float delta)
 // 描画処理
 void InGame::Draw() const
 {
-	//---------------
+	//--------------------
 	// 仮想画面に描画
-	//---------------
+	//--------------------
 	SetDrawScreen(m_back_buffer);
 	ClearDrawScreen();
 
-	float imageSize = 0.222f;
-	int offset = 582;
+	// 背景
+	{
+		float imageSize = 0.222f;
+		int offset;
 
-	// 背景画像の描画
-	DrawRotaGraph(D_WIN_WIDTH / 2, D_WIN_HEIGHT / 2, imageSize, 0.0, m_skyImage[1], TRUE);
-	DrawRotaGraph(D_WIN_WIDTH / 2, D_WIN_HEIGHT / 2 + offset, imageSize, 0.0, m_groundImage, TRUE);
+		// 空
+		offset = - 192;
+		DrawExtendGraph(0, offset, D_STAGE_WIDTH, D_STAGE_HEIGHT / 2 + offset, m_skyImage[m_skyImage.size() - 1], TRUE);
+		for (int i = 0; i < m_skyImage.size(); i++)
+		{
+			// フェード間隔
+			float fadeInterval = m_time / m_skyImage.size();
+			// フェード比率(20%)
+			float fadeRatio = 0.2;
+			// フェード時間
+			float fadeTime = fadeInterval * fadeRatio;
+			// フェード終了時間
+			float fadeEnd = m_time - (fadeInterval * i);
+			// フェード開始時間
+			float fadeStart = fadeEnd - fadeTime;
+			// アルファ
+			int alpha = 255;
 
-	//	インゲーム表示
-	DrawFormatString(10, 10, 0xffffff, "InGame");
+			if (m_elapsedTime >= fadeEnd) continue;
+
+			// フェード経過時間を測定(InGameの経過時間 - フェード開始時間)
+			float fadeElapsed = m_elapsedTime - fadeStart;
+
+			// アルファを計算
+			alpha -= 255 / fadeTime * fadeElapsed;
+
+			// アルファブレンド
+			SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
+			// 経過時間に応じて空を描画
+			DrawExtendGraph(0, offset, D_STAGE_WIDTH, D_STAGE_HEIGHT / 2 + offset, m_skyImage[i], TRUE);
+			// ブレンドモードを戻す
+			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		}
+
+		// 地面
+		offset = 32;
+		DrawExtendGraph(0, offset, D_STAGE_WIDTH, D_STAGE_HEIGHT + offset, m_groundImage, TRUE);
+
+	}
 
 	__super::Draw();
 
-	//---------------
+	//--------------------
 	// 表画面に描画
-	//---------------
+	//--------------------
 	SetDrawScreen(DX_SCREEN_BACK);
 	ClearDrawScreen();
 
@@ -110,7 +153,10 @@ void InGame::Draw() const
 	camera.Draw(m_back_buffer);
 
 	SetFontSize(64);
-	DrawFormatString(1100, 10, 0xffffff, "%.2f", m_time);
+	//	インゲーム表示
+	DrawFormatString(10, 10, 0xff0000, "InGame");
+	// タイマー描画
+	DrawFormatString(1100, 10, 0xffffff, "%.2f", m_time - m_elapsedTime);
 	SetFontSize(12);
 }
 
