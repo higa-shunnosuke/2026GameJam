@@ -14,6 +14,9 @@
 #include <string>
 #include <sstream>
 
+#define JEWEL_RATE (30)		// 宝石の生成確率（％）
+#define ROCK_RATE  (5)		// 岩の生成確率（％）
+
 MapData::MapData()
 	:m_soil{}
 {
@@ -39,12 +42,10 @@ void MapData::Initialize()
 	LoadMapCsv();
 	// ランダムの種を設定
 	Random::SetSeed();
-	// 宝石の生成
-	CreateJewel();
 	// プラントの生成
-	CreatePlant();
-	// 岩の生成
-	CreateRock();
+	SpawnPlant();
+	// 宝石と岩の生成
+	GenerateMapObjects();
 }
 
 void MapData::Draw() const
@@ -85,14 +86,14 @@ void MapData::Draw() const
 			}
 
 #if _DEBUG
-			//// デバッグ
-			//unsigned int debug_color = 0xffffff;
-			//if (ch == 'r') debug_color = GetColor(0, 255, 0);
-			//else if (ch == 's') debug_color = GetColor(255, 0, 0);
-			//else if (ch == 'w') debug_color = GetColor(0, 0, 255);
+			// デバッグ
+			unsigned int debug_color = 0xffffff;
+			if (ch == 'r') debug_color = GetColor(0, 255, 0);
+			else if (ch == 's') debug_color = GetColor(255, 0, 0);
+			else if (ch == 'w') debug_color = GetColor(0, 0, 255);
 
-			//DrawBoxAA(position.x, position.y, position.x + size, position.y + size, debug_color, FALSE);
-			//DrawFormatString(position.x, position.y, 0xffffff, "%c(%d,%d)", ch, (int)x, (int)y);
+			DrawBoxAA(position.x, position.y, position.x + size, position.y + size, debug_color, FALSE);
+			DrawFormatString(position.x, position.y, 0xffffff, "%c(%d,%d)", ch, (int)x, (int)y);
 #endif
 
 		}
@@ -283,7 +284,7 @@ void MapData::LoadMapCsv()
 
 }
 
-void MapData::CreatePlant()
+void MapData::SpawnPlant()
 {
 	ObjectManager& om = ObjectManager::GetInstance();
 
@@ -292,102 +293,112 @@ void MapData::CreatePlant()
 	om.RequestSpawn<PotatoPlant>({ 1152.0f,260.0f });
 }
 
-void MapData::CreateJewel()
+void MapData::GenerateMapObjects()
 {
+	const int start_y = D_BOX_OFFSET;
+	const int end_y = D_BOX_OFFSET + D_BOX_COUNT;
 
-	// 各マスに宝石を生成する数を決める処理
-
-	// 宝石の生成数を入れる配列
-	std::vector<std::vector<int>> jewel;
-
-	// 要素数を同じにする
-	jewel = std::vector<std::vector<int>>(
-		m_mapData.size(),
-		std::vector<int>(m_mapData[0].size(), 0)
-	);
-
-	for (size_t y = 0; y < jewel.size(); ++y)
+	for (int y = start_y; y < end_y && y < (int)m_mapData.size(); ++y)
 	{
-		for (size_t x = 0; x < jewel[y].size(); ++x)
+		for (int x = 0; x < (int)m_mapData[y].size(); ++x)
 		{
-			int value = 0;
+			GridPos grid{ x, y };
 
-			// 深さ 5～14 のときのみ生成率を上げる
-			if (y >= 5 && y <= 3 + D_BOX_COUNT)
+			int r = Random::GetRand() % 100;
+
+			if (r < JEWEL_RATE)
 			{
-				// 0.0 ～ 1.0 の乱数に正規化
-				float r = static_cast<float>(Random::GetRand())
-					/ static_cast<float>(UINT_MAX);
-
-				// 生成するかしないかを決める処理
-				// 深くなるほど確率を上げる（5 → 0%、14 → 100%）
-				float depthRate = static_cast<float>(y - 5) / 10.0f;
-
-				if (r < depthRate)
-				{
-					// 0～5 のランダム個数
-					value = static_cast<int>(Random::GetRand() % 5);
-				}
+				SpawnJewel(grid);
 			}
-
-			jewel[y][x] = value;
-		}
-	}
-
-
-	// 生成する処理
-	ObjectManager& om = ObjectManager::GetInstance();
-
-	constexpr int kMaxOffset = 64;
-
-	for (size_t y = 0; y < jewel.size(); ++y)
-	{
-		for (size_t x = 0; x < jewel[y].size(); ++x)
-		{
-			const int spawnNum = jewel[y][x];
-
-			// 中心座標
-			Vector2D pos = GridToWorld({ static_cast<int>(x), static_cast<int>(y) });
-
-			switch (spawnNum)
+			else if (r < JEWEL_RATE + ROCK_RATE)
 			{
-			case 0:
-
-				break;
-			case 1:
-				om.RequestSpawn<Jewel>(pos);
-
-				break;
-			case 2:
-				// 左上と右下
-				om.RequestSpawn<Jewel>(pos - 32.0f);
-				om.RequestSpawn<Jewel>(pos + 32.0f);
-
-				break;
-			case 3:
-				// 上と左下と右下
-				om.RequestSpawn<Jewel>({ pos.x,pos.y - 24.0f });
-				om.RequestSpawn<Jewel>({ pos.x - 24.0f,pos.y + 24 });
-				om.RequestSpawn<Jewel>({ pos.x + 24.0f,pos.y + 24 });
-
-				break;
-			case 4:
-				// 左上と右上と左下と右下
-				om.RequestSpawn<Jewel>(pos - 32.0f);
-				om.RequestSpawn<Jewel>({ pos.x + 32.0f,pos.y - 32 });
-				om.RequestSpawn<Jewel>({ pos.x - 32.0f,pos.y + 32 });
-				om.RequestSpawn<Jewel>(pos + 32.0f);
-				break;
+				SpawnRock(grid);
 			}
 		}
 	}
 }
 
-void MapData::CreateRock()
+void MapData::SpawnJewel(const GridPos& gridPos)
 {
+	// 5層以上は見ない
+	if (gridPos.y < 5)
+		return;
+
+	// 宝石の数5
+	int value = 0;
+	// 深さに応じて最低、最大出現数を増やす
+	int current_min = 0;
+	int current_max = 1;
+	if (gridPos.y > 6)
+	{
+		current_min = 1;
+		current_max = 2;
+	}
+	if (gridPos.y > 9)
+	{
+		current_min = 1;
+		current_max = 3;
+	}
+	if (gridPos.y > 12)
+	{
+		current_min = 2;
+		current_max = 3;
+	}
+	if (gridPos.y > 15)
+	{
+		current_min = 3;
+		current_max = 4;
+	}
+
+	// 最低値から最大値までの間でランダム
+	int range = current_max - current_min + 1;
+	value = current_min + (Random::GetRand() % range);
+
+	// 中心座標
+	Vector2D pos = GridToWorld({ static_cast<int>(gridPos.x), static_cast<int>(gridPos.y) });
+
 	ObjectManager& om = ObjectManager::GetInstance();
 
-	om.RequestSpawn<Rock>({ 592.0f,860.0f });
+	switch (value)
+	{
+	case 1:
+		om.RequestSpawn<Jewel>(pos);
+
+		break;
+	case 2:
+		// 左上と右下
+		om.RequestSpawn<Jewel>(pos - 32.0f);
+		om.RequestSpawn<Jewel>(pos + 32.0f);
+
+		break;
+	case 3:
+		// 上と左下と右下
+		om.RequestSpawn<Jewel>({ pos.x,pos.y - 24.0f });
+		om.RequestSpawn<Jewel>({ pos.x - 24.0f,pos.y + 24 });
+		om.RequestSpawn<Jewel>({ pos.x + 24.0f,pos.y + 24 });
+
+		break;
+	case 4:
+		// 左上と右上と左下と右下
+		om.RequestSpawn<Jewel>(pos - 32.0f);
+		om.RequestSpawn<Jewel>({ pos.x + 32.0f,pos.y - 32 });
+		om.RequestSpawn<Jewel>({ pos.x - 32.0f,pos.y + 32 });
+		om.RequestSpawn<Jewel>(pos + 32.0f);
+		break;
+	}
+}
+
+void MapData::SpawnRock(const GridPos& gridPos)
+{
+	// 深さ 5から最大値 の時のみ生成する
+	if (gridPos.y < 5 || gridPos.y > D_BOX_COUNT + D_BOX_OFFSET)
+		return;
+
+	ObjectManager& om = ObjectManager::GetInstance();
+
+	Vector2D pos = GridToWorld({ static_cast<int>(gridPos.x), static_cast<int>(gridPos.y) });
+
+	om.RequestSpawn<Rock>(pos);
 
 }
 

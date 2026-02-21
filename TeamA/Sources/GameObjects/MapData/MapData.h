@@ -19,7 +19,7 @@ class MapData : public ObjectBase
 private:
 
 	/// <summary>
-	/// グリッド座標を入れる構造体
+	/// グリッド座標
 	/// </summary>
 	struct GridPos
 	{
@@ -74,7 +74,6 @@ public:
 	/// <returns>移動後の座標のグリッド情報</returns>
 	e_TileType TileType(const Vector2D& worldPos) const;
 
-
 	/// <summary>
 	/// ワールド座標をグリッド中央に寄せる
 	/// </summary>
@@ -93,14 +92,12 @@ private:
 	/// </summary>
 	Vector2D GridToWorld(const GridPos& gridPos) const;
 
-
 	/// <summary>
 	/// ワールド座標を収める
 	/// </summary>
 	/// <param name="worldPos"></param>
 	/// <returns></returns>
 	Vector2D ClampWorldPosition(const Vector2D& worldPos) const;
-
 
 	/// <summary>
 	/// グリッド座標を収める
@@ -109,8 +106,18 @@ private:
 	/// <returns></returns>
 	MapData::GridPos ClampGridPosition(const GridPos& gridPos) const;
 
+	/// <summary>
+	/// ワールド座標の範囲内か返す
+	/// </summary>
+	/// <param name="worldPos">判定する座標</param>
+	/// <returns>範囲内ならtrue</returns>
 	bool IsWorldInBounds(const Vector2D& worldPos) const;
 
+	/// <summary>
+	/// グリッド座標の範囲内か返す
+	/// </summary>
+	/// <param name="gridPos">判定するグリッド座標</param>
+	/// <returns>範囲内ならtrue</returns>
 	bool IsGridInBounds(const GridPos& gridPos) const;
 
 private:
@@ -121,35 +128,41 @@ private:
 	void LoadMapCsv();
 
 	/// <summary>
-	/// プラントを生成する処理
+	/// プラントを生成する
 	/// </summary>
-	void CreatePlant();
+	void SpawnPlant();
 
 	/// <summary>
-	/// 宝石を生成する処理
+	/// 各マスに宝石か岩の生成処理
 	/// </summary>
-	void CreateJewel();
+	void GenerateMapObjects();
+
+	/// <summary>
+	/// 宝石を生成する
+	/// </summary>
+	/// <param name="gridPos">生成するグリッド座標</param>
+	void SpawnJewel(const GridPos& gridPos);
 
 	/// <summary>
 	/// 岩を生成する
 	/// </summary>
-	void CreateRock();
-
+	/// <param name="gridPos">生成するグリッド座標</param>
+	void SpawnRock(const GridPos& gridPos);
 
 private:
 
 	/// <summary>
 	/// 上下左右に道があるかを確認する
 	/// </summary>
-	/// <param name="gridPos"></param>
-	/// <returns></returns>
+	/// <param name="gridPos">判定するグリッド座標</param>
+	/// <returns>上下右左のビットマスク</returns>
 	int GetRoadMask(GridPos gridPos) const;
 
 	/// <summary>
-	/// maskから分割画像構造体を返す
+	/// 道maskから分割画像構造体を返す
 	/// </summary>
-	/// <param name="gridPos"></param>
-	/// <param name="mask"></param>
-	/// <returns></returns>
+	/// <param name="gridPos">斜め確認用グリッド</param>
+	/// <param name="mask">道の隣接情報のマスク</param>
+	/// <returns>画像情報</returns>
 	AutoTile4 ConvertMaskToTile(GridPos gridPos, int mask) const;
 };
