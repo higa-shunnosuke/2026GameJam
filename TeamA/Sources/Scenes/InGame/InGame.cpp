@@ -6,8 +6,8 @@
 InGame::InGame()
 	: m_map(nullptr)
 	, m_player(nullptr)
-	, groundImage()
-	, back_buffer()
+	, m_groundImage()
+	, m_back_buffer()
 {
 }
 
@@ -15,7 +15,8 @@ void InGame::Initialize()
 {
 	// 背景画像読み込み
 	ResourceManager& rm = ResourceManager::GetInstance();
-	groundImage = rm.GetImageResource("Assets/Textures/InGame/BackGround/Ground.PNG")[0];
+	m_groundImage = rm.GetImageResource("Assets/Textures/InGame/Ground.PNG")[0];
+	m_skyImage[1] = rm.GetImageResource("Assets/Textures/InGame/Sky1.PNG")[0];
 
 	// 各オブジェクトを生成
 	ObjectManager& object = ObjectManager::GetInstance();
@@ -28,7 +29,7 @@ void InGame::Initialize()
 	Camera& camera = Camera::GetInstance();
 	camera.Initialize();
 
-	back_buffer = MakeScreen(D_STAGE_WIDTH, D_STAGE_HEIGHT, TRUE);
+	m_back_buffer = MakeScreen(D_STAGE_WIDTH, D_STAGE_HEIGHT, TRUE);
 
 	// 制限時間の初期化
 	m_time = 60.0f;
@@ -83,21 +84,18 @@ void InGame::Draw() const
 	//---------------
 	// 仮想画面に描画
 	//---------------
-	SetDrawScreen(back_buffer);
+	SetDrawScreen(m_back_buffer);
 	ClearDrawScreen();
 
 	float imageSize = 0.222f;
 	int offset = 582;
 
 	// 背景画像の描画
-	DrawRotaGraph(D_WIN_WIDTH / 2, D_WIN_HEIGHT / 2 + offset, imageSize, 0.0, groundImage, TRUE);
+	DrawRotaGraph(D_WIN_WIDTH / 2, D_WIN_HEIGHT / 2, imageSize, 0.0, m_skyImage[1], TRUE);
+	DrawRotaGraph(D_WIN_WIDTH / 2, D_WIN_HEIGHT / 2 + offset, imageSize, 0.0, m_groundImage, TRUE);
 
 	//	インゲーム表示
 	DrawFormatString(10, 10, 0xffffff, "InGame");
-
-	SetFontSize(64);
-	DrawFormatString(1000, 80, 0xffffff, "%.2f",m_time);
-	SetFontSize(12);
 
 	__super::Draw();
 
@@ -109,7 +107,11 @@ void InGame::Draw() const
 
 	// 仮想画面を描画
 	Camera& camera = Camera::GetInstance();
-	camera.Draw(back_buffer);
+	camera.Draw(m_back_buffer);
+
+	SetFontSize(64);
+	DrawFormatString(1100, 10, 0xffffff, "%.2f", m_time);
+	SetFontSize(12);
 }
 
 // 終了処理

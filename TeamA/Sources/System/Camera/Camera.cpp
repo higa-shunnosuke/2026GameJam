@@ -20,7 +20,7 @@ Camera::~Camera()
 // 初期化処理
 void Camera::Initialize()
 {
-	// スクリーンのサイズを設定
+	// スクリーンサイズを設定
 	size.x = D_WIN_WIDTH / 2;
 	size.y = D_WIN_HEIGHT / 2;
 
@@ -45,7 +45,7 @@ void Camera::Update()
 // 描画処理
 void Camera::Draw(int back_buffer)
 {
-	// スケーリング後のサイズ
+	// 背景のサイズ
 	int drawW = (int)(D_STAGE_WIDTH);
 	int drawH = (int)(D_STAGE_HEIGHT);
 
@@ -53,12 +53,13 @@ void Camera::Draw(int back_buffer)
 	int drawX = -(int)(location.x);
 	int drawY = -(int)(location.y);
 
-	// 背景を拡大・縮小＋スクロールして描画
+	// 背景を描画
 	DrawExtendGraph(drawX, drawY, drawX + drawW, drawY + drawH, back_buffer, TRUE);
 }
 
 // カメラ座標設定処理
 void Camera::SetCameraPos(Vector2D location)
 {
+	// スクリーンの中央を設定座標にする
 	this->location = location - size;
 }
