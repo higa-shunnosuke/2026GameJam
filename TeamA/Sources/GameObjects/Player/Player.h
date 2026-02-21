@@ -11,6 +11,9 @@ private:
 
 	MapData* m_map;
 
+	// スコア
+	int m_score;
+
 	// スタミナ
 	int m_stamina;
 	// スタミナの最大
@@ -128,9 +131,9 @@ private:
 	void LapseAnimation();
 
 	/// <summary>
-	/// プレイヤーの移動
+	/// プレイヤーの操作
 	/// </summary>
-	void PlayerMove();
+	void PlayerOperate();
 
 	/// <summary>
 	/// プレイヤーの減速

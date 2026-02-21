@@ -25,6 +25,8 @@ void Player::Initialize()
 	// zレイヤーを設定
 	m_zLayer = 12;
 
+	// スコア
+	m_score = 0;
 
 	// スタミナ
 	m_staminaMax = 100;
@@ -96,12 +98,12 @@ void Player::Initialize()
 
 void Player::Update(float delta)
 {
-	// 対応入力
+	// 対応入力の変数化
 	ApplyAllInput();
-
+	// アニメーション
 	LapseAnimation();
-	
-	PlayerMove();
+	// 操作
+	PlayerOperate();
 }
 
 void Player::Draw() const
@@ -237,6 +239,9 @@ void Player::OnHitCollision(ObjectBase& other)
 
 		break;
 	case e_ObjectType::jewel:
+
+		m_score;
+
 		break;
 	}
 }
@@ -390,7 +395,7 @@ void Player::LapseAnimation()
 	}
 }
 
-void Player::PlayerMove()
+void Player::PlayerOperate()
 {
 	InputManager& input = InputManager::GetInstance();
 
@@ -510,20 +515,16 @@ void Player::PlayerWalkingOperation(float acceleration)
 		m_moveSpeed.y += acceleration;
 	}
 
-	// 歩き始める処理
-	if (m_left == eInputState::Pressed || m_right == eInputState::Pressed ||
-		m_up == eInputState::Pressed || m_down == eInputState::Pressed)
+	if (m_left == eInputState::Hold || m_right == eInputState::Hold ||
+		m_up == eInputState::Hold || m_down == eInputState::Hold)
 	{
+		// 歩く
 		m_walkingFlag = TRUE;
 	}
 	else
 	{
-		// 歩くのをやめる処理
-		if (m_left == eInputState::None && m_right == eInputState::None &&
-			m_up == eInputState::None && m_down == eInputState::None)
-		{
-			m_walkingFlag = FALSE;
-		}
+		// 歩いていない
+		m_walkingFlag = FALSE;
 	}
 }
 
@@ -540,29 +541,83 @@ void Player::ChangeOneDirection(e_Direction direction, eInputState inputState)
 	// その入力があるとき
 	if (inputState == eInputState::Hold)
 	{
-		// そのキーが左ではないかつ、左が押されているとき
-		if (e_Direction::left != direction && m_left != eInputState::None)
+		switch (direction)
 		{
-			// 処理を終了する
-			return;
-		}
-		// そのキーが右ではないかつ、右が押されているとき
-		if (e_Direction::right != direction && m_right != eInputState::None)
-		{
-			// 処理を終了する
-			return;
-		}
-		// そのキーが上ではないかつ、上が押されているとき
-		if (e_Direction::up != direction && m_up != eInputState::None)
-		{
-			// 処理を終了する
-			return;
-		}
-		// そのキーが下ではないかつ、下が押されているとき
-		if (e_Direction::down != direction && m_down != eInputState::None)
-		{
-			// 処理を終了する
-			return;
+		case e_Direction::up:
+			// 移動が下方向
+			if (m_moveSpeed.y >= 0.0f)
+			{
+				// 処理を終了する
+				return;
+			}
+			// 向いている方向が下ではない
+			if (m_direction != e_Direction::down)
+			{
+				// 左右が押されているとき
+				if (m_left != eInputState::None || m_right != eInputState::None)
+				{
+					// 処理を終了する
+					return;
+				}
+			}
+			break;
+
+		case e_Direction::down:
+			// 移動が上方向
+			if (m_moveSpeed.y <= 0.0f)
+			{
+				// 処理を終了する
+				return;
+			}
+			// 向いている方向が上ではない
+			if (m_direction != e_Direction::up)
+			{
+				// 左右が押されているとき
+				if (m_left != eInputState::None || m_right != eInputState::None)
+				{
+					// 処理を終了する
+					return;
+				}
+			}
+			break;
+
+		case e_Direction::left:
+			// 移動が右方向
+			if (m_moveSpeed.x >= 0.0f)
+			{
+				// 処理を終了する
+				return;
+			}
+			// 向いている方向が右ではない
+			if (m_direction != e_Direction::right)
+			{
+				// 上下が押されているとき
+				if (m_up != eInputState::None || m_down != eInputState::None)
+				{
+					// 処理を終了する
+					return;
+				}
+			}
+			break;
+
+		case e_Direction::right:
+			// 移動が左方向
+			if (m_moveSpeed.x <= 0.0f)
+			{
+				// 処理を終了する
+				return;
+			}
+			// 向いている方向が左ではない
+			if (m_direction != e_Direction::left)
+			{
+				// 上下が押されているとき
+				if (m_up != eInputState::None || m_down != eInputState::None)
+				{
+					// 処理を終了する
+					return;
+				}
+			}
+			break;
 		}
 
 		// その方向に向ける
@@ -633,63 +688,38 @@ void Player::MoveInTheDiggingDirection(float acceleration)
 
 void Player::CollisionDetectionWithBlocks()
 {
-	if (m_direction != e_Direction::down)
+	// 上のブロック
+	if (PlayerPushingByBlocks({ m_location.x, m_location.y - D_BOX_SIZE / 2 }))
 	{
-		// 上のブロック
-		if (PlayerPushingByBlocks({ m_location.x, m_location.y - D_BOX_SIZE / 2 }))
-		{
-			// 衝突したら、Y方向の加速をリセット
-			m_moveSpeed.y = 0.0f;
-		}
+		// 衝突したら、Y方向の加速をリセット
+		m_moveSpeed.y = 0.0f;
 	}
-	if (m_direction != e_Direction::up)
+	// 下のブロック
+	if (PlayerPushingByBlocks({ m_location.x, m_location.y + D_BOX_SIZE / 2 }))
 	{
-		// 下のブロック
-
-		if (PlayerPushingByBlocks({ m_location.x, m_location.y + D_BOX_SIZE / 2 }))
-		{
-			// 衝突したら、Y方向の加速をリセット
-			m_moveSpeed.y = 0.0f;
-		}
+		// 衝突したら、Y方向の加速をリセット
+		m_moveSpeed.y = 0.0f;
 	}
-	if (m_direction != e_Direction::right)
+	// 左のブロック
+	if (PlayerPushingByBlocks({ m_location.x - D_BOX_SIZE / 2, m_location.y }))
 	{
-		// 左のブロック
-		if (PlayerPushingByBlocks({ m_location.x - D_BOX_SIZE / 2, m_location.y }))
-		{
-			// 衝突したら、X方向の加速をリセット
-			m_moveSpeed.x = 0.0f;
-		}
+		// 衝突したら、X方向の加速をリセット
+		m_moveSpeed.x = 0.0f;
 	}
-	if (m_direction != e_Direction::left)
+	// 右のブロック
+	if (PlayerPushingByBlocks({ m_location.x + D_BOX_SIZE / 2, m_location.y }))
 	{
-		// 右のブロック
-		if (PlayerPushingByBlocks({ m_location.x + D_BOX_SIZE / 2, m_location.y }))
-		{
-			// 衝突したら、X方向の加速をリセット
-			m_moveSpeed.x = 0.0f;
-		}
+		// 衝突したら、X方向の加速をリセット
+		m_moveSpeed.x = 0.0f;
 	}
-	if (m_direction != e_Direction::down && m_direction != e_Direction::right)
-	{
-		// 左上のブロック
-		PlayerPushingByBlocks({ m_location.x - D_BOX_SIZE / 2, m_location.y - D_BOX_SIZE / 2 });
-	}
-	if (m_direction != e_Direction::down && m_direction != e_Direction::left)
-	{
-		// 右上のブロック
-		PlayerPushingByBlocks({ m_location.x + D_BOX_SIZE / 2, m_location.y - D_BOX_SIZE / 2 });
-	}
-	if (m_direction != e_Direction::up && m_direction != e_Direction::right)
-	{
-		// 左下のブロック
-		PlayerPushingByBlocks({ m_location.x - D_BOX_SIZE / 2, m_location.y + D_BOX_SIZE / 2 });
-	}
-	if (m_direction != e_Direction::up && m_direction != e_Direction::left)
-	{
-		// 右下のブロック
-		PlayerPushingByBlocks({ m_location.x + D_BOX_SIZE / 2, m_location.y + D_BOX_SIZE / 2 });
-	}
+	// 左上のブロック
+	PlayerPushingByBlocks({ m_location.x - D_BOX_SIZE / 2, m_location.y - D_BOX_SIZE / 2 });
+	// 右上のブロック
+	PlayerPushingByBlocks({ m_location.x + D_BOX_SIZE / 2, m_location.y - D_BOX_SIZE / 2 });
+	// 左下のブロック
+	PlayerPushingByBlocks({ m_location.x - D_BOX_SIZE / 2, m_location.y + D_BOX_SIZE / 2 });
+	// 右下のブロック
+	PlayerPushingByBlocks({ m_location.x + D_BOX_SIZE / 2, m_location.y + D_BOX_SIZE / 2 });
 }
 
 bool Player::PlayerPushingByBlocks(Vector2D position)
