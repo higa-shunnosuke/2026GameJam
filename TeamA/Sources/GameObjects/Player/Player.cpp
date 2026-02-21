@@ -35,7 +35,7 @@ void Player::Initialize()
 	// 速度
 	m_moveSpeed = {};
 	// 速度の最大
-	m_maxSpeed = 2.0f;
+	m_maxSpeed = D_BOX_SIZE * 3;
 
 	// フラグ
 	m_walkingFlag = FALSE;
@@ -46,10 +46,8 @@ void Player::Initialize()
 	// アニメーション
 	m_walkAnimTime = 0.0f;
 	m_walkAnimCount = 0;
-	m_drillAnimTime = 0.0f;
-	m_drillAnimCount = 0;
-	m_effectAnimTime = 0.0f;
-	m_effectAnimCount = 0;
+	m_diggingAnimTime = 0.0f;
+	m_diggingAnimCount = 0;
 
 	m_direction = e_Direction::right;
 
@@ -98,12 +96,14 @@ void Player::Initialize()
 
 void Player::Update(float delta)
 {
+	float deltaSecond = 0.01f;
+
 	// 対応入力の変数化
 	ApplyAllInput();
 	// アニメーション
-	LapseAnimation();
+	LapseAnimation(deltaSecond);
 	// 操作
-	PlayerOperate();
+	PlayerOperate(deltaSecond);
 }
 
 void Player::Draw() const
@@ -132,7 +132,7 @@ void Player::Draw() const
 		// ドリル表示
 		if (m_diggingFlag)
 		{
-			DrawRotaGraph(x, y, 0.1, 0.0, m_drillUpImage[m_drillAnimCount % 3], TRUE);
+			DrawRotaGraph(x, y, 0.1, 0.0, m_drillUpImage[m_diggingAnimCount % 3], TRUE);
 		}
 		else
 		{
@@ -144,7 +144,7 @@ void Player::Draw() const
 		{
 			x -= 5;
 			
-			DrawRotaGraph(x - 5, y, 0.1, 0.65 * 3.14, m_effectImage[m_effectAnimCount % 3], TRUE);
+			DrawRotaGraph(x - 5, y, 0.1, 0.65 * 3.14, m_effectImage[m_diggingAnimCount % 3], TRUE);
 		}
 
 		break;
@@ -169,7 +169,7 @@ void Player::Draw() const
 			x += 8;
 			y -= 10;
 
-			DrawRotaGraph(x, y, 0.1, 1.65 * 3.14, m_effectImage[m_effectAnimCount % 3], TRUE);
+			DrawRotaGraph(x, y, 0.1, 1.65 * 3.14, m_effectImage[m_diggingAnimCount % 3], TRUE);
 		}
 		
 		break;
@@ -192,7 +192,7 @@ void Player::Draw() const
 		// ドリル表示
 		if (m_diggingFlag)
 		{
-			DrawRotaGraph(x, y, 0.1, 0.0, m_drillImage[m_drillAnimCount % 3], TRUE, m_flipFlag);
+			DrawRotaGraph(x, y, 0.1, 0.0, m_drillImage[m_diggingAnimCount % 3], TRUE, m_flipFlag);
 		}
 		else
 		{
@@ -202,7 +202,7 @@ void Player::Draw() const
 		// エフェクト表示
 		if (m_breakFlag)
 		{
-			DrawRotaGraph(x, y, 0.1, 0.0, m_effectImage[m_effectAnimCount % 3], TRUE, m_flipFlag);
+			DrawRotaGraph(x, y, 0.1, 0.0, m_effectImage[m_diggingAnimCount % 3], TRUE, m_flipFlag);
 		}
 
 		break;
@@ -235,12 +235,13 @@ void Player::OnHitCollision(ObjectBase& other)
 		break;
 	case e_ObjectType::rainbowpoteto:
 
+		StaminaManager(20);
 		m_invincibleTime = 10.0f;
 
 		break;
 	case e_ObjectType::jewel:
 
-		m_score += 100;
+		ScoreManager(100);
 
 		break;
 	}
@@ -265,6 +266,17 @@ void Player::StaminaManager(int value)
 		m_stamina = m_staminaMax;
 	}
 	
+}
+
+void Player::ScoreManager(int value)
+{
+	m_score += value;
+
+	// スコアを0未満にしない
+	if (m_score < 0)
+	{
+		m_score = 0;
+	}
 }
 
 void Player::ApplyAllInput()
@@ -346,44 +358,30 @@ void Player::ApplyOneInput(eInputState& variable, int getInput[], int getInputSi
 	}
 }
 
-void Player::LapseAnimation()
+void Player::LapseAnimation(float deltaSecond)
 {
 	// 歩くアニメーション
-	m_walkAnimTime += 0.01f;
-	if (m_walkAnimTime > 0.2f)
+	m_walkAnimTime += deltaSecond;
+	if (m_walkAnimTime > deltaSecond * 20)
 	{
 		m_walkAnimTime = 0.0f;
 		m_walkAnimCount += 1;
 	}
 
 	// ドリルのアニメーション
-	if (m_drillAnimCount <= 4)
+	if (m_diggingAnimCount <= 1 || m_buttonA == eInputState::Hold)
 	{
-		m_drillAnimTime += 0.01f;
-		if (m_drillAnimTime > 0.1f)
+		m_diggingAnimTime += deltaSecond;
+		if (m_diggingAnimTime > deltaSecond * 10)
 		{
-			m_drillAnimTime = 0.0f;
-			m_drillAnimCount += 1;
+			m_diggingAnimTime = 0.0f;
+			m_diggingAnimCount += 1;
 		}
 	}
-	else
+	else if(m_diggingFlag)
 	{
-		// 掘るのをやめる処理
+		// 掘るり終わる処理
 		m_diggingFlag = FALSE;
-	}
-
-	// エフェクトのアニメーション
-	if (m_effectAnimCount <= 4)
-	{
-		m_effectAnimTime += 0.01f;
-		if (m_effectAnimTime > 0.1f)
-		{
-			m_effectAnimTime = 0.0f;
-			m_effectAnimCount += 1;
-		}
-	}
-	else
-	{
 		// 土を壊し終わる処理
 		m_breakFlag = FALSE;
 	}
@@ -391,18 +389,18 @@ void Player::LapseAnimation()
 	// 無敵の時間
 	if (m_invincibleTime >= 0.0f)
 	{
-		m_invincibleTime -= 0.01f;
+		m_invincibleTime -= deltaSecond;
 	}
 }
 
-void Player::PlayerOperate()
+void Player::PlayerOperate(float deltaSecond)
 {
 	InputManager& input = InputManager::GetInstance();
 
 	// 加速度の設定
-	float acceleration = 0.2f;
+	float acceleration = m_maxSpeed * 4 * deltaSecond;
 	// 減速度の設定
-	float deceleration = 0.1f;
+	float deceleration = m_maxSpeed * 2 * deltaSecond;
 
 	PlayerDeceleration(deceleration);
 
@@ -419,13 +417,14 @@ void Player::PlayerOperate()
 	if (m_buttonA == eInputState::Pressed)
 	{
 		m_diggingFlag = TRUE;
-		m_drillAnimCount = 0;
-
+		m_diggingAnimCount = 0;
+	}
+	if (m_diggingFlag)
+	{
 		// 土を壊す処理
 		if (m_map->DestroySoil(m_location, m_direction))
 		{
 			m_breakFlag = TRUE;
-			m_effectAnimCount = 0.0f;
 		}
 	}
 
@@ -439,31 +438,33 @@ void Player::PlayerOperate()
 	Vector2D Max = { D_STAGE_WIDTH, D_STAGE_HEIGHT };
 
 	// 移動後が世界の限界を超えていれば
-	if (m_location.x + m_moveSpeed.x - m_collision.m_radius < Min.x)
+	if (m_location.x + m_moveSpeed.x * deltaSecond - m_collision.m_radius < Min.x)
 	{
-		m_moveSpeed.x = Min.x - (m_location.x - m_collision.m_radius);
-		m_moveSpeed.x += deceleration;
-	}
-	if (m_location.x + m_moveSpeed.x + m_collision.m_radius > Max.x)
-	{
-		m_moveSpeed.x = Max.x - (m_location.x + m_collision.m_radius);
+		m_location.x = Min.x + m_collision.m_radius;
 		m_moveSpeed.x = 0.0f;
 	}
-	if (m_location.y + m_moveSpeed.y - m_collision.m_radius < Min.y)
+	if (m_location.x + m_moveSpeed.x * deltaSecond + m_collision.m_radius > Max.x)
 	{
-		m_moveSpeed.y = Min.y - (m_location.y - m_collision.m_radius);
-		m_moveSpeed.y -= deceleration;
+		m_location.x = Max.x - m_collision.m_radius;
+		m_moveSpeed.x = 0.0f;
 	}
-	if (m_location.y + m_moveSpeed.y + m_collision.m_radius > Max.y)
+	if (m_location.y + m_moveSpeed.y * deltaSecond - m_collision.m_radius < Min.y)
 	{
-		m_moveSpeed.y = Max.y - (m_location.y + m_collision.m_radius);
-		m_moveSpeed.y += deceleration;
+		m_location.y = Min.y + m_collision.m_radius;
+		m_moveSpeed.y = 0.0f;
+	}
+	if (m_location.y + m_moveSpeed.y * deltaSecond + m_collision.m_radius > Max.y)
+	{
+		m_location.y = Max.y - m_collision.m_radius;
+		m_moveSpeed.y = 0.0f;
 	}
 
-	CollisionDetectionWithBlocks();
+	CollisionDetectionWithBlocks(deltaSecond);
 
+	// 移動速度をフレーム単位に変換
+	Vector2D deltaMoveSpeed = { m_moveSpeed.x * deltaSecond,m_moveSpeed.y * deltaSecond };
 	// 座標に速度を加算
-	m_location += m_moveSpeed.Normalize() * Vector2D(fabsf(m_moveSpeed.x), fabsf(m_moveSpeed.y));
+	m_location += deltaMoveSpeed.Normalize() * Vector2D(fabsf(deltaMoveSpeed.x), fabsf(deltaMoveSpeed.y));
 }
 
 void Player::PlayerDeceleration(float deceleration)
@@ -686,46 +687,48 @@ void Player::MoveInTheDiggingDirection(float acceleration)
 	}
 }
 
-void Player::CollisionDetectionWithBlocks()
+void Player::CollisionDetectionWithBlocks(float deltaSecond)
 {
 	// 上のブロック
-	if (PlayerPushingByBlocks({ m_location.x, m_location.y - D_BOX_SIZE / 2 }))
+	if (PlayerPushingByBlocks({ m_location.x, m_location.y - D_BOX_SIZE / 2 }, deltaSecond))
 	{
 		// 衝突したら、Y方向の加速をリセット
 		m_moveSpeed.y = 0.0f;
 	}
 	// 下のブロック
-	if (PlayerPushingByBlocks({ m_location.x, m_location.y + D_BOX_SIZE / 2 }))
+	if (PlayerPushingByBlocks({ m_location.x, m_location.y + D_BOX_SIZE / 2 }, deltaSecond))
 	{
 		// 衝突したら、Y方向の加速をリセット
 		m_moveSpeed.y = 0.0f;
 	}
 	// 左のブロック
-	if (PlayerPushingByBlocks({ m_location.x - D_BOX_SIZE / 2, m_location.y }))
+	if (PlayerPushingByBlocks({ m_location.x - D_BOX_SIZE / 2, m_location.y }, deltaSecond))
 	{
 		// 衝突したら、X方向の加速をリセット
 		m_moveSpeed.x = 0.0f;
 	}
 	// 右のブロック
-	if (PlayerPushingByBlocks({ m_location.x + D_BOX_SIZE / 2, m_location.y }))
+	if (PlayerPushingByBlocks({ m_location.x + D_BOX_SIZE / 2, m_location.y }, deltaSecond))
 	{
 		// 衝突したら、X方向の加速をリセット
 		m_moveSpeed.x = 0.0f;
 	}
 	// 左上のブロック
-	PlayerPushingByBlocks({ m_location.x - D_BOX_SIZE / 2, m_location.y - D_BOX_SIZE / 2 });
+	PlayerPushingByBlocks({ m_location.x - D_BOX_SIZE / 2, m_location.y - D_BOX_SIZE / 2 }, deltaSecond);
 	// 右上のブロック
-	PlayerPushingByBlocks({ m_location.x + D_BOX_SIZE / 2, m_location.y - D_BOX_SIZE / 2 });
+	PlayerPushingByBlocks({ m_location.x + D_BOX_SIZE / 2, m_location.y - D_BOX_SIZE / 2 }, deltaSecond);
 	// 左下のブロック
-	PlayerPushingByBlocks({ m_location.x - D_BOX_SIZE / 2, m_location.y + D_BOX_SIZE / 2 });
+	PlayerPushingByBlocks({ m_location.x - D_BOX_SIZE / 2, m_location.y + D_BOX_SIZE / 2 }, deltaSecond);
 	// 右下のブロック
-	PlayerPushingByBlocks({ m_location.x + D_BOX_SIZE / 2, m_location.y + D_BOX_SIZE / 2 });
+	PlayerPushingByBlocks({ m_location.x + D_BOX_SIZE / 2, m_location.y + D_BOX_SIZE / 2 }, deltaSecond);
 }
 
-bool Player::PlayerPushingByBlocks(Vector2D position)
+bool Player::PlayerPushingByBlocks(Vector2D position, float deltaSecond)
 {
+	// 移動速度をフレーム単位に変換
+	Vector2D deltaMoveSpeed = { m_moveSpeed.x * deltaSecond,m_moveSpeed.y * deltaSecond };
 	// 移動後の位置を設定
-	Vector2D locationAfterMove = m_location + m_moveSpeed;
+	Vector2D locationAfterMove = m_location + deltaMoveSpeed.Normalize() * Vector2D(fabsf(deltaMoveSpeed.x), fabsf(deltaMoveSpeed.y));
 
 	// タイルの左上座標を取得
 	Vector2D TileLocation = m_map->GetTileLocation(position) - Vector2D{ D_BOX_SIZE / 2,D_BOX_SIZE / 2 };

@@ -39,10 +39,8 @@ private:
 	// アニメーション
 	float m_walkAnimTime;
 	int m_walkAnimCount;
-	float m_drillAnimTime;
-	int m_drillAnimCount;
-	float m_effectAnimTime;
-	int m_effectAnimCount;
+	float m_diggingAnimTime;
+	int m_diggingAnimCount;
 
 	// 向き
 	e_Direction m_direction;
@@ -113,6 +111,12 @@ private:
 	void StaminaManager(int value);
 
 	/// <summary>
+	/// スコアを加算、減算する
+	/// </summary>
+	/// <param name="value">加算する値</param>
+	void ScoreManager(int value);
+
+	/// <summary>
 	/// 全ての入力を各対応変数にまとめる
 	/// </summary>
 	void ApplyAllInput();
@@ -128,12 +132,17 @@ private:
 	/// <summary>
 	/// アニメーション時間の経過
 	/// </summary>
-	void LapseAnimation();
+	void LapseAnimation(float deltaTime);
 
 	/// <summary>
 	/// プレイヤーの操作
 	/// </summary>
-	void PlayerOperate();
+	
+	/// <summary>
+	/// プレイヤーの操作
+	/// </summary>
+	/// <param name="deltaSecond">フレーム秒</param>
+	void PlayerOperate(float deltaSecond);
 
 	/// <summary>
 	/// プレイヤーの減速
@@ -163,24 +172,22 @@ private:
 	/// 掘っている方向に移動する
 	/// </summary>
 	/// <param name="acceleration">加速度</param>
+	/// <param name="deltaSecond">フレーム秒</param>
 	void MoveInTheDiggingDirection(float acceleration);
 
 	/// <summary>
 	/// ブロックとの当たり判定
 	/// </summary>
-	void CollisionDetectionWithBlocks();
-
-	/// <summary>
-	/// 押し出し処理
-	/// </summary>
-	/// <param name="position">ブロックの判定開始位置</param>
+	/// <param name="deltaSecond">フレーム秒</param>
+	void CollisionDetectionWithBlocks(float deltaSecond);
 	
 	/// <summary>
 	/// 押し出し処理
 	/// </summary>
 	/// <param name="position">ブロックの判定開始位置</param>
+	/// <param name="deltaSecond">フレーム秒</param>
 	/// <returns>衝突判定ならTRUE</returns>
-	bool PlayerPushingByBlocks(Vector2D position);
+	bool PlayerPushingByBlocks(Vector2D position, float deltaSecond);
 
 public:
 	/// <summary>
