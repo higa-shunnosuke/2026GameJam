@@ -130,6 +130,11 @@ private:
 	/// </summary>
 	void CreateJewel();
 
+	/// <summary>
+	/// ä‚Çê∂ê¨Ç∑ÇÈ
+	/// </summary>
+	void CreateRock();
+
 
 private:
 

@@ -3,29 +3,26 @@
 
 enum class e_ObjectType
 {
-	none,
+	none,			// 無し
 	player,			// プレイヤー
 	potato,			// ポテト
 	poisonpoteto,	// 毒ポテト
 	rainbowpoteto,	// 虹ポテト
-	jewel			// 宝石
+	jewel,			// 宝石
+	rock			// 岩
 };
 
 class Collision
 {
 public:
-	float m_radius;
-	e_ObjectType m_type;
-
+	float m_radius;			// 半径
+	e_ObjectType m_type;	// 自身のオブジェクトタイプ
 
 public:
 	Collision();
 	~Collision();
 
 public:
-
-	const float& GetRadius() const;
-	const e_ObjectType GetObjectType() const;
 
 	/// <summary>
 	/// 円と円の当たり判定確認

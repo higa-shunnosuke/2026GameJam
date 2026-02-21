@@ -4,13 +4,19 @@
 class Rock : public ObjectBase
 {
 private:
-	float m_animeTime;
-	int m_animeCount;
 
-	int m_rockImage;
+	int m_rockImage;	// 岩の画像
 
 public:
+
+	/// <summary>
+	/// コンストラクタ
+	/// </summary>
 	Rock();
+
+	/// <summary>
+	/// デストラクタ
+	/// </summary>
 	~Rock();
 
 public:
@@ -25,12 +31,5 @@ public:
 	/// </summary>
 	void Draw() const override;
 
-public:
-
-	/// <summary>
-	/// 判定処理
-	/// </summary>
-	/// <param name="other"></param>
-	void OnHitCollision(ObjectBase& other) override;
 };
 
