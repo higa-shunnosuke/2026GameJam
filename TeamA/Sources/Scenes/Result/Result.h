@@ -1,9 +1,21 @@
 #pragma once
 #include "../SceneBase.h"
 
-
 class Result : public SceneBase
 {
+private:
+		int m_background;
+
+		int m_jewelImage;
+		
+		int m_cursorNumber;
+		
+		int m_moguraImage[3];
+
+		float m_animeTime;
+
+		int m_animeCount;
+
 public:
 	// コンストラクタ
 	Result();
