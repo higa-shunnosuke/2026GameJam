@@ -195,6 +195,12 @@ public:
 	/// <returns></returns>
 	const int& GetStaminaMax() const;
 
+	/// <summary>
+	/// ƒXƒRƒA‚ğæ“¾
+	/// </summary>
+	/// <returns></returns>
+	const int& GetScore() const;
+
 	void SetMap(MapData* mapdata);
 };
 

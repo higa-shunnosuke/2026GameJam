@@ -240,7 +240,7 @@ void Player::OnHitCollision(ObjectBase& other)
 		break;
 	case e_ObjectType::jewel:
 
-		m_score;
+		m_score += 100;
 
 		break;
 	}
@@ -778,6 +778,11 @@ const int& Player::GetStamina() const
 const int& Player::GetStaminaMax() const
 {
 	return m_staminaMax;
+}
+
+const int& Player::GetScore() const
+{
+	return m_score;
 }
 
 void Player::SetMap(MapData* mapdata)
