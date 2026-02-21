@@ -87,13 +87,13 @@ void MapData::Draw() const
 
 #if _DEBUG
 			// デバッグ
-			unsigned int debug_color = 0xffffff;
-			if (ch == 'r') debug_color = GetColor(0, 255, 0);
-			else if (ch == 's') debug_color = GetColor(255, 0, 0);
-			else if (ch == 'w') debug_color = GetColor(0, 0, 255);
+			//unsigned int debug_color = 0xffffff;
+			//if (ch == 'r') debug_color = GetColor(0, 255, 0);
+			//else if (ch == 's') debug_color = GetColor(255, 0, 0);
+			//else if (ch == 'w') debug_color = GetColor(0, 0, 255);
 
-			DrawBoxAA(position.x, position.y, position.x + size, position.y + size, debug_color, FALSE);
-			DrawFormatString(position.x, position.y, 0xffffff, "%c(%d,%d)", ch, (int)x, (int)y);
+			//DrawBoxAA(position.x, position.y, position.x + size, position.y + size, debug_color, FALSE);
+			//DrawFormatString(position.x, position.y, 0xffffff, "%c(%d,%d)", ch, (int)x, (int)y);
 #endif
 
 		}
@@ -401,16 +401,17 @@ void MapData::SpawnJewel(const GridPos& gridPos)
 
 void MapData::SpawnRock(const GridPos& gridPos)
 {
-	// 深さ 5から最大値 の時のみ生成する
-	if (gridPos.y < 5 || gridPos.y > D_BOX_COUNT + D_BOX_OFFSET)
-		return;
+	// 範囲外
+	if (!IsGridInBounds(gridPos)) return;
+
+	// 深さ制限
+	if (gridPos.y < 5) return;
 
 	ObjectManager& om = ObjectManager::GetInstance();
-
 	Vector2D pos = GridToWorld({ static_cast<int>(gridPos.x), static_cast<int>(gridPos.y) });
 
 	om.RequestSpawn<Rock>(pos);
-
+	m_mapData[gridPos.y][gridPos.x] = 'w';
 }
 
 int MapData::GetRoadMask(GridPos gridPos) const
