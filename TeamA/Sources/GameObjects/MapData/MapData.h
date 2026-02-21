@@ -110,14 +110,14 @@ private:
 	/// ワールド座標の範囲内か返す
 	/// </summary>
 	/// <param name="worldPos">判定する座標</param>
-	/// <returns>範囲内ならtrue</returns>
+	/// <returns>true:範囲内</returns>
 	bool IsWorldInBounds(const Vector2D& worldPos) const;
 
 	/// <summary>
 	/// グリッド座標の範囲内か返す
 	/// </summary>
 	/// <param name="gridPos">判定するグリッド座標</param>
-	/// <returns>範囲内ならtrue</returns>
+	/// <returns>true:範囲内</returns>
 	bool IsGridInBounds(const GridPos& gridPos) const;
 
 private:
@@ -165,4 +165,33 @@ private:
 	/// <param name="mask">道の隣接情報のマスク</param>
 	/// <returns>画像情報</returns>
 	AutoTile4 ConvertMaskToTile(GridPos gridPos, int mask) const;
+
+private:
+
+	/// <summary>
+	/// 指定マスが地形的に通行可能かを判定する
+	/// （岩の有無は含まない）
+	/// </summary>
+	bool IsWalkableTerrain(const GridPos& gridPos) const;
+
+	/// <summary>
+	/// 指定岩配置において、
+	/// スタート地点から到達可能なマス数を数える
+	/// extraRock が指定された場合、そのマスを仮に岩として扱う
+	/// </summary>
+	/// <param name="start">探索開始地点</param>
+	/// <param name="rockOcc">現在の岩占有情報</param>
+	/// <param name="extraRock">仮に岩として扱うマス（nullptrならなし）</param>
+	/// <returns>到達可能マス数</returns>
+	int CountReachableCells(const GridPos& start,const std::vector<std::vector<bool>>& rockOcc,const GridPos* extraRock = nullptr) const;
+
+	/// <summary>
+	/// 指定位置に岩を置いてもマップが分断されないかを判定する
+	/// </summary>
+	/// <param name="rockPos">配置候補位置</param>
+	/// <param name="rockOcc">現在の岩占有情報</param>
+	/// <param name="start">到達判定の基準地点</param>
+	/// <returns>安全に配置可能ならtrue</returns>
+	bool CanPlaceRock(const GridPos& rockPos,const std::vector<std::vector<bool>>& rockOcc,const GridPos& start) const;
+
 };

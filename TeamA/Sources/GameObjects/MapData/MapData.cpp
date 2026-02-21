@@ -14,8 +14,8 @@
 #include <string>
 #include <sstream>
 
-#define JEWEL_RATE (30)		// 宝石の生成確率（％）
-#define ROCK_RATE  (5)		// 岩の生成確率（％）
+#define JEWEL_RATE (40)		// 宝石の生成確率（％）
+#define ROCK_RATE  (10)		// 岩の生成確率（％）
 
 MapData::MapData()
 	:m_soil{}
@@ -242,9 +242,9 @@ bool MapData::IsGridInBounds(const GridPos& gridPos) const
 
 void MapData::LoadMapCsv()
 {
-	// g : 土
+	// s : 土
 	// r : 道
-	// # : 天井の蓋
+	// w : 天井の蓋
 
 	m_mapData.clear();
 
@@ -270,7 +270,7 @@ void MapData::LoadMapCsv()
 			continue;
 			break;
 		default:
-			// g,r,#を追加する
+			// g,r,wを追加する
 			row.push_back(ch);
 			break;
 		}
@@ -298,13 +298,21 @@ void MapData::GenerateMapObjects()
 	const int start_y = D_BOX_OFFSET;
 	const int end_y = D_BOX_OFFSET + D_BOX_COUNT;
 
+	// 生成中だけ使う岩占有配列（ローカル）
+	std::vector<std::vector<bool>> rockOcc(m_mapData.size());
+	for (size_t y = 0; y < m_mapData.size(); ++y)
+		rockOcc[y].assign(m_mapData[y].size(), false);
+
+	// 到達判定の基準地点（※あなたのゲームの「開始地点」に合わせて設定）
+	// 例：生成範囲の左上を基準にする（仮）
+	const GridPos startGrid{ 0, start_y };
+
 	for (int y = start_y; y < end_y && y < (int)m_mapData.size(); ++y)
 	{
 		for (int x = 0; x < (int)m_mapData[y].size(); ++x)
 		{
 			GridPos grid{ x, y };
-
-			int r = Random::GetRand() % 100;
+			const int r = (int)(Random::GetRand() % 100);
 
 			if (r < JEWEL_RATE)
 			{
@@ -312,7 +320,11 @@ void MapData::GenerateMapObjects()
 			}
 			else if (r < JEWEL_RATE + ROCK_RATE)
 			{
-				SpawnRock(grid);
+				if (CanPlaceRock(grid, rockOcc, startGrid))
+				{
+					rockOcc[y][x] = true;
+					SpawnRock(grid);
+				}
 			}
 		}
 	}
@@ -329,7 +341,7 @@ void MapData::SpawnJewel(const GridPos& gridPos)
 	// 深さに応じて最低、最大出現数を増やす
 	int current_min = 0;
 	int current_max = 1;
-	if (gridPos.y > 6)
+	if (gridPos.y > 7)
 	{
 		current_min = 1;
 		current_max = 2;
@@ -354,10 +366,9 @@ void MapData::SpawnJewel(const GridPos& gridPos)
 	int range = current_max - current_min + 1;
 	value = current_min + (Random::GetRand() % range);
 
+	ObjectManager& om = ObjectManager::GetInstance();
 	// 中心座標
 	Vector2D pos = GridToWorld({ static_cast<int>(gridPos.x), static_cast<int>(gridPos.y) });
-
-	ObjectManager& om = ObjectManager::GetInstance();
 
 	switch (value)
 	{
@@ -517,4 +528,113 @@ MapData::AutoTile4 MapData::ConvertMaskToTile(GridPos gridPos, int mask) const
 	}
 
 	return result;
+}
+
+bool MapData::IsWalkableTerrain(const GridPos& gridPos) const
+{
+	const char t = m_mapData[gridPos.y][gridPos.x];
+
+	// 通れない地形
+	if (t == 'w') return false;
+
+	// 通れる地形（必要なら条件を追加/制限）
+	return true;
+}
+
+int MapData::CountReachableCells(const GridPos& start,const std::vector<std::vector<bool>>& rockOcc,const GridPos* extraRock) const
+{
+	const int h = (int)m_mapData.size();
+	if (h == 0) return 0;
+
+	const int w = (int)m_mapData[0].size();
+
+	auto inBounds = [&](const GridPos& p) -> bool
+		{
+			return (0 <= p.x && p.x < w && 0 <= p.y && p.y < h);
+		};
+
+	auto isBlocked = [&](const GridPos& p) -> bool
+		{
+			if (!inBounds(p)) return true;
+			if (!IsWalkableTerrain(p)) return true;
+
+			// 仮置き岩（指定があるときだけ）
+			if (extraRock && p.x == extraRock->x && p.y == extraRock->y) return true;
+
+			// 既に確定した岩（GenerateMapObjects内のローカル配列）
+			if (rockOcc[p.y][p.x]) return true;
+
+			return false;
+		};
+
+	if (isBlocked(start)) return 0;
+
+	std::vector<std::vector<uint8_t>> visited(h);
+	for (int y = 0; y < h; ++y)
+		visited[y].assign(w, 0);
+
+	std::vector<GridPos> q;
+	q.reserve((size_t)w * (size_t)h);
+
+	visited[start.y][start.x] = 1;
+	q.push_back(start);
+
+	const GridPos dir4[4] = { {0,-1},{1,0},{0,1},{-1,0} };
+
+	int count = 0;
+	for (size_t qi = 0; qi < q.size(); ++qi)
+	{
+		const GridPos cur = q[qi];
+		++count;
+
+		for (int i = 0; i < 4; ++i)
+		{
+			GridPos nxt{ cur.x + dir4[i].x, cur.y + dir4[i].y };
+
+			if (!inBounds(nxt)) continue;
+			if (visited[nxt.y][nxt.x]) continue;
+			if (isBlocked(nxt)) continue;
+
+			visited[nxt.y][nxt.x] = 1;
+			q.push_back(nxt);
+		}
+	}
+
+	return count;
+}
+
+bool MapData::CanPlaceRock(const GridPos& rockPos,const std::vector<std::vector<bool>>& rockOcc,const GridPos& start) const
+{
+	// 範囲チェック
+	if (rockPos.y < 0 || rockPos.y >= (int)m_mapData.size()) return false;
+	if (rockPos.x < 0 || rockPos.x >= (int)m_mapData[rockPos.y].size()) return false;
+
+	// 既に岩なら不可
+	if (rockOcc[rockPos.y][rockPos.x]) return false;
+
+	// 地形的に置けない場所は不可（必要に応じて条件調整）
+	if (!IsWalkableTerrain(rockPos)) return false;
+
+	// start が歩けないと探索が0になるので、必ず歩ける場所を渡すこと
+	if (!IsWalkableTerrain(start)) return false;
+	if (rockOcc[start.y][start.x]) return false;
+
+	// rockPos を除いた「本来到達できるべきマス総数」を数える
+	int total = 0;
+	for (int y = 0; y < (int)m_mapData.size(); ++y)
+	{
+		for (int x = 0; x < (int)m_mapData[y].size(); ++x)
+		{
+			if (x == rockPos.x && y == rockPos.y) continue; // 候補マスは除外
+			if (!IsWalkableTerrain(GridPos{ x, y })) continue;
+			if (rockOcc[y][x]) continue;
+			++total;
+		}
+	}
+
+	// rockPos を「仮に岩」にした状態で到達可能数を数える
+	const int reach = CountReachableCells(start, rockOcc, &rockPos);
+
+	// 全て到達できるなら分断なし
+	return (reach == total);
 }
