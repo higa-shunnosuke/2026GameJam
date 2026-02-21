@@ -5,10 +5,9 @@
 
 #include "../../Utilitys/Random.h"
 
-#include "../ObjectManager.h"
-#include "../PotatoPlant/PotatoPlant.h"
-#include "../Jewel/Jewel.h"
-#include "../Rock/Rock.h"
+#include "..//ObjectManager.h"
+#include "..//PotatoPlant/PotatoPlant.h"
+#include "..//Jewel/Jewel.h"
 
 #include <fstream>
 #include <string>
@@ -43,8 +42,6 @@ void MapData::Initialize()
 	CreateJewel();
 	// ÉvÉâÉìÉgÇÃê∂ê¨
 	CreatePlant();
-	// ä‚ÇÃê∂ê¨
-	CreateRock();
 }
 
 void MapData::Draw() const
@@ -381,14 +378,6 @@ void MapData::CreateJewel()
 			}
 		}
 	}
-}
-
-void MapData::CreateRock()
-{
-	ObjectManager& om = ObjectManager::GetInstance();
-
-	om.RequestSpawn<Rock>({ 592.0f,860.0f });
-
 }
 
 int MapData::GetRoadMask(GridPos gridPos) const

@@ -16,15 +16,44 @@ RainbowPotato::~RainbowPotato()
 
 void RainbowPotato::Initialize()
 {
-	// 画像の読み込み
+	m_animeTime = 0.0f; //虹色更新絵処理使うかも
+	m_animeCount = 0;
 	ResourceManager& rm = ResourceManager::GetInstance();
-	m_potatoImage = rm.GetImageResource("Assets/Sprites/Potato/RainbowPotato.PNG")[0];
 
-	// zlayerの設定
+	m_rainbowpotatoImage = rm.GetImageResource("Assets/Sprites/Potato/RainbowPotato.PNG")[0];
+
+	m_collision.m_radius = 35;
+	m_collision.m_type = e_ObjectType::rainbowpoteto;
 	m_zLayer = 10;
 
-	// 当たり判定の設定
-	m_collision.m_type = e_ObjectType::rainbowpoteto;
-	m_collision.m_radius = 35;
+}
+
+void  RainbowPotato::Update(float delta) //虹色更新処理で使うかも
+{
+	m_animeTime += 0.01f;
+	if (m_animeTime > 1.0f)
+	{
+		m_animeTime = 0.0f;
+		m_animeCount += 1;
+	}
+}
+
+void RainbowPotato::Draw() const
+{
+	DrawRotaGraph(m_location.x, m_location.y, 0.03, 0.0, m_rainbowpotatoImage, TRUE);
+
+#if _DEBUG
+	// 当たり判定を可視化
+	DrawCircle(m_location.x, m_location.y, m_collision.GetRadius(), GetColor(255, 0, 0), FALSE);
+#endif
+
+}
+
+
+void RainbowPotato::OnHitCollision(ObjectBase& other)
+{
+	ObjectManager& manager = ObjectManager::GetInstance();
+	manager.DestroyObject(this);
+
 
 }

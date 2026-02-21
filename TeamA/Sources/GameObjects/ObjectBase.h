@@ -9,16 +9,6 @@ protected:
 	int m_zLayer;
 	Collision m_collision;
 
-	/* ÉåÉCÉÑÅ[ */
-	// 0:PotatoPlant
-	// 2:MapData
-	// 10:Potato
-	// 10:PoisonPotato
-	// 10:RainbowPotato
-	// 10:Rock
-	// 10:Jewel
-	// 12:Player
-
 public:
 	ObjectBase();
 	~ObjectBase();

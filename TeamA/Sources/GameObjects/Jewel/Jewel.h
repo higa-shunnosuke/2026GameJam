@@ -4,26 +4,17 @@
 class Jewel : public ObjectBase
 {
 private:
+	float m_animeTime;
+	int m_animeCount;
 
-	float m_animeTime;		// フレーム切り替え用の経過時間
-	int m_animeCount;		// 現在のフレーム番号
+	float m_animeTime_e;
+	int m_animeCount_e;
 
-	float m_animeTime_e;	// フレーム切り替え用の経過時間（エフェクト）
-	int m_animeCount_e;		// 現在のフレーム番号（エフェクト）
-
-	int m_emerald_image[4];	// 宝石画像
-	int m_effect_image[3];	// エフェクト画像
+	int m_emerald_image[4];
+	int m_effect_image[3];
 
 public:
-
-	/// <summary>
-	/// コンストラクタ
-	/// </summary>
 	Jewel();
-
-	/// <summary>
-	/// デストラクタ
-	/// </summary>
 	~Jewel();
 
 public:
