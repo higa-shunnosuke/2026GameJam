@@ -1,6 +1,5 @@
 #include "Player.h"
 
-#include "../../System/InputManager.h"
 #include "../../System/ResourceManager.h"
 #include "../../Utilitys/ProjectConfig.h"
 #include <DxLib.h>
@@ -33,10 +32,12 @@ void Player::Initialize()
 
 	// 速度
 	m_moveSpeed = {};
+	// 速度の最大
+	m_maxSpeed = 2.0f;
 
 	// フラグ
 	m_walkingFlag = FALSE;
-	m_digingFlag = FALSE;
+	m_diggingFlag = FALSE;
 	m_breakFlag = FALSE;
 	m_flipFlag = TRUE;
 
@@ -90,431 +91,17 @@ void Player::Initialize()
 	m_effectImage[0] = rm.GetImageResource("Assets/Sprites/Effect/Effect1.PNG")[0];
 	m_effectImage[1] = rm.GetImageResource("Assets/Sprites/Effect/Effect2.PNG")[0];
 	m_effectImage[2] = rm.GetImageResource("Assets/Sprites/Effect/Effect3.PNG")[0];
+
 }
 
 void Player::Update(float delta)
 {
-	// 操作を変数に当てはめる
-	InputManager& input = InputManager::GetInstance();
-	eInputState up = eInputState::None;
-	eInputState down = eInputState::None;
-	eInputState left = eInputState::None;
-	eInputState right = eInputState::None;
-	eInputState buttonA = eInputState::None;
+	// 対応入力
+	ApplyAllInput();
 
-	// 左操作
-	if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Hold ||
-		input.GetKeyState(KEY_INPUT_A)==eInputState::Hold)
-	{
-		left = eInputState::Hold;
-	}
-	else if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Pressed ||
-		input.GetKeyState(KEY_INPUT_A) == eInputState::Pressed)
-	{
-		left = eInputState::Pressed;
-	}
-	else if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Released ||
-		input.GetKeyState(KEY_INPUT_A) == eInputState::Released)
-	{
-		left = eInputState::Released;
-	}
-
-	// 右操作
-	if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Hold ||
-		input.GetKeyState(KEY_INPUT_D) == eInputState::Hold)
-	{
-		right = eInputState::Hold;
-	}
-	else if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Pressed ||
-		input.GetKeyState(KEY_INPUT_D) == eInputState::Pressed)
-	{
-		right = eInputState::Pressed;
-	}
-	else if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Released ||
-		input.GetKeyState(KEY_INPUT_D) == eInputState::Released)
-	{
-		right = eInputState::Released;
-	}
-
-	// 上操作
-	if (input.GetKeyState(KEY_INPUT_UP) == eInputState::Hold ||
-		input.GetKeyState(KEY_INPUT_W) == eInputState::Hold)
-	{
-		up = eInputState::Hold;
-	}
-	else if (input.GetKeyState(KEY_INPUT_UP) == eInputState::Pressed ||
-		input.GetKeyState(KEY_INPUT_W) == eInputState::Pressed)
-	{
-		up = eInputState::Pressed;
-	}
-	else if (input.GetKeyState(KEY_INPUT_UP) == eInputState::Released ||
-		input.GetKeyState(KEY_INPUT_W) == eInputState::Released)
-	{
-		up = eInputState::Released;
-	}
-
-	// 下操作
-	if (input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Hold ||
-		input.GetKeyState(KEY_INPUT_S) == eInputState::Hold)
-	{
-		down = eInputState::Hold;
-	}
-	else if (input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Pressed ||
-		input.GetKeyState(KEY_INPUT_S) == eInputState::Pressed)
-	{
-		down = eInputState::Pressed;
-	}
-	else if (input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Released ||
-		input.GetKeyState(KEY_INPUT_S) == eInputState::Released)
-	{
-		down = eInputState::Released;
-	}
-
-	// 掘る操作
-	if (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Hold ||
-		input.GetKeyState(KEY_INPUT_F) == eInputState::Hold)
-	{
-		buttonA = eInputState::Hold;
-	}
-	else if (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Pressed ||
-		input.GetKeyState(KEY_INPUT_F) == eInputState::Pressed)
-	{
-		buttonA = eInputState::Pressed;
-	}
-	else if (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Released ||
-		input.GetKeyState(KEY_INPUT_F) == eInputState::Released)
-	{
-		buttonA = eInputState::Released;
-	}
-
-	// アニメーション時間の加算減算
-	// 歩くアニメーション
-	m_walkAnimTime += 0.01f;
-	if (m_walkAnimTime > 0.2f)
-	{
-		m_walkAnimTime = 0.0f;
-		m_walkAnimCount += 1;
-	}
-
-	// ドリルのアニメーション
-	if (m_drillAnimCount <= 4)
-	{
-		m_drillAnimTime += 0.01f;
-		if (m_drillAnimTime > 0.1f)
-		{
-			m_drillAnimTime = 0.0f;
-			m_drillAnimCount += 1;
-		}
-	}
-	else
-	{
-		// 掘るのをやめる処理
-		m_digingFlag = FALSE;
-	}
-
-	// エフェクトのアニメーション
-	if (m_effectAnimCount <= 4)
-	{
-		m_effectAnimTime += 0.01f;
-		if (m_effectAnimTime > 0.1f)
-		{
-			m_effectAnimTime = 0.0f;
-			m_effectAnimCount += 1;
-		}
-	}
-	else
-	{
-		// 土を壊し終わる処理
-		m_breakFlag = FALSE;
-	}
-
-	// 無敵の時間
-	if (m_invincibleTime >= 0.0f)
-	{
-		m_invincibleTime -= 0.01f;
-	}
-
-	// 加速度・減速度の設定
-	float deceleration = 0.1f;	// 減速度
-	float maxSpeed = 2.0f;			// 速度の最大
-	float acceleration = 0.2f;		// 加速度
-
-	// 減速
-	if (m_moveSpeed.x > deceleration)
-	{
-		m_moveSpeed.x -= deceleration;
-	}
-	else if (m_moveSpeed.x < -deceleration)
-	{
-		m_moveSpeed.x += deceleration;
-	}
-	else
-	{
-		m_moveSpeed.x = 0.0f;
-	}
-	if (m_moveSpeed.y > deceleration)
-	{
-		m_moveSpeed.y -= deceleration;
-	}
-	else if (m_moveSpeed.y < -deceleration)
-	{
-		m_moveSpeed.y += deceleration;
-	}
-	else
-	{
-		m_moveSpeed.y = 0.0f;
-	}
-
-	// 掘っていない時にのみ、移動・方向転換処理を受け付ける
-	if (!m_digingFlag)
-	{
-		// 歩きの加速
-		if (left == eInputState::Hold && m_moveSpeed.x > -maxSpeed)
-		{
-			m_moveSpeed.x -= acceleration;
-		}
-		if (right == eInputState::Hold && m_moveSpeed.x < maxSpeed)
-		{
-			m_moveSpeed.x += acceleration;
-		}
-		if (up == eInputState::Hold && m_moveSpeed.y > -maxSpeed)
-		{
-			m_moveSpeed.y -= acceleration;
-		}
-		if (down == eInputState::Hold && m_moveSpeed.y < maxSpeed)
-		{
-			m_moveSpeed.y += acceleration;
-		}
-
-		// 歩き始める処理
-		if (left == eInputState::Pressed || right == eInputState::Pressed ||
-			up == eInputState::Pressed || down == eInputState::Pressed)
-		{
-			m_walkingFlag = TRUE;
-		}
-		else
-		{
-			// 歩くのをやめる処理
-			if (left == eInputState::None && right == eInputState::None &&
-				up == eInputState::None && down == eInputState::None)
-			{
-				m_walkingFlag = FALSE;
-			}
-		}
-
-		// 向きを変える処理
-		// 左入力があるとき
-		if (left == eInputState::Hold)
-		{
-			// 上下右入力がないなら
-			if (right == eInputState::None &&
-				up == eInputState::None && down == eInputState::None)
-			{
-				// 左に向ける
-				m_direction = e_Direction::left;
-
-				// 左右反転処理
-				m_flipFlag = FALSE;
-				if (m_offset.x > 0)
-				{
-					m_offset.x *= -1;
-				}
-			}
-		}
-		// 右入力があるとき
-		if (right == eInputState::Hold)
-		{
-			// 上下左入力がないなら
-			if (left == eInputState::None &&
-				up == eInputState::None && down == eInputState::None)
-			{
-				// 右に向ける
-				m_direction = e_Direction::right;
-
-				// 左右反転処理
-				m_flipFlag = TRUE;
-				if (m_offset.x < 0)
-				{
-					m_offset.x *= -1;
-				}
-			}
-		}
-		// 上入力があるとき
-		if (up == eInputState::Hold)
-		{
-			// 下左右入力がないなら
-			if (left == eInputState::None && right == eInputState::None &&
-				down == eInputState::None)
-			{
-				// 上に向ける
-				m_direction = e_Direction::up;
-			}
-		}
-		// 下入力があるとき
-		if (down == eInputState::Hold)
-		{
-			// 上左右入力がないなら
-			if (left == eInputState::None && right == eInputState::None &&
-				up == eInputState::None)
-			{
-				// 下に向ける
-				m_direction = e_Direction::down;
-			}
-		}
-
-		// 移動・方向転換処理の最後
-	}
-	// 掘り始める処理
-	if (buttonA == eInputState::Pressed)
-	{
-		m_digingFlag = TRUE;
-		m_drillAnimCount = 0;
-
-		// 土を壊す処理
-		if (m_map->DestroySoil(m_location, m_direction))
-		{
-			m_breakFlag = TRUE;
-			m_effectAnimCount = 0;
-		}
-	}
-
-	// 掘るときに向いている方向に移動する
-	if (m_digingFlag)
-	{
-		// 歩きの加速
-		switch (m_direction)
-		{
-		case(e_Direction::left):
-
-			if (m_moveSpeed.x > -maxSpeed)
-			{
-				m_moveSpeed.x -= acceleration;
-			}
-
-			break;
-		case(e_Direction::right):
-
-			if (m_moveSpeed.x < maxSpeed)
-			{
-				m_moveSpeed.x += acceleration;
-			}
-
-			break;
-		case(e_Direction::up):
-
-			if (m_moveSpeed.y > -maxSpeed)
-			{
-				m_moveSpeed.y -= acceleration;
-			}
-
-			break;
-		case(e_Direction::down):
-
-			if (m_moveSpeed.y < maxSpeed)
-			{
-				m_moveSpeed.y += acceleration;
-			}
-
-			break;
-		}
-	}
-
-	// 座標の最大値、最小値と、プレイヤーの半径
-	Vector2D Min = { 0.0f,0.0f };
-	Vector2D Max = { D_STAGE_WIDTH, D_STAGE_HEIGHT };
-
-	// 座標が最大値、最小値を越さないようにする
-	if (m_location.x + m_moveSpeed.x - m_collision.m_radius < Min.x)
-	{
-		m_moveSpeed.x = Min.x - (m_location.x - m_collision.m_radius);
-	}
-	if (m_location.x + m_moveSpeed.x + m_collision.m_radius > Max.x)
-	{
-		m_moveSpeed.x = Max.x - (m_location.x + m_collision.m_radius);
-	}
-	if (m_location.y + m_moveSpeed.y - m_collision.m_radius < Min.y)
-	{
-		m_moveSpeed.y = Min.y - (m_location.y - m_collision.m_radius);
-	}
-	if (m_location.y + m_moveSpeed.y + m_collision.m_radius > Max.y)
-	{
-		m_moveSpeed.y = Max.y - (m_location.y + m_collision.m_radius);
-	}
-
-	// ブロックとの当たり判定
-	{
-		// 判定開始位置
-		Vector2D position;
-		switch (m_direction)
-		{
-		case e_Direction::up:
-			position = { m_location.x,m_location.y - D_BOX_SIZE / 2 };
-			break;
-		case e_Direction::down:
-			position = { m_location.x,m_location.y + D_BOX_SIZE / 2 };
-			break;
-		case e_Direction::left:
-			position = { m_location.x - D_BOX_SIZE / 2,m_location.y };
-			break;
-		case e_Direction::right:
-			position = { m_location.x + D_BOX_SIZE / 2,m_location.y };
-			break;
-		}
-
-		// 進行方向のタイルの左上座標を取得
-		Vector2D nextTileLocation = m_map->GetTileLocation(position) - Vector2D{ D_BOX_SIZE / 2,D_BOX_SIZE / 2 };
-
-		// 道でなければめり込みを判定
-		if (m_map->TileType(nextTileLocation) != e_TileType::road)
-		{
-			// 最近接点
-			float closestX = std::clamp(m_location.x, nextTileLocation.x, nextTileLocation.x + D_BOX_SIZE);
-			float closestY = std::clamp(m_location.y, nextTileLocation.y, nextTileLocation.y + D_BOX_SIZE);
-			
-			// 差分
-			Vector2D diff = { m_location.x - closestX,m_location.y - closestY };
-
-			// 距離
-			float distance = std::sqrt(diff.x * diff.x + diff.y * diff.y);
-
-			// 半径
-			float radius = std::sqrt(m_collision.m_radius * m_collision.m_radius);
-
-			// めり込み判定
-			if (distance < radius)
-			{
-				// めり込み
-				float overlap = radius - distance;
-
-				// 押し出し
-				m_location.x += (diff.x / distance) * overlap;
-				m_location.y += (diff.y / distance) * overlap;
-			}
-
-		}
-	}
-
-
-	// テスト用
-	if (input.GetKeyState(KEY_INPUT_U) == eInputState::Hold)
-	{
-		m_location.x += 1;
-	}
-	if (input.GetKeyState(KEY_INPUT_I) == eInputState::Hold)
-	{
-		m_location.x -= 1;
-	}
-	if (input.GetKeyState(KEY_INPUT_O) == eInputState::Hold)
-	{
-		m_location.y += 1;
-	}
-	if (input.GetKeyState(KEY_INPUT_P) == eInputState::Hold)
-	{
-		m_location.y -= 1;
-	}
-
-	// 座標に速度を加算
-	m_location += m_moveSpeed.Normalize() * Vector2D(fabsf(m_moveSpeed.x), fabsf(m_moveSpeed.y));
+	LapseAnimation();
+	
+	PlayerMove();
 }
 
 void Player::Draw() const
@@ -532,7 +119,7 @@ void Player::Draw() const
 		y -= 30;
 
 		// モグラ表示
-		if (m_walkingFlag || m_digingFlag)
+		if (m_walkingFlag || m_diggingFlag)
 		{
 			DrawRotaGraph(x, y, 0.1, 0.0, m_upImage[m_walkAnimCount % 3], TRUE);
 		}
@@ -541,7 +128,7 @@ void Player::Draw() const
 			DrawRotaGraph(x, y, 0.1, 0.0, m_upImage[0], TRUE);
 		}
 		// ドリル表示
-		if (m_digingFlag)
+		if (m_diggingFlag)
 		{
 			DrawRotaGraph(x, y, 0.1, 0.0, m_drillUpImage[m_drillAnimCount % 3], TRUE);
 		}
@@ -565,7 +152,7 @@ void Player::Draw() const
 		y += 5;
 
 		// モグラ表示
-		if (m_walkingFlag || m_digingFlag)
+		if (m_walkingFlag || m_diggingFlag)
 		{
 			DrawRotaGraph(x, y, 0.1, 0.0, m_downImage[m_walkAnimCount % 3], TRUE);
 		}
@@ -591,7 +178,7 @@ void Player::Draw() const
 		y += (int)m_offset.y;
 
 		// モグラ表示
-		if (m_walkingFlag || m_digingFlag)
+		if (m_walkingFlag || m_diggingFlag)
 		{
 			DrawRotaGraph(x, y, 0.1, 0.0, m_walkImage[m_walkAnimCount % 2], TRUE, m_flipFlag);
 		}
@@ -601,7 +188,7 @@ void Player::Draw() const
 		}
 
 		// ドリル表示
-		if (m_digingFlag)
+		if (m_diggingFlag)
 		{
 			DrawRotaGraph(x, y, 0.1, 0.0, m_drillImage[m_drillAnimCount % 3], TRUE, m_flipFlag);
 		}
@@ -632,7 +219,7 @@ void Player::Finalize()
 
 void Player::OnHitCollision(ObjectBase& other)
 {
-	switch (other.GetCollision().GetObjectType())
+	switch (other.GetCollision().m_type)
 	{
 	case e_ObjectType::potato:
 
@@ -672,6 +259,485 @@ void Player::StaminaManager(int value)
 	{
 		m_stamina = m_staminaMax;
 	}
+	
+}
+
+void Player::ApplyAllInput()
+{
+	InputManager& input = InputManager::GetInstance();
+
+	int getInput[2];
+	
+	getInput[0] = KEY_INPUT_UP;
+	getInput[1] = KEY_INPUT_W;
+	ApplyOneInput(m_up, getInput, 2);
+
+	getInput[0] = KEY_INPUT_DOWN;
+	getInput[1] = KEY_INPUT_S;
+	ApplyOneInput(m_down, getInput, 2);
+
+	getInput[0] = KEY_INPUT_LEFT;
+	getInput[1] = KEY_INPUT_A;
+	ApplyOneInput(m_left, getInput, 2);
+
+	getInput[0] = KEY_INPUT_RIGHT;
+	getInput[1] = KEY_INPUT_D;
+	ApplyOneInput(m_right, getInput, 2);
+
+	getInput[0] = KEY_INPUT_SPACE;
+	getInput[1] = KEY_INPUT_F;
+	ApplyOneInput(m_buttonA, getInput, 2);
+
+}
+
+void Player::ApplyOneInput(eInputState& variable, int getInput[], int getInputSize)
+{
+	InputManager& input = InputManager::GetInstance();
+
+	for (int i = 0;i < getInputSize;i++)
+	{
+		// もし、対応入力のうち、どれか一つでもHoldなら
+		if (input.GetKeyState(getInput[i]) == eInputState::Hold)
+		{
+			// 変数にHoldを当てはめる
+			variable = eInputState::Hold;
+			return;
+		}
+	}
+
+	for (int i = 0;i < getInputSize;i++)
+	{
+		// もし、対応入力のうち、どれか一つでもPressedなら
+		if (input.GetKeyState(getInput[i]) == eInputState::Pressed)
+		{
+			// 前フレームで別の対応ボタンが押されているなら
+			for (int i = 0;i < getInputSize;i++)
+			{
+				if (input.GetKeyState(getInput[i]) == eInputState::Released)
+				{
+					variable = eInputState::Hold;
+					return;
+				}
+			}
+			variable = eInputState::Pressed;
+			return;
+		}
+	}
+
+	for (int i = 0;i < getInputSize;i++)
+	{
+		// もし、対応入力のうち、どれか一つでもReleasedなら
+		if (input.GetKeyState(getInput[i]) == eInputState::Released)
+		{
+			variable = eInputState::Released;
+			return;
+		}
+	}
+
+	for (int i = 0;i < getInputSize;i++)
+	{
+		// 変数にNoneを当てはめる
+		variable = eInputState::None;
+	}
+}
+
+void Player::LapseAnimation()
+{
+	// 歩くアニメーション
+	m_walkAnimTime += 0.01f;
+	if (m_walkAnimTime > 0.2f)
+	{
+		m_walkAnimTime = 0.0f;
+		m_walkAnimCount += 1;
+	}
+
+	// ドリルのアニメーション
+	if (m_drillAnimCount <= 4)
+	{
+		m_drillAnimTime += 0.01f;
+		if (m_drillAnimTime > 0.1f)
+		{
+			m_drillAnimTime = 0.0f;
+			m_drillAnimCount += 1;
+		}
+	}
+	else
+	{
+		// 掘るのをやめる処理
+		m_diggingFlag = FALSE;
+	}
+
+	// エフェクトのアニメーション
+	if (m_effectAnimCount <= 4)
+	{
+		m_effectAnimTime += 0.01f;
+		if (m_effectAnimTime > 0.1f)
+		{
+			m_effectAnimTime = 0.0f;
+			m_effectAnimCount += 1;
+		}
+	}
+	else
+	{
+		// 土を壊し終わる処理
+		m_breakFlag = FALSE;
+	}
+
+	// 無敵の時間
+	if (m_invincibleTime >= 0.0f)
+	{
+		m_invincibleTime -= 0.01f;
+	}
+}
+
+void Player::PlayerMove()
+{
+	InputManager& input = InputManager::GetInstance();
+
+	// 加速度の設定
+	float acceleration = 0.2f;
+	// 減速度の設定
+	float deceleration = 0.1f;
+
+	PlayerDeceleration(deceleration);
+
+	// 掘っていない時にのみ、移動・方向転換処理を受け付ける
+	if (!m_diggingFlag)
+	{
+		PlayerWalkingOperation(acceleration);
+		PlayerChangeDirection();
+
+		// 移動・方向転換処理の最後
+	}
+
+	// 掘り始める処理
+	if (m_buttonA == eInputState::Pressed)
+	{
+		m_diggingFlag = TRUE;
+		m_drillAnimCount = 0;
+
+		// 土を壊す処理
+		if (m_map->DestroySoil(m_location, m_direction))
+		{
+			m_breakFlag = TRUE;
+			m_effectAnimCount = 0.0f;
+		}
+	}
+
+	if (m_diggingFlag)
+	{
+		MoveInTheDiggingDirection(acceleration);
+	}
+
+	// 世界の限界
+	Vector2D Min = { 0.0f,0.0f };
+	Vector2D Max = { D_STAGE_WIDTH, D_STAGE_HEIGHT };
+
+	// 移動後が世界の限界を超えていれば
+	if (m_location.x + m_moveSpeed.x - m_collision.m_radius < Min.x)
+	{
+		m_moveSpeed.x = Min.x - (m_location.x - m_collision.m_radius);
+		m_moveSpeed.x += deceleration;
+	}
+	if (m_location.x + m_moveSpeed.x + m_collision.m_radius > Max.x)
+	{
+		m_moveSpeed.x = Max.x - (m_location.x + m_collision.m_radius);
+		m_moveSpeed.x = 0.0f;
+	}
+	if (m_location.y + m_moveSpeed.y - m_collision.m_radius < Min.y)
+	{
+		m_moveSpeed.y = Min.y - (m_location.y - m_collision.m_radius);
+		m_moveSpeed.y -= deceleration;
+	}
+	if (m_location.y + m_moveSpeed.y + m_collision.m_radius > Max.y)
+	{
+		m_moveSpeed.y = Max.y - (m_location.y + m_collision.m_radius);
+		m_moveSpeed.y += deceleration;
+	}
+
+	CollisionDetectionWithBlocks();
+
+	// 座標に速度を加算
+	m_location += m_moveSpeed.Normalize() * Vector2D(fabsf(m_moveSpeed.x), fabsf(m_moveSpeed.y));
+}
+
+void Player::PlayerDeceleration(float deceleration)
+{
+	// 減速
+	if (m_moveSpeed.x > deceleration)
+	{
+		m_moveSpeed.x -= deceleration;
+	}
+	else if (m_moveSpeed.x < -deceleration)
+	{
+		m_moveSpeed.x += deceleration;
+	}
+	else
+	{
+		m_moveSpeed.x = 0.0f;
+	}
+	if (m_moveSpeed.y > deceleration)
+	{
+		m_moveSpeed.y -= deceleration;
+	}
+	else if (m_moveSpeed.y < -deceleration)
+	{
+		m_moveSpeed.y += deceleration;
+	}
+	else
+	{
+		m_moveSpeed.y = 0.0f;
+	}
+}
+
+void Player::PlayerWalkingOperation(float acceleration)
+{
+	// 加速
+	if (m_left == eInputState::Hold && m_moveSpeed.x > -m_maxSpeed)
+	{
+		m_moveSpeed.x -= acceleration;
+	}
+	if (m_right == eInputState::Hold && m_moveSpeed.x < m_maxSpeed)
+	{
+		m_moveSpeed.x += acceleration;
+	}
+	if (m_up == eInputState::Hold && m_moveSpeed.y > -m_maxSpeed)
+	{
+		m_moveSpeed.y -= acceleration;
+	}
+	if (m_down == eInputState::Hold && m_moveSpeed.y < m_maxSpeed)
+	{
+		m_moveSpeed.y += acceleration;
+	}
+
+	// 歩き始める処理
+	if (m_left == eInputState::Pressed || m_right == eInputState::Pressed ||
+		m_up == eInputState::Pressed || m_down == eInputState::Pressed)
+	{
+		m_walkingFlag = TRUE;
+	}
+	else
+	{
+		// 歩くのをやめる処理
+		if (m_left == eInputState::None && m_right == eInputState::None &&
+			m_up == eInputState::None && m_down == eInputState::None)
+		{
+			m_walkingFlag = FALSE;
+		}
+	}
+}
+
+void Player::PlayerChangeDirection()
+{
+	ChangeOneDirection(e_Direction::left, m_left);
+	ChangeOneDirection(e_Direction::right, m_right);
+	ChangeOneDirection(e_Direction::up, m_up);
+	ChangeOneDirection(e_Direction::down, m_down);
+}
+
+void Player::ChangeOneDirection(e_Direction direction, eInputState inputState)
+{
+	// その入力があるとき
+	if (inputState == eInputState::Hold)
+	{
+		// そのキーが左ではないかつ、左が押されているとき
+		if (e_Direction::left != direction && m_left != eInputState::None)
+		{
+			// 処理を終了する
+			return;
+		}
+		// そのキーが右ではないかつ、右が押されているとき
+		if (e_Direction::right != direction && m_right != eInputState::None)
+		{
+			// 処理を終了する
+			return;
+		}
+		// そのキーが上ではないかつ、上が押されているとき
+		if (e_Direction::up != direction && m_up != eInputState::None)
+		{
+			// 処理を終了する
+			return;
+		}
+		// そのキーが下ではないかつ、下が押されているとき
+		if (e_Direction::down != direction && m_down != eInputState::None)
+		{
+			// 処理を終了する
+			return;
+		}
+
+		// その方向に向ける
+		m_direction = direction;
+
+		switch (direction)
+		{
+		case e_Direction::left:
+			// 左に反転
+			m_flipFlag = FALSE;
+			if (m_offset.x > 0.0f)
+			{
+				m_offset.x *= -1;
+			}
+			break;
+
+		case e_Direction::right:
+			// 右に反転
+			m_flipFlag = TRUE;
+			if (m_offset.x < 0.0f)
+			{
+				m_offset.x *= -1;
+			}
+			break;
+		}
+	}
+}
+
+void Player::MoveInTheDiggingDirection(float acceleration)
+{
+	// 歩きの加速
+	switch (m_direction)
+	{
+	case(e_Direction::left):
+
+		if (m_moveSpeed.x > -m_maxSpeed)
+		{
+			m_moveSpeed.x -= acceleration;
+		}
+
+		break;
+	case(e_Direction::right):
+
+		if (m_moveSpeed.x < m_maxSpeed)
+		{
+			m_moveSpeed.x += acceleration;
+		}
+
+		break;
+	case(e_Direction::up):
+
+		if (m_moveSpeed.y > -m_maxSpeed)
+		{
+			m_moveSpeed.y -= acceleration;
+		}
+
+		break;
+	case(e_Direction::down):
+
+		if (m_moveSpeed.y < m_maxSpeed)
+		{
+			m_moveSpeed.y += acceleration;
+		}
+
+		break;
+	}
+}
+
+void Player::CollisionDetectionWithBlocks()
+{
+	if (m_direction != e_Direction::down)
+	{
+		// 上のブロック
+		if (PlayerPushingByBlocks({ m_location.x, m_location.y - D_BOX_SIZE / 2 }))
+		{
+			// 衝突したら、Y方向の加速をリセット
+			m_moveSpeed.y = 0.0f;
+		}
+	}
+	if (m_direction != e_Direction::up)
+	{
+		// 下のブロック
+
+		if (PlayerPushingByBlocks({ m_location.x, m_location.y + D_BOX_SIZE / 2 }))
+		{
+			// 衝突したら、Y方向の加速をリセット
+			m_moveSpeed.y = 0.0f;
+		}
+	}
+	if (m_direction != e_Direction::right)
+	{
+		// 左のブロック
+		if (PlayerPushingByBlocks({ m_location.x - D_BOX_SIZE / 2, m_location.y }))
+		{
+			// 衝突したら、X方向の加速をリセット
+			m_moveSpeed.x = 0.0f;
+		}
+	}
+	if (m_direction != e_Direction::left)
+	{
+		// 右のブロック
+		if (PlayerPushingByBlocks({ m_location.x + D_BOX_SIZE / 2, m_location.y }))
+		{
+			// 衝突したら、X方向の加速をリセット
+			m_moveSpeed.x = 0.0f;
+		}
+	}
+	if (m_direction != e_Direction::down && m_direction != e_Direction::right)
+	{
+		// 左上のブロック
+		PlayerPushingByBlocks({ m_location.x - D_BOX_SIZE / 2, m_location.y - D_BOX_SIZE / 2 });
+	}
+	if (m_direction != e_Direction::down && m_direction != e_Direction::left)
+	{
+		// 右上のブロック
+		PlayerPushingByBlocks({ m_location.x + D_BOX_SIZE / 2, m_location.y - D_BOX_SIZE / 2 });
+	}
+	if (m_direction != e_Direction::up && m_direction != e_Direction::right)
+	{
+		// 左下のブロック
+		PlayerPushingByBlocks({ m_location.x - D_BOX_SIZE / 2, m_location.y + D_BOX_SIZE / 2 });
+	}
+	if (m_direction != e_Direction::up && m_direction != e_Direction::left)
+	{
+		// 右下のブロック
+		PlayerPushingByBlocks({ m_location.x + D_BOX_SIZE / 2, m_location.y + D_BOX_SIZE / 2 });
+	}
+}
+
+bool Player::PlayerPushingByBlocks(Vector2D position)
+{
+	// 移動後の位置を設定
+	Vector2D locationAfterMove = m_location + m_moveSpeed;
+
+	// タイルの左上座標を取得
+	Vector2D TileLocation = m_map->GetTileLocation(position) - Vector2D{ D_BOX_SIZE / 2,D_BOX_SIZE / 2 };
+
+	// 道でなければめり込みを判定
+	if (m_map->TileType(TileLocation) != e_TileType::road)
+	{
+		// 最近接点
+		float closestX = std::clamp(locationAfterMove.x, TileLocation.x, TileLocation.x + D_BOX_SIZE);
+		float closestY = std::clamp(locationAfterMove.y, TileLocation.y, TileLocation.y + D_BOX_SIZE);
+
+		// 差分
+		Vector2D diff = { locationAfterMove.x - closestX,locationAfterMove.y - closestY };
+
+		// 距離
+		float distance = std::sqrt(diff.x * diff.x + diff.y * diff.y);
+
+		// 半径
+		float radius = std::sqrt(m_collision.m_radius * m_collision.m_radius);
+
+		// めり込み判定
+		if (distance < radius)
+		{
+			// 現在の位置との差分と距離を取得
+			closestX = std::clamp(m_location.x, TileLocation.x, TileLocation.x + D_BOX_SIZE);
+			closestY = std::clamp(m_location.y, TileLocation.y, TileLocation.y + D_BOX_SIZE);
+			diff = { m_location.x - closestX,m_location.y - closestY };
+			distance = std::sqrt(diff.x * diff.x + diff.y * diff.y);
+
+			// めり込み
+			float overlap = radius - distance;
+
+			// 押し出し
+			m_location.x += (diff.x / distance) * overlap;
+			m_location.y += (diff.y / distance) * overlap;
+
+			return TRUE;
+		}
+
+	}
+
+	return FALSE;
 }
 
 const int& Player::GetStamina() const
