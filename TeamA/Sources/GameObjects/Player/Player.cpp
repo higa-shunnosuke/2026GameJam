@@ -283,28 +283,34 @@ void Player::ApplyAllInput()
 {
 	InputManager& input = InputManager::GetInstance();
 
-	int getInput[2];
+	int getInput[3];
 	
 	getInput[0] = KEY_INPUT_UP;
 	getInput[1] = KEY_INPUT_W;
+	getInput[2] = XINPUT_BUTTON_DPAD_UP;
 	ApplyOneInput(m_up, getInput, 2);
 
 	getInput[0] = KEY_INPUT_DOWN;
 	getInput[1] = KEY_INPUT_S;
+	getInput[2] = XINPUT_BUTTON_DPAD_DOWN;
 	ApplyOneInput(m_down, getInput, 2);
 
 	getInput[0] = KEY_INPUT_LEFT;
 	getInput[1] = KEY_INPUT_A;
+	getInput[2] = XINPUT_BUTTON_DPAD_LEFT;
 	ApplyOneInput(m_left, getInput, 2);
 
 	getInput[0] = KEY_INPUT_RIGHT;
 	getInput[1] = KEY_INPUT_D;
+	getInput[2] = XINPUT_BUTTON_DPAD_RIGHT;
 	ApplyOneInput(m_right, getInput, 2);
 
 	getInput[0] = KEY_INPUT_SPACE;
 	getInput[1] = KEY_INPUT_F;
-	ApplyOneInput(m_buttonA, getInput, 2);
+	getInput[2] = XINPUT_BUTTON_A;
+	ApplyOneInput(m_digButton, getInput, 2);
 
+	
 }
 
 void Player::ApplyOneInput(eInputState& variable, int getInput[], int getInputSize)
@@ -314,7 +320,7 @@ void Player::ApplyOneInput(eInputState& variable, int getInput[], int getInputSi
 	for (int i = 0;i < getInputSize;i++)
 	{
 		// もし、対応入力のうち、どれか一つでもHoldなら
-		if (input.GetKeyState(getInput[i]) == eInputState::Hold)
+		if (input.GetKeyState(getInput[i]) == eInputState::Hold || input.GetButtonState(getInput[i]) == eInputState::Hold)
 		{
 			// 変数にHoldを当てはめる
 			variable = eInputState::Hold;
@@ -325,12 +331,12 @@ void Player::ApplyOneInput(eInputState& variable, int getInput[], int getInputSi
 	for (int i = 0;i < getInputSize;i++)
 	{
 		// もし、対応入力のうち、どれか一つでもPressedなら
-		if (input.GetKeyState(getInput[i]) == eInputState::Pressed)
+		if (input.GetKeyState(getInput[i]) == eInputState::Pressed || input.GetButtonState(getInput[i]) == eInputState::Pressed)
 		{
 			// 前フレームで別の対応ボタンが押されているなら
 			for (int i = 0;i < getInputSize;i++)
 			{
-				if (input.GetKeyState(getInput[i]) == eInputState::Released)
+				if (input.GetKeyState(getInput[i]) == eInputState::Released || input.GetButtonState(getInput[i]) == eInputState::Released)
 				{
 					variable = eInputState::Hold;
 					return;
@@ -344,7 +350,7 @@ void Player::ApplyOneInput(eInputState& variable, int getInput[], int getInputSi
 	for (int i = 0;i < getInputSize;i++)
 	{
 		// もし、対応入力のうち、どれか一つでもReleasedなら
-		if (input.GetKeyState(getInput[i]) == eInputState::Released)
+		if (input.GetKeyState(getInput[i]) == eInputState::Released || input.GetButtonState(getInput[i]) == eInputState::Released)
 		{
 			variable = eInputState::Released;
 			return;
@@ -369,7 +375,7 @@ void Player::LapseAnimation(float deltaSecond)
 	}
 
 	// ドリルのアニメーション
-	if (m_diggingAnimCount <= 1 || m_buttonA == eInputState::Hold)
+	if (m_diggingAnimCount <= 1 || m_digButton == eInputState::Hold)
 	{
 		m_diggingAnimTime += deltaSecond;
 		if (m_diggingAnimTime > deltaSecond * 10)
@@ -414,7 +420,7 @@ void Player::PlayerOperate(float deltaSecond)
 	}
 
 	// 掘り始める処理
-	if (m_buttonA == eInputState::Pressed)
+	if (m_digButton == eInputState::Pressed)
 	{
 		m_diggingFlag = TRUE;
 		m_diggingAnimCount = 0;

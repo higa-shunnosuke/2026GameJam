@@ -67,7 +67,7 @@ private:
 	eInputState m_down;
 	eInputState m_left;
 	eInputState m_right;
-	eInputState m_buttonA;
+	eInputState m_digButton;
 
 public:
 	Player();
@@ -134,10 +134,6 @@ private:
 	/// </summary>
 	void LapseAnimation(float deltaTime);
 
-	/// <summary>
-	/// プレイヤーの操作
-	/// </summary>
-	
 	/// <summary>
 	/// プレイヤーの操作
 	/// </summary>
