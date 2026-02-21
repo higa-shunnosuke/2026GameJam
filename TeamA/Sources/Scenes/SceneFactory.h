@@ -25,15 +25,12 @@ public:
 			return dynamic_cast<SceneBase*>(new Title());
 		case SceneType::ingame:
 			return dynamic_cast<SceneBase*>(new InGame());
-			break;
 		case SceneType::resutart:
 			return dynamic_cast<SceneBase*>(new Result());
-			break;
 		case SceneType::end:
 			return dynamic_cast<SceneBase*>(new End());
-			break;
-		default:
-			break;
 		}
+
+		return nullptr;
 	}
 };
