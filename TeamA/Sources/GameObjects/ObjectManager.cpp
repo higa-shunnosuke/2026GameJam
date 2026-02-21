@@ -103,7 +103,7 @@ void ObjectManager::CheckPlayerCollisions(ObjectBase* player)
 			continue;
 		}
 
-		if (pc.IsCircleColliding(player_location, object->GetLocation(), object->GetCollision().GetRadius()))
+		if (pc.IsCircleColliding(player_location, object->GetLocation(), object->GetCollision().m_radius))
 		{
 			player->OnHitCollision(*object);
 			object->OnHitCollision(*player);

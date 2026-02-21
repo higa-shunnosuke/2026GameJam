@@ -4,10 +4,17 @@
 class PoisonPotato : public Potato
 {
 private:
-	int m_poisonpotatoImage;
 
 public:
+
+	/// <summary>
+	/// コンストラクタ
+	/// </summary>
 	PoisonPotato();
+
+	/// <summary>
+	/// デストラクタ
+	/// </summary>
 	~PoisonPotato();
 
 public:
@@ -17,17 +24,4 @@ public:
 	/// </summary>
 	void Initialize() override;
 
-	/// <summary>
-	/// 描画処理
-	/// </summary>
-	void Draw() const override;
-
-
-public:
-
-	/// <summary>
-	/// 判定処理
-	/// </summary>
-	/// <param name="other"></param>
-	void OnHitCollision(ObjectBase& other) override;
 };

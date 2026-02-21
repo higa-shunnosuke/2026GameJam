@@ -3,12 +3,20 @@
 
 class Potato : public ObjectBase
 {
-private:
+protected:
 
-	int m_potatoImage;
+	int m_potatoImage;	// ポテトの画像
 
 public:
+
+	/// <summary>
+	/// コンストラクタ
+	/// </summary>
 	Potato();
+
+	/// <summary>
+	/// デストラクタ
+	/// </summary>
 	~Potato();
 
 public:
@@ -22,7 +30,6 @@ public:
 	/// 描画処理
 	/// </summary>
 	void Draw() const override;
-
 
 public:
 
