@@ -75,6 +75,17 @@ void SceneManager::ChangeScene(SceneType nextType)
 	{
 		throw ("シーンが生成できませんでした\n");
 	}
+	
+	// データを受け渡す
+	PlayData nextData{};
+	if (currentScene)
+	{
+		nextData = currentScene->TransitionData(nullptr);
+	}
+	if (next_scene)
+	{
+		next_scene->TransitionData(&nextData);
+	}
 
 	// シーン情報が格納されていたら、削除する
 	if (currentScene != nullptr)

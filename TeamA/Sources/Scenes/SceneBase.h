@@ -3,6 +3,8 @@
 #include "../System/InputManager.h"
 #include "../GameObjects/ObjectManager.h"
 
+#include <string>
+
 /// <summary>
 /// シーンタイプ
 /// </summary>
@@ -14,10 +16,28 @@ enum class SceneType
 	end
 };
 
+/// <summary>
+/// 共有データ
+/// </summary>
+struct PlayData
+{
+	int score;			// スコア
+	std::string date;	// 日付
+
+	bool operator==(const PlayData& other) const
+	{
+		return score == other.score &&
+			date == other.date;
+	}
+};
+
 // シーン基底クラス
 class SceneBase
 {
+public:
+
 protected:
+
 	float m_time;			// 制限時間
 	float m_elapsedTime;	// 経過時間
 
@@ -80,6 +100,16 @@ public:
 	virtual const SceneType GetNowSceneType() const = 0;
 
 	/// <summary>
+	/// データの受け渡し
+	/// </summary>
+	/// <param name="data">受け取るデータ</param>
+	/// <returns>渡すデータ</returns>
+	virtual PlayData TransitionData(const PlayData* prevdata)
+	{
+		return PlayData();
+	};
+
+	/// <summary>
 	/// タイマー
 	/// </summary>
 	/// <param name="delta">デルタタイム</param>
@@ -93,4 +123,6 @@ public:
 			m_elapsedTime = m_time;
 		}
 	}
+
+
 };
