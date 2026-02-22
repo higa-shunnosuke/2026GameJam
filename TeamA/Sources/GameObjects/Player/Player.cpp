@@ -216,10 +216,12 @@ void Player::Draw() const
 		break;
 	}
 
+#ifdef _DEBUG
 	// 中心地
 	DrawCircleAA(m_location.x,m_location.y, 1.5,30, 0x000000, TRUE);
 	// 当たり判定
-	//DrawCircleAA(m_location.x, m_location.y, m_collision.m_radius, 30, GetColor(255, 0, 0), FALSE);
+	DrawCircleAA(m_location.x, m_location.y, m_collision.m_radius, 30, GetColor(255, 0, 0), FALSE);
+#endif
 }
 
 void Player::Finalize()
@@ -273,7 +275,6 @@ void Player::StaminaManager(int value)
 	{
 		m_stamina = m_staminaMax;
 	}
-	
 }
 
 void Player::ScoreManager(int value)
@@ -388,6 +389,9 @@ void Player::PlayerOperate(float deltaSecond)
 		if (m_map->DestroySoil(m_location, m_direction))
 		{
 			m_breakFlag = TRUE;
+
+			// スタミナを消費
+			StaminaManager(-5);
 		}
 	}
 

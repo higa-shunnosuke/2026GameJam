@@ -185,6 +185,12 @@ public:
 	const int& GetStamina() const;
 
 	/// <summary>
+	/// スタミナの最大を取得
+	/// </summary>
+	/// <returns>スタミナの最大</returns>
+	const int& GetStaminaMax() { return m_staminaMax; };
+
+	/// <summary>
 	/// スコアを取得
 	/// </summary>
 	/// <returns></returns>

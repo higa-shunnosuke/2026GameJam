@@ -3,10 +3,22 @@
 #include "../../System/ResourceManager.h"
 #include "../../System/Camera/Camera.h"
 
+// タイマー位置
+#define D_TIMER_POS_X (D_BOX_SIZE * 8)
+#define D_TIMER_POS_Y (D_BOX_SIZE - 40)
+
+// スタミナ位置
+#define D_STAMINA_POS_X (D_BOX_SIZE * 3 - 32)
+#define D_STAMINA_POS_Y (D_BOX_SIZE / 2)
+
+
 InGame::InGame()
 	: m_map(nullptr)
 	, m_player(nullptr)
-	, m_groundImage()
+	, m_groundImg()
+	, m_staminaBarImg()
+	, m_staminaFlameImg()
+	, m_moleIconImg()
 	, m_back_buffer()
 {
 }
@@ -15,10 +27,19 @@ void InGame::Initialize()
 {
 	// 背景画像読み込み
 	ResourceManager& rm = ResourceManager::GetInstance();
-	m_groundImage = rm.GetImageResource("Assets/Textures/InGame/Ground.PNG")[0];
-	m_skyImage.push_back(rm.GetImageResource("Assets/Textures/InGame/Sky3.PNG")[0]);
-	m_skyImage.push_back(rm.GetImageResource("Assets/Textures/InGame/Sky2.PNG")[0]);
-	m_skyImage.push_back(rm.GetImageResource("Assets/Textures/InGame/Sky1.PNG")[0]);
+	m_groundImg = rm.GetImageResource("Assets/Textures/InGame/Ground.PNG")[0];
+	m_skyImg.push_back(rm.GetImageResource("Assets/Textures/InGame/Sky3.PNG")[0]);
+	m_skyImg.push_back(rm.GetImageResource("Assets/Textures/InGame/Sky2.PNG")[0]);
+	m_skyImg.push_back(rm.GetImageResource("Assets/Textures/InGame/Sky1.PNG")[0]);
+	m_timerImg = rm.GetImageResource("Assets/Sprites/UI/Timer.PNG")[0];
+	m_staminaBarImg[0] = rm.GetImageResource("Assets/Sprites/UI/Stamina1.PNG")[0];
+	m_staminaBarImg[1] = rm.GetImageResource("Assets/Sprites/UI/Stamina2.PNG")[0];
+	m_staminaBarImg[2] = rm.GetImageResource("Assets/Sprites/UI/Stamina3.PNG")[0];
+	m_staminaFlameImg[0] = rm.GetImageResource("Assets/Sprites/UI/Frame1.PNG")[0];
+	m_staminaFlameImg[1] = rm.GetImageResource("Assets/Sprites/UI/Flame2.PNG")[0];
+	m_moleIconImg[0] = rm.GetImageResource("Assets/Sprites/UI/Mole1.PNG")[0];
+	m_moleIconImg[1] = rm.GetImageResource("Assets/Sprites/UI/Mole2.PNG")[0];
+	m_moleIconImg[2] = rm.GetImageResource("Assets/Sprites/UI/Mole3.PNG")[0];
 
 	// 各オブジェクトを生成
 	ObjectManager& object = ObjectManager::GetInstance();
@@ -51,7 +72,7 @@ SceneType InGame::Update(float delta)
 	{
 		return SceneType::resutart;
 	}
-	if (m_elapsedTime > m_time)
+	if (m_elapsedTime > m_time || m_player->GetStamina() <= 0)
 	{
 		return SceneType::resutart;
 	}
@@ -80,8 +101,6 @@ SceneType InGame::Update(float delta)
 	//カメラの更新
 	camera.Update();
 
-
-
 	// 親クラスの更新処理
 	return __super::Update(delta);
 }
@@ -89,24 +108,30 @@ SceneType InGame::Update(float delta)
 // 描画処理
 void InGame::Draw() const
 {
-	//--------------------
-	// 仮想画面に描画
-	//--------------------
+	//	インゲーム表示
+	DrawFormatString(10, 10, 0xff0000, "InGame");
+
+	// 画像サイズ
+	float imageSize = 0.222f;
+
+
+	//------------------------------
+	// 背景 ＆ オブジェクトを描画
+	//------------------------------
 	SetDrawScreen(m_back_buffer);
 	ClearDrawScreen();
 
 	// 背景
 	{
-		float imageSize = 0.222f;
 		int offset;
 
 		// 空
 		offset = - 192;
-		DrawExtendGraph(0, offset, D_STAGE_WIDTH, D_STAGE_HEIGHT / 2 + offset, m_skyImage[m_skyImage.size() - 1], TRUE);
-		for (int i = 0; i < m_skyImage.size(); i++)
+		DrawExtendGraph(0, offset, D_STAGE_WIDTH, D_STAGE_HEIGHT / 2 + offset, m_skyImg[m_skyImg.size() - 1], TRUE);
+		for (int i = 0; i < m_skyImg.size(); i++)
 		{
 			// フェード間隔
-			float fadeInterval = m_time / m_skyImage.size();
+			float fadeInterval = m_time / m_skyImg.size();
 			// フェード比率(20%)
 			float fadeRatio = 0.2;
 			// フェード時間
@@ -129,22 +154,22 @@ void InGame::Draw() const
 			// アルファブレンド
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
 			// 経過時間に応じて空を描画
-			DrawExtendGraph(0, offset, D_STAGE_WIDTH, D_STAGE_HEIGHT / 2 + offset, m_skyImage[i], TRUE);
+			DrawExtendGraph(0, offset, D_STAGE_WIDTH, D_STAGE_HEIGHT / 2 + offset, m_skyImg[i], TRUE);
 			// ブレンドモードを戻す
 			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		}
 
 		// 地面
 		offset = 32;
-		DrawExtendGraph(0, offset, D_STAGE_WIDTH, D_STAGE_HEIGHT + offset, m_groundImage, TRUE);
+		DrawExtendGraph(0, offset, D_STAGE_WIDTH, D_STAGE_HEIGHT + offset, m_groundImg, TRUE);
 
 	}
 
 	__super::Draw();
 
-	//--------------------
-	// 表画面に描画
-	//--------------------
+	//------------------------------
+	// ＵＩを描画
+	//------------------------------
 	SetDrawScreen(DX_SCREEN_BACK);
 	ClearDrawScreen();
 
@@ -153,11 +178,30 @@ void InGame::Draw() const
 	camera.Draw(m_back_buffer);
 
 	SetFontSize(64);
-	//	インゲーム表示
-	DrawFormatString(10, 10, 0xff0000, "InGame");
-	// タイマー描画
-	DrawFormatString(1100, 10, 0xffffff, "%.2f", m_time - m_elapsedTime);
-	SetFontSize(12);
+	DrawFormatString(D_TIMER_POS_X + 50, D_TIMER_POS_Y - 50, 0xffffff, "%.2f", m_time - m_elapsedTime);
+	DrawFormatString(D_TIMER_POS_X + 50, D_TIMER_POS_Y + 20, 0xffffff, "%d", m_player->GetStamina());
+	SetFontSize(32);
+
+	// タイマー
+	imageSize = 0.13;
+	DrawRotaGraph(D_TIMER_POS_X, D_TIMER_POS_Y, imageSize, 0, m_timerImg, TRUE);
+
+	// スタミナ
+	imageSize = 0.22;
+	DrawRotaGraph(D_STAMINA_POS_X, D_STAMINA_POS_Y, imageSize, 0, m_staminaFlameImg[0], TRUE);
+	// バー
+	int stamina = m_player->GetStamina();
+	int staminaMax = m_player->GetStaminaMax();
+
+	SetDrawArea(64, 0, 64 + D_BOX_SIZE * 5, D_BOX_SIZE);
+	DrawRotaGraph(D_STAMINA_POS_X - staminaMax + stamina, D_STAMINA_POS_Y, imageSize, 0, m_staminaBarImg[0], TRUE);
+	SetDrawArea(0, 0, D_STAGE_WIDTH, D_STAGE_HEIGHT);
+	DrawRotaGraph(D_STAMINA_POS_X, D_STAMINA_POS_Y, imageSize, 0, m_staminaFlameImg[1], TRUE);
+
+	// アイコン
+	imageSize = 0.065;
+	DrawRotaGraph(64, D_STAMINA_POS_Y, imageSize, 0, m_moleIconImg[0], TRUE);
+
 }
 
 // 終了処理

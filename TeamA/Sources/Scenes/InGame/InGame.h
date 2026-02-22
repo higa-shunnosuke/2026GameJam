@@ -10,9 +10,13 @@ private:
 	MapData* m_map;
 	Player* m_player;
 
-	int m_groundImage;				// 地面の画像
-	std::vector<int> m_skyImage;	// 空の画像
-	int m_back_buffer;				// 仮想画面
+	int m_back_buffer;			// バックバッファ
+	std::vector<int> m_skyImg;	// 空画像
+	int m_groundImg;			// 地面画像
+	int m_timerImg;				// タイマー画像
+	int m_staminaBarImg[3];		// スタミナバー画像
+	int m_staminaFlameImg[2];	// スタミナフレーム画像
+	int m_moleIconImg[3];		// モグラアイコン画像
 
 public:
 	// コンストラクタ
