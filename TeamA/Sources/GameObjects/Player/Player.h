@@ -9,32 +9,39 @@ class Player : public ObjectBase
 {
 private:
 
-	MapData* m_map;
+	// キャラクターの現在の動作種別を表す列挙型
+	enum class e_AnimationState
+	{
+		idle,
+		walk,
+		eat
+	};
 
-	// スコア
-	int m_score;
+	MapData* m_pMap;		// マップ
 
-	// スタミナ
-	int m_stamina;
-	// スタミナの最大
-	int m_staminaMax;
+	int m_score;			// スコア
+	int m_stamina;			// スタミナ
+	int m_staminaMax;		// スタミナの最大
+	int m_potatoStock;		// 所持しているポテトの数
+	float m_invincibleTime;	// スタミナが減少無効果時間
 
-	// 無敵時間
-	float m_invincibleTime;
 
-	// 速度
-	Vector2D m_moveSpeed;
-	// 速度の最大
-	float m_maxSpeed;
+	// 入力
+	eInputState m_up;
+	eInputState m_down;
+	eInputState m_left;
+	eInputState m_right;
+	eInputState m_digButton;
 
-	// 歩きフラグ
-	bool m_walkingFlag;
-	// 掘るフラグ
-	bool m_diggingFlag;
-	// 壊すフラグ
-	bool m_breakFlag;
-	// 反転フラグ
-	bool m_flipFlag;
+	// 移動
+	Vector2D m_moveSpeed;	// 速度
+	float m_maxSpeed;		// 速度の最大
+	e_Direction m_direction;// 向き
+
+	bool m_walkingFlag;		// 歩きフラグ
+	bool m_diggingFlag;		// 掘るフラグ
+	bool m_breakFlag;		// 壊すフラグ
+	bool m_flipFlag;		// 反転フラグ
 
 	// アニメーション
 	float m_walkAnimTime;
@@ -42,11 +49,11 @@ private:
 	float m_diggingAnimTime;
 	int m_diggingAnimCount;
 
-	// 向き
-	e_Direction m_direction;
+	e_AnimationState m_animState;	// 現在再生している動作の種類
+	float m_animTimer;				// フレーム切り替え用の経過時間
 
-	// 画像のずらす位置
-	Vector2D m_offset;
+
+	Vector2D m_offset;		// 画像のずらす位置
 
 	// プレイヤーの画像情報
 	int m_idleImage;
@@ -62,12 +69,7 @@ private:
 	// エフェクトの画像情報
 	int m_effectImage[3];
 
-	// 操作
-	eInputState m_up;
-	eInputState m_down;
-	eInputState m_left;
-	eInputState m_right;
-	eInputState m_digButton;
+
 
 public:
 	Player();
@@ -196,6 +198,10 @@ public:
 	/// <returns></returns>
 	const int& GetScore() const;
 
+	/// <summary>
+	/// マップのインスタンスを受け取る
+	/// </summary>
+	/// <param name="mapdata"></param>
 	void SetMap(MapData* mapdata);
 };
 

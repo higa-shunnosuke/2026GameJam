@@ -6,6 +6,9 @@
 #include <math.h>
 #include <algorithm>
 
+#define D_POTATO_CALORIE	(20)	// ポテトの回復量
+#define D_POTATO_STOCK		(2)		// 初期ポテト
+
 Player::Player()
 {
 
@@ -31,6 +34,9 @@ void Player::Initialize()
 	// スタミナ
 	m_staminaMax = 100;
 	m_stamina = m_staminaMax;
+
+	// ポテト
+	m_potatoStock = D_POTATO_STOCK;
 
 	// 速度
 	m_moveSpeed = {};
@@ -96,12 +102,25 @@ void Player::Initialize()
 
 void Player::Update(float delta)
 {
-	// 対応入力の変数化
-	ApplyInput();
-	// アニメーション
-	LapseAnimation(delta);
-	// 操作
-	PlayerOperate(delta);
+	if (m_animTimer < 0.0f)
+	{
+		m_animTimer = 0.0f;
+		m_animState = e_AnimationState::idle;
+	}
+	else
+	{
+		m_animTimer -= delta;
+	}
+
+	if (m_animState != e_AnimationState::eat)
+	{
+		// 対応入力の変数化
+		ApplyInput();
+		// アニメーション
+		LapseAnimation(delta);
+		// 操作
+		PlayerOperate(delta);
+	}
 }
 
 void Player::Draw() const
@@ -221,6 +240,11 @@ void Player::Draw() const
 	DrawCircleAA(m_location.x,m_location.y, 1.5,30, 0x000000, TRUE);
 	// 当たり判定
 	DrawCircleAA(m_location.x, m_location.y, m_collision.m_radius, 30, GetColor(255, 0, 0), FALSE);
+
+	SetFontSize(30);
+	DrawFormatStringF(m_location.x, m_location.y - 75.0f, 0xffffff, "%d", m_potatoStock);
+	SetFontSize(12);
+
 #endif
 }
 
@@ -235,22 +259,28 @@ void Player::OnHitCollision(ObjectBase& other)
 	{
 	case e_ObjectType::potato:
 
-		StaminaManager(20);
-
+		// ジャガイモのストックを増やす
+		m_potatoStock++;
 		break;
+
 	case e_ObjectType::poisonpoteto:
 
+		// スタミナの減少
 		StaminaManager(-30);
 
 		break;
 	case e_ObjectType::rainbowpoteto:
 
+		// スタミナ回復
 		StaminaManager(20);
+
+		// スタミナ減少無効果時間を設定
 		m_invincibleTime = 10.0f;
 
 		break;
 	case e_ObjectType::jewel:
 
+		// スコアを加算
 		ScoreManager(100);
 
 		break;
@@ -270,10 +300,26 @@ void Player::StaminaManager(int value)
 	}
 	m_stamina += value;
 
-	// スタミナ
+	// スタミナの上限
 	if (m_stamina > m_staminaMax)
 	{
 		m_stamina = m_staminaMax;
+	}
+
+	// 0以下の時
+	if (m_stamina <= 0)
+	{
+		// ポテトストックがあれば
+		if (m_potatoStock > 0)
+		{
+			// ポテトを使用する
+			m_stamina += D_POTATO_CALORIE;
+			m_potatoStock--;
+
+			// 状態を変更
+			m_animState = e_AnimationState::eat;
+			m_animTimer = 2.0f;
+		}
 	}
 }
 
@@ -386,7 +432,7 @@ void Player::PlayerOperate(float deltaSecond)
 	if (m_diggingFlag)
 	{
 		// 土を壊す処理
-		if (m_map->DestroySoil(m_location, m_direction))
+		if (m_pMap->DestroySoil(m_location, m_direction))
 		{
 			m_breakFlag = TRUE;
 
@@ -701,10 +747,10 @@ bool Player::PlayerPushingByBlocks(Vector2D position, float deltaSecond)
 	Vector2D locationAfterMove = m_location + deltaMoveSpeed.Normalize() * Vector2D(fabsf(deltaMoveSpeed.x), fabsf(deltaMoveSpeed.y));
 
 	// タイルの左上座標を取得
-	Vector2D TileLocation = m_map->GetTileLocation(position) - Vector2D{ D_BOX_SIZE / 2,D_BOX_SIZE / 2 };
+	Vector2D TileLocation = m_pMap->GetTileLocation(position) - Vector2D{ D_BOX_SIZE / 2,D_BOX_SIZE / 2 };
 
 	// 道でなければめり込みを判定
-	if (m_map->TileType(TileLocation) != e_TileType::road)
+	if (m_pMap->TileType(TileLocation) != e_TileType::road)
 	{
 		// 最近接点
 		float closestX = std::clamp(locationAfterMove.x, TileLocation.x, TileLocation.x + D_BOX_SIZE);
@@ -755,5 +801,5 @@ const int& Player::GetScore() const
 
 void Player::SetMap(MapData* mapdata)
 {
-	m_map = mapdata;
+	m_pMap = mapdata;
 }
