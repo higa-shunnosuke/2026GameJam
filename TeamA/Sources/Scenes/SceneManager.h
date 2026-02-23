@@ -7,8 +7,8 @@ class SceneManager : public Singleton<SceneManager>
 	friend class Singleton<SceneManager>;
 
 private:
-	SceneBase* currentScene;			// 現在のシーン情報
-
+	SceneBase* currentScene;	// 現在のシーン情報
+	int fontHandle;				// フォントハンドル
 public:
 	// コンストラクタ
 	SceneManager();

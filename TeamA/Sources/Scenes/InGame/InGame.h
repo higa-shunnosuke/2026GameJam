@@ -13,6 +13,7 @@ private:
 	int m_back_buffer;			// バックバッファ
 	std::vector<int> m_skyImg;	// 空画像
 	int m_groundImg;			// 地面画像
+	int m_boardImg;				// 板画像
 	int m_timerImg;				// タイマー画像
 	int m_staminaBarImg[3];		// スタミナバー画像
 	int m_staminaFlameImg[2];	// スタミナフレーム画像

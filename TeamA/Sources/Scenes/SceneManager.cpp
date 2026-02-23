@@ -1,10 +1,12 @@
 ﻿#include "SceneManager.h"
 #include "SceneFactory.h"
 #include "../System/InputManager.h"
+#include <Windows.h>
 
 // コンストラクタ
-SceneManager::SceneManager() :
-	currentScene(nullptr)
+SceneManager::SceneManager()
+	: currentScene(nullptr)
+	, fontHandle()
 {
 }
 
@@ -13,6 +15,15 @@ void SceneManager::Initialize()
 {
 	// 最初のシーンをインゲーム画面にする
 	ChangeScene(SceneType::ingame);
+
+	// フォントデータを読み込む
+	AddFontResourceExA("Assets/Fonts/07にくまるフォント.otf", FR_PRIVATE, NULL);
+
+	// フォントハンドルの作成
+	fontHandle = CreateFontToHandle("07にくまるフォント", 20, 3, DX_FONTTYPE_ANTIALIASING);
+
+	// 描画する文字列の文字セットを変更
+	ChangeFont("07にくまるフォント");
 }
 
 //  更新処理
@@ -49,6 +60,9 @@ void SceneManager::Finalize()
 		delete currentScene;
 		currentScene = nullptr;
 	}
+
+	// 作成したフォントハンドルを削除する
+	DeleteFontToHandle(fontHandle);
 }
 
 // 描画処理

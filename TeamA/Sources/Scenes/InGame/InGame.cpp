@@ -3,9 +3,13 @@
 #include "../../System/ResourceManager.h"
 #include "../../System/Camera/Camera.h"
 
+// ボード位置
+#define D_BOARD_POS_X (D_BOX_SIZE * 8 + 48)
+#define D_BOARD_POS_Y (D_BOX_SIZE - 80)
+
 // タイマー位置
-#define D_TIMER_POS_X (D_BOX_SIZE * 8)
-#define D_TIMER_POS_Y (D_BOX_SIZE - 40)
+#define D_TIMER_POS_X (D_BOX_SIZE * 7 + 72)
+#define D_TIMER_POS_Y (D_BOX_SIZE - 16)
 
 // スタミナ位置
 #define D_STAMINA_POS_X (D_BOX_SIZE * 3 - 32)
@@ -16,6 +20,8 @@ InGame::InGame()
 	: m_map(nullptr)
 	, m_player(nullptr)
 	, m_groundImg()
+	, m_boardImg()
+	, m_timerImg()
 	, m_staminaBarImg()
 	, m_staminaFlameImg()
 	, m_moleIconImg()
@@ -31,6 +37,7 @@ void InGame::Initialize()
 	m_skyImg.push_back(rm.GetImageResource("Assets/Textures/InGame/Sky3.PNG")[0]);
 	m_skyImg.push_back(rm.GetImageResource("Assets/Textures/InGame/Sky2.PNG")[0]);
 	m_skyImg.push_back(rm.GetImageResource("Assets/Textures/InGame/Sky1.PNG")[0]);
+	m_boardImg = rm.GetImageResource("Assets/Sprites/UI/Board.PNG")[0];
 	m_timerImg = rm.GetImageResource("Assets/Sprites/UI/Timer.PNG")[0];
 	m_staminaBarImg[0] = rm.GetImageResource("Assets/Sprites/UI/Stamina1.PNG")[0];
 	m_staminaBarImg[1] = rm.GetImageResource("Assets/Sprites/UI/Stamina2.PNG")[0];
@@ -180,13 +187,16 @@ void InGame::Draw() const
 	Camera& camera = Camera::GetInstance();
 	camera.Draw(m_back_buffer);
 
-	SetFontSize(64);
-	DrawFormatString(D_TIMER_POS_X + 50, D_TIMER_POS_Y - 50, 0xffffff, "%.2f", m_time - m_elapsedTime);
-	DrawFormatString(D_TIMER_POS_X + 50, D_TIMER_POS_Y + 20, 0xffffff, "%d", m_player->GetStamina());
-
 	// タイマー
-	imageSize = 0.13f;
-	DrawRotaGraph(D_TIMER_POS_X, D_TIMER_POS_Y, imageSize, 0, m_timerImg, TRUE);
+	{
+		// ボード
+		imageSize = 0.35f;
+		DrawRotaGraph(D_BOARD_POS_X, D_BOARD_POS_Y, imageSize, 0, m_boardImg, TRUE);
+
+		// 時計
+		imageSize = 0.11f;
+		DrawRotaGraph(D_TIMER_POS_X, D_TIMER_POS_Y, imageSize, 0, m_timerImg, TRUE);
+	}
 
 	// スタミナ
 	{
@@ -201,7 +211,7 @@ void InGame::Draw() const
 		int drawWidth;
 		int drawHeight;
 		GetGraphSize(m_staminaBarImg[0], &drawWidth, &drawHeight);
-		drawWidth *= imageSize;
+		drawWidth = static_cast<int>(drawWidth * imageSize);
 		int staminaBarPosX = static_cast<int>(D_STAMINA_POS_X - drawWidth + drawWidth * rate);
 
 		SetDrawArea(64, 0, 64 + D_BOX_SIZE * 5, D_BOX_SIZE);
@@ -226,8 +236,12 @@ void InGame::Draw() const
 		//} else {
 		//	DrawRotaGraph(64, D_STAMINA_POS_Y, imageSize, 0, m_moleIconImg[2], TRUE);
 		//}
-		SetFontSize(32);
 	}
+
+	SetFontSize(64);
+	DrawFormatString(D_TIMER_POS_X + 44, D_TIMER_POS_Y - 48, 0xffffff, "%.2f", m_time - m_elapsedTime);
+	SetFontSize(32);
+
 }
 
 // 終了処理
