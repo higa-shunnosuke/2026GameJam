@@ -25,7 +25,6 @@ public:
 	// デストラクタ
 	virtual ~InGame() = default;
 
-public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
@@ -53,6 +52,18 @@ public:
 	/// <returns>現在のシーンタイプ</returns>
 	virtual const SceneType GetNowSceneType() const override;
 
+	/// <summary>
+	/// データの受け渡し
+	/// </summary>
+	/// <param name="prevData">受け取るデータ</param>
+	/// <returns>渡すデータ</returns>
+	virtual PlayData TransitionData(const PlayData* prevdata) override;
+
 private:
+	/// <summary>
+	/// 現在の日付を取得する
+	/// </summary>
+	/// <returns>yyyy-mm-dd hh:mm:ss</returns>
+	std::string GetCurrentDate();
 
 };

@@ -63,7 +63,9 @@ void InGame::Initialize()
 SceneType InGame::Update(float delta)
 {
 	// タイマーの更新
+#ifndef _DEBUG
 	__super::Timer(delta);
+#endif
 
 	//インスタンス取得
 	InputManager& input = InputManager::GetInstance();
@@ -133,7 +135,7 @@ void InGame::Draw() const
 			// フェード間隔
 			float fadeInterval = m_time / m_skyImg.size();
 			// フェード比率(20%)
-			float fadeRatio = 0.2;
+			float fadeRatio = 0.2f;
 			// フェード時間
 			float fadeTime = fadeInterval * fadeRatio;
 			// フェード終了時間
@@ -149,7 +151,7 @@ void InGame::Draw() const
 			float fadeElapsed = m_elapsedTime - fadeStart;
 
 			// アルファを計算
-			alpha -= 255 / fadeTime * fadeElapsed;
+			alpha -= static_cast<int>(255 / fadeTime * fadeElapsed);
 
 			// アルファブレンド
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
@@ -165,6 +167,7 @@ void InGame::Draw() const
 
 	}
 
+	// オブジェクト描画
 	__super::Draw();
 
 	//------------------------------
@@ -173,35 +176,58 @@ void InGame::Draw() const
 	SetDrawScreen(DX_SCREEN_BACK);
 	ClearDrawScreen();
 
-	// 仮想画面を描画
+	// バックバッファを描画(
 	Camera& camera = Camera::GetInstance();
 	camera.Draw(m_back_buffer);
 
 	SetFontSize(64);
 	DrawFormatString(D_TIMER_POS_X + 50, D_TIMER_POS_Y - 50, 0xffffff, "%.2f", m_time - m_elapsedTime);
 	DrawFormatString(D_TIMER_POS_X + 50, D_TIMER_POS_Y + 20, 0xffffff, "%d", m_player->GetStamina());
-	SetFontSize(32);
 
 	// タイマー
-	imageSize = 0.13;
+	imageSize = 0.13f;
 	DrawRotaGraph(D_TIMER_POS_X, D_TIMER_POS_Y, imageSize, 0, m_timerImg, TRUE);
 
 	// スタミナ
-	imageSize = 0.22;
-	DrawRotaGraph(D_STAMINA_POS_X, D_STAMINA_POS_Y, imageSize, 0, m_staminaFlameImg[0], TRUE);
-	// バー
-	int stamina = m_player->GetStamina();
-	int staminaMax = m_player->GetStaminaMax();
+	{
+		// 枠（背面）
+		imageSize = 0.22f;
+		DrawRotaGraph(D_STAMINA_POS_X, D_STAMINA_POS_Y, imageSize, 0, m_staminaFlameImg[0], TRUE);
 
-	SetDrawArea(64, 0, 64 + D_BOX_SIZE * 5, D_BOX_SIZE);
-	DrawRotaGraph(D_STAMINA_POS_X - staminaMax + stamina, D_STAMINA_POS_Y, imageSize, 0, m_staminaBarImg[0], TRUE);
-	SetDrawArea(0, 0, D_STAGE_WIDTH, D_STAGE_HEIGHT);
-	DrawRotaGraph(D_STAMINA_POS_X, D_STAMINA_POS_Y, imageSize, 0, m_staminaFlameImg[1], TRUE);
+		// バー
+		int stamina = m_player->GetStamina();
+		int staminaMax = m_player->GetStaminaMax();
+		float rate = static_cast<float>(stamina) / static_cast<float>(staminaMax);
+		int drawWidth;
+		int drawHeight;
+		GetGraphSize(m_staminaBarImg[0], &drawWidth, &drawHeight);
+		drawWidth *= imageSize;
+		int staminaBarPosX = static_cast<int>(D_STAMINA_POS_X - drawWidth + drawWidth * rate);
 
-	// アイコン
-	imageSize = 0.065;
-	DrawRotaGraph(64, D_STAMINA_POS_Y, imageSize, 0, m_moleIconImg[0], TRUE);
+		SetDrawArea(64, 0, 64 + D_BOX_SIZE * 5, D_BOX_SIZE);
+		if (rate > 0.6f) {
+			DrawRotaGraph(staminaBarPosX, D_STAMINA_POS_Y, imageSize, 0, m_staminaBarImg[0], TRUE);		}
+		else if (rate > 0.3f) {
+			DrawRotaGraph(staminaBarPosX, D_STAMINA_POS_Y, imageSize, 0, m_staminaBarImg[1], TRUE);		}
+		else {
+			DrawRotaGraph(staminaBarPosX, D_STAMINA_POS_Y, imageSize, 0, m_staminaBarImg[2], TRUE);
+		}
+		SetDrawArea(0, 0, D_STAGE_WIDTH, D_STAGE_HEIGHT);
 
+		// 枠（前面）
+		DrawRotaGraph(D_STAMINA_POS_X, D_STAMINA_POS_Y, imageSize, 0, m_staminaFlameImg[1], TRUE);
+
+		//// アイコン	
+		//imageSize = 0.065f;
+		//if (rate > 0.6f) {
+		//	DrawRotaGraph(64, D_STAMINA_POS_Y, imageSize, 0, m_moleIconImg[0], TRUE);
+		//} else if (rate > 0.3f) {
+		//	DrawRotaGraph(64, D_STAMINA_POS_Y, imageSize, 0, m_moleIconImg[1], TRUE);
+		//} else {
+		//	DrawRotaGraph(64, D_STAMINA_POS_Y, imageSize, 0, m_moleIconImg[2], TRUE);
+		//}
+		SetFontSize(32);
+	}
 }
 
 // 終了処理
@@ -216,4 +242,34 @@ const SceneType InGame::GetNowSceneType() const
 {
 	// リザルト
 	return SceneType::ingame;
+}
+
+
+PlayData InGame::TransitionData(const PlayData* prevdata)
+{
+	PlayData nextData{};
+
+	nextData.score = 0;
+	nextData.date = GetCurrentDate();
+
+	return nextData;
+}
+
+
+std::string InGame::GetCurrentDate()
+{
+	DATEDATA date;
+	GetDateTime(&date);
+
+	char buffer[32];
+	sprintf_s(buffer, "%04d-%02d-%02d %02d:%02d:%02d",
+		date.Year,
+		date.Mon,
+		date.Day,
+		date.Hour,
+		date.Min,
+		date.Sec
+	);
+
+	return std::string(buffer);
 }
