@@ -234,8 +234,7 @@ void Title::Draw() const
 	for (int i = 0;i < 3;i++)
 	{
 		DrawRotaGraph(300 + i*350, 630, 0.15,0.0, m_buttonImage,TRUE);
-		DrawRotaGraph(300 + i*350, 630, 0.15,0.0, m_uiImage[i],TRUE);
-
+		DrawRotaGraph(300 + i*350, 630, 0.1,0.0, m_uiImage[i],TRUE);
 	}
 
 	int cursorx = 300 + m_cursorNumber * 350;
