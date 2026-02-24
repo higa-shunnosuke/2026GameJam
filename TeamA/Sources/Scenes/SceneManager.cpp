@@ -14,7 +14,7 @@ SceneManager::SceneManager()
 void SceneManager::Initialize()
 {
 	// 最初のシーンをインゲーム画面にする
-	ChangeScene(SceneType::load);
+	ChangeScene(SceneType::ingame);
 
 	// フォントデータを読み込む
 	AddFontResourceExA("Assets/Fonts/07にくまるフォント.otf", FR_PRIVATE, NULL);

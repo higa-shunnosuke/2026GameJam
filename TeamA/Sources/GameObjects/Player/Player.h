@@ -59,6 +59,8 @@ private:
 	int m_drillImage[3];
 	int m_drillUpImage[3];
 	int m_drillDownImage[3];
+	int m_endAnimImage[11];		// スタミナ切れ時のアニメーション
+	int m_endDrillImage;		// スタミナ切れ時のドリル
 
 	// エフェクトの画像情報
 	int m_effectImage[3];
@@ -183,6 +185,12 @@ public:
 	/// </summary>
 	/// <returns></returns>
 	const int& GetScore() const;
+
+	/// <summary>
+	/// ポテトの所持数を取得
+	/// </summary>
+	/// <returns></returns>
+	const int& GetPotatoStock() const;
 
 	/// <summary>
 	/// 開始演出が終了したか

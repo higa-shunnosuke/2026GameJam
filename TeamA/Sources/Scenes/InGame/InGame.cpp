@@ -15,6 +15,13 @@
 #define D_STAMINA_POS_X (D_BOX_SIZE * 3 - 32)
 #define D_STAMINA_POS_Y (D_BOX_SIZE / 2)
 
+// ポテト位置
+#define D_POTATO_POS_X (D_BOX_SIZE/2)
+#define D_POTATO_POS_Y (D_BOX_SIZE*1.2)
+
+// 宝石位置
+#define D_JEWEL_POS_X (D_BOX_SIZE/2)
+#define D_JEWEL_POS_Y (D_BOX_SIZE*1.8)
 
 InGame::InGame()
 	: m_map(nullptr)
@@ -47,6 +54,9 @@ void InGame::Initialize()
 	m_moleIconImg[0] = rm.GetImageResource("Assets/Sprites/UI/Mole1.PNG")[0];
 	m_moleIconImg[1] = rm.GetImageResource("Assets/Sprites/UI/Mole2.PNG")[0];
 	m_moleIconImg[2] = rm.GetImageResource("Assets/Sprites/UI/Mole3.PNG")[0];
+	m_potatoImg = rm.GetImageResource("Assets/Sprites/Potato/NormalPotato.PNG")[0];
+	m_jewelImg = rm.GetImageResource("Assets/Sprites/Jewel/emerald/emerald2.PNG")[0];
+
 
 	// サウンド
 	m_Bgm = rm.GetSoundResource("Assets/Sounds/BGM/InGame.mp3");
@@ -124,12 +134,8 @@ SceneType InGame::Update(float delta)
 // 描画処理
 void InGame::Draw() const
 {
-	//	インゲーム表示
-	DrawFormatString(10, 10, 0xff0000, "InGame");
-
 	// 画像サイズ
 	float imageSize = 0.222f;
-
 
 	//------------------------------
 	// 背景 ＆ オブジェクトを描画
@@ -142,7 +148,7 @@ void InGame::Draw() const
 		int offset;
 
 		// 空
-		offset = - 192;
+		offset = -192;
 		DrawExtendGraph(0, offset, D_STAGE_WIDTH, D_STAGE_HEIGHT / 2 + offset, m_skyImg[m_skyImg.size() - 1], TRUE);
 		for (int i = 0; i < m_skyImg.size(); i++)
 		{
@@ -223,9 +229,11 @@ void InGame::Draw() const
 
 		SetDrawArea(64, 0, 64 + D_BOX_SIZE * 5, D_BOX_SIZE);
 		if (rate > 0.6f) {
-			DrawRotaGraph(staminaBarPosX, D_STAMINA_POS_Y, imageSize, 0, m_staminaBarImg[0], TRUE);		}
+			DrawRotaGraph(staminaBarPosX, D_STAMINA_POS_Y, imageSize, 0, m_staminaBarImg[0], TRUE);
+		}
 		else if (rate > 0.3f) {
-			DrawRotaGraph(staminaBarPosX, D_STAMINA_POS_Y, imageSize, 0, m_staminaBarImg[1], TRUE);		}
+			DrawRotaGraph(staminaBarPosX, D_STAMINA_POS_Y, imageSize, 0, m_staminaBarImg[1], TRUE);
+		}
 		else {
 			DrawRotaGraph(staminaBarPosX, D_STAMINA_POS_Y, imageSize, 0, m_staminaBarImg[2], TRUE);
 		}
@@ -238,15 +246,43 @@ void InGame::Draw() const
 		imageSize = 0.065f;
 		if (rate > 0.6f) {
 			DrawRotaGraph(64, D_STAMINA_POS_Y, imageSize, 0, m_moleIconImg[0], TRUE);
-		} else if (rate > 0.3f) {
+		}
+		else if (rate > 0.3f) {
 			DrawRotaGraph(64, D_STAMINA_POS_Y, imageSize, 0, m_moleIconImg[1], TRUE);
-		} else {
+		}
+		else {
 			DrawRotaGraph(64, D_STAMINA_POS_Y, imageSize, 0, m_moleIconImg[2], TRUE);
 		}
 	}
 
+
+	// 所持ポテト数
+	{
+		imageSize = 0.02f;
+		DrawCircle(D_POTATO_POS_X, D_POTATO_POS_Y, 35, 0x000000, TRUE);
+		DrawCircle(D_POTATO_POS_X, D_POTATO_POS_Y, 30, 0xffffff, TRUE);
+		DrawRotaGraph(D_POTATO_POS_X, D_POTATO_POS_Y, imageSize, 0, m_potatoImg, TRUE);
+	}
+
+	// 所持ジュエル
+	{
+		imageSize = 0.04f;
+		DrawCircle(D_JEWEL_POS_X, D_JEWEL_POS_Y, 35, 0x000000, TRUE);
+		DrawCircle(D_JEWEL_POS_X, D_JEWEL_POS_Y, 30, 0xffffff, TRUE);
+		DrawRotaGraph(D_JEWEL_POS_X, D_JEWEL_POS_Y, imageSize, 0, m_jewelImg, TRUE);
+	}
+
+	// 
+
 	SetFontSize(64);
+	// タイマー
 	DrawFormatString(D_TIMER_POS_X + 44, D_TIMER_POS_Y - 48, 0xffffff, "%.2f", m_time - m_elapsedTime);
+	// 所持ポテト
+	DrawFormatString(D_POTATO_POS_X + 40, D_POTATO_POS_Y - 25, 0xffffff, "×");
+	DrawFormatString(D_POTATO_POS_X + 80, D_POTATO_POS_Y - 25, 0xffffff, "%d", m_player->GetPotatoStock());
+	// 所持ジュエル
+	DrawFormatString(D_JEWEL_POS_X + 40, D_JEWEL_POS_Y - 25, 0xffffff, "×");
+	DrawFormatString(D_JEWEL_POS_X + 80, D_JEWEL_POS_Y - 25, 0xffffff, "%d", m_player->GetScore());
 	SetFontSize(32);
 
 }
@@ -272,8 +308,8 @@ const SceneType InGame::GetNowSceneType() const
 PlayData InGame::TransitionData(const PlayData* prevdata)
 {
 	PlayData nextData{};
-
-	nextData.score = 0;
+	
+	nextData.score = (m_player == nullptr) ? 0 : m_player->GetScore();
 	nextData.date = GetCurrentDate();
 
 	return nextData;

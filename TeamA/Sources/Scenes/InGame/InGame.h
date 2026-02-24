@@ -18,6 +18,8 @@ private:
 	int m_staminaBarImg[3];		// スタミナバー画像
 	int m_staminaFlameImg[2];	// スタミナフレーム画像
 	int m_moleIconImg[3];		// モグラアイコン画像
+	int m_potatoImg;			// ポテトの画像
+	int m_jewelImg;				// ジュエルの画像
 
 	// サウンド
 	int m_Bgm;
