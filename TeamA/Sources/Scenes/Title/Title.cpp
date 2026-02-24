@@ -64,6 +64,11 @@ void Title::Initialize()
 	// タイトルロゴ
 	m_titlerogoImage = rm.GetImageResource("Assets/Sprites/Title/Title.PNG")[0];
 
+	m_buttonImage = rm.GetImageResource("Assets/Sprites/Title/Rock.PNG")[0];
+	m_uiImage[0] = rm.GetImageResource("Assets/Sprites/Title/GAMESTART.PNG")[0];
+	m_uiImage[1] = rm.GetImageResource("Assets/Sprites/Title/RANKING.PNG")[0];
+	m_uiImage[2] = rm.GetImageResource("Assets/Sprites/Title/END.PNG")[0];
+
 	
 	// サウンド
 	m_titleBgm = rm.GetSoundResource("Assets/Sounds/BGM/Title.mp3");
@@ -225,18 +230,15 @@ void Title::Draw() const
 	SetFontSize(40);
 
 	SetFontSize(50);
-	DrawFormatString(130, 600, 0xffffff, "GAMESTART");
-	DrawFormatString(565, 600, 0xffffff, "RANKING");
-	DrawFormatString(920, 600, 0xffffff, "END");
 
-	int cursorx = 0;
-	switch (m_cursorNumber)
+	for (int i = 0;i < 3;i++)
 	{
-	case 0: cursorx = 270; break; // RESTART
-	case 1: cursorx = 670; break; // RANKING
-	case 2: cursorx = 970; break; // END
+		DrawRotaGraph(300 + i*350, 630, 0.15,0.0, m_buttonImage,TRUE);
+		DrawRotaGraph(300 + i*350, 630, 0.15,0.0, m_uiImage[i],TRUE);
+
 	}
 
+	int cursorx = 300 + m_cursorNumber * 350;
 	if (m_clickFlag)
 	{
 

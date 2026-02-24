@@ -111,7 +111,7 @@ void Player::Initialize()
 	m_digSe = rm.GetSoundResource("Assets/Sounds/SE/Dig.mp3");
 
 	// âπó 
-	ChangeVolumeSoundMem(255, m_drillSe);
+	ChangeVolumeSoundMem(255 * 2, m_walkSe);
 }
 
 void Player::Update(float delta)
@@ -440,6 +440,7 @@ void Player::LapseAnimation(float deltaSecond)
 			{
 				if (m_walkAnimCount % 2 == 0)
 				{
+					StopSoundMem(m_walkSe);
 					// SEÇçƒê∂
 					PlaySoundMem(m_walkSe, DX_PLAYTYPE_BACK);
 				}

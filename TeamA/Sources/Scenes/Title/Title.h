@@ -21,6 +21,8 @@ private:
 	// 画像
 	// タイトル画像
 	int m_tutiImage[2];
+	int m_buttonImage;
+	int m_uiImage[3];
 
 	// モグラ画像
 	int m_soilImage1;	//横向きのモグラ
