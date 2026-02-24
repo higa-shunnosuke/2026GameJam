@@ -38,9 +38,9 @@ void Result::Initialize()
 
 	m_scoreImage = rm.GetImageResource("Assets/Sprites/Result/スコア.PNG")[0];
 
-	m_restartImage = rm.GetImageResource("Assets/Sprites/Result/タイトル.PNG")[0];
+	m_restartImage = rm.GetImageResource("Assets/Sprites/Result/リスタート.PNG")[0];
 
-	m_titleImage = rm.GetImageResource("Assets/Sprites/Result/リスタート.PNG")[0];
+	m_titleImage = rm.GetImageResource("Assets/Sprites/Result/タイトル.PNG")[0];
 
 	m_haikeiImage[0] = rm.GetImageResource("Assets/Sprites/Result/背景１.PNG")[0]; //  背景読み込み
 	m_haikeiImage[1] = rm.GetImageResource("Assets/Sprites/Result/背景２.PNG")[0]; //  背景読み込み
@@ -197,9 +197,9 @@ void Result::Draw() const
 
 	DrawRotaGraph(960, 620, 0.15, 0, m_backrockImage, TRUE); // 　岩背景描画
 
-	DrawRotaGraph(340, 620, 0.15, 0, m_titleImage, TRUE); // タイトル文字描画
+	DrawRotaGraph(340, 620, 0.15, 0, m_restartImage, TRUE); // リスタート文字描画
 
-	DrawRotaGraph(960, 620, 0.15, 0, m_restartImage, TRUE); // リスタート文字描画
+	DrawRotaGraph(960, 615, 0.15, 0, m_titleImage, TRUE); // タイトル文字描画
 
 	//DrawFormatString(230, 600, 0xffffff, "RESTART");
 	//DrawFormatString(540, 600, 0xffffff, "RANKING");
