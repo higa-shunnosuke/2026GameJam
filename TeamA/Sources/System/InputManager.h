@@ -113,4 +113,12 @@ public:
 	/// <param name="getInput">複数の入力のマクロを格納した配列</param>
 	/// <param name="getInputSize">入力の数</param>
 	eInputState ApplyOneInput(int getInput[], int getInputSize);
+
+	/// <summary>
+	/// 入力を一つにまとめる
+	/// </summary>
+	/// <param name="left">変数名</param>
+	/// <param name="right">変数名</param>
+	/// <param name="decision">変数名</param>
+	void TitleApplyInput(eInputState& left, eInputState& right, eInputState& decision);
 };

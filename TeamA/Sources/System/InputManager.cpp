@@ -234,3 +234,23 @@ eInputState InputManager::ApplyOneInput(int getInput[], int getInputSize)
 		return eInputState::None;
 	}
 }
+
+void InputManager::TitleApplyInput(eInputState& left, eInputState& right, eInputState& decision)
+{
+	int getInput[3];
+
+	getInput[0] = XINPUT_BUTTON_DPAD_LEFT;
+	getInput[1] = KEY_INPUT_LEFT;
+	getInput[2] = KEY_INPUT_A;
+	left = ApplyOneInput(getInput, 3);
+
+	getInput[0] = XINPUT_BUTTON_DPAD_RIGHT;
+	getInput[1] = KEY_INPUT_RIGHT;
+	getInput[2] = KEY_INPUT_D;
+	right = ApplyOneInput(getInput, 3);
+
+	getInput[0] = XINPUT_BUTTON_A;
+	getInput[1] = XINPUT_BUTTON_B;
+	getInput[2] = KEY_INPUT_SPACE;
+	decision = ApplyOneInput(getInput, 3);
+}

@@ -68,15 +68,17 @@ SceneType Result::Update(float delta)
 	//インスタンス取得
 	InputManager& input = InputManager::GetInstance();
 
-	if (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Pressed || input.GetKeyState(KEY_INPUT_D) == eInputState::Pressed)
+	input.TitleApplyInput(m_left, m_right, m_decision);
+
+	if (m_right == eInputState::Pressed)
 	{
 		m_cursorNumber = (m_cursorNumber + 1) % 3; // 右へ
 	}
-	if (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Pressed || input.GetKeyState(KEY_INPUT_A) == eInputState::Pressed)
+	if (m_left == eInputState::Pressed)
 	{
 		m_cursorNumber = (m_cursorNumber + 2) % 3; // 左へ
 	}
-	if (input.GetKeyState(KEY_INPUT_RETURN) == eInputState::Pressed)//エンターが押されたら
+	if (m_decision == eInputState::Pressed)//決定が押されたら
 	{
 		switch (m_cursorNumber)
 		{
@@ -94,7 +96,7 @@ SceneType Result::Update(float delta)
 		}
 	}
 	// エンドシーンに遷移する
-	if (input.GetKeyState(KEY_INPUT_RETURN) == eInputState::Pressed)
+	if (m_decision == eInputState::Pressed)
 	{
 		return SceneType::end;
 	}

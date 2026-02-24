@@ -54,7 +54,10 @@ void Title::Initialize()
 // 更新
 SceneType Title::Update(float delta)
 {
-	ApplyInput();
+	//インスタンス取得
+	InputManager& input = InputManager::GetInstance();
+
+	input.TitleApplyInput(m_left, m_right, m_decision);
 
 	m_animeTime += delta;
 	if (m_animeTime > 0.2)
@@ -62,9 +65,6 @@ SceneType Title::Update(float delta)
 		m_animeTime = 0.0f;
 		m_animeCount += 1;
 	}
-
-	//インスタンス取得
-	InputManager& input = InputManager::GetInstance();
 
 	if (m_right == eInputState::Pressed) 
 	{
@@ -197,25 +197,4 @@ const SceneType Title::GetNowSceneType() const
 {
 	// タイトル
 	return SceneType::title;
-}
-
-void Title::ApplyInput()
-{
-	InputManager& input = InputManager::GetInstance();
-
-	int getInput[3];
-
-	getInput[0] = KEY_INPUT_RIGHT;
-	getInput[1] = KEY_INPUT_D;
-	getInput[2] = XINPUT_BUTTON_DPAD_RIGHT;
-	m_right = input.ApplyOneInput(getInput, 3);
-
-	getInput[0] = KEY_INPUT_LEFT;
-	getInput[1] = KEY_INPUT_A;
-	getInput[2] = XINPUT_BUTTON_DPAD_LEFT;
-	m_left = input.ApplyOneInput(getInput, 3);
-
-	getInput[0] = KEY_INPUT_SPACE;
-	getInput[1] = XINPUT_BUTTON_A;
-	m_decision = input.ApplyOneInput(getInput, 2);
 }

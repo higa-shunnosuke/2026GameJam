@@ -38,8 +38,12 @@ private:
 
 	int m_titlerogoImage;
 
+	// 入力
+	// 左
 	eInputState m_left;
+	// 右
 	eInputState m_right;
+	// 決定
 	eInputState m_decision;
 public:
 	// コンストラクタ
@@ -74,8 +78,5 @@ public:
 	/// </summary>
 	/// <returns>現在のシーンタイプ</returns>
 	virtual const SceneType GetNowSceneType() const override;
-
-private:
-	void ApplyInput();
 };
 
