@@ -19,6 +19,10 @@ private:
 	int m_staminaFlameImg[2];	// スタミナフレーム画像
 	int m_moleIconImg[3];		// モグラアイコン画像
 
+	// サウンド
+	int m_Bgm;
+	int m_TimeUpSe;
+
 public:
 	// コンストラクタ
 	InGame();

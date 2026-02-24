@@ -43,10 +43,14 @@ void InGame::Initialize()
 	m_staminaBarImg[1] = rm.GetImageResource("Assets/Sprites/UI/Stamina2.PNG")[0];
 	m_staminaBarImg[2] = rm.GetImageResource("Assets/Sprites/UI/Stamina3.PNG")[0];
 	m_staminaFlameImg[0] = rm.GetImageResource("Assets/Sprites/UI/Frame1.PNG")[0];
-	m_staminaFlameImg[1] = rm.GetImageResource("Assets/Sprites/UI/Flame2.PNG")[0];
+	m_staminaFlameImg[1] = rm.GetImageResource("Assets/Sprites/UI/Frame2.PNG")[0];
 	m_moleIconImg[0] = rm.GetImageResource("Assets/Sprites/UI/Mole1.PNG")[0];
 	m_moleIconImg[1] = rm.GetImageResource("Assets/Sprites/UI/Mole2.PNG")[0];
 	m_moleIconImg[2] = rm.GetImageResource("Assets/Sprites/UI/Mole3.PNG")[0];
+
+	// サウンド
+	m_Bgm = rm.GetSoundResource("Assets/Sounds/BGM/InGame.mp3");
+	m_TimeUpSe = rm.GetSoundResource("Assets/Sounds/SE/TimeUp.mp3");
 
 	// 各オブジェクトを生成
 	ObjectManager& object = ObjectManager::GetInstance();
@@ -64,6 +68,8 @@ void InGame::Initialize()
 	// 制限時間の初期化
 	m_time = 60.0f;
 
+	// BGM再生
+	PlaySoundMem(m_Bgm, DX_PLAYTYPE_LOOP);
 }
 
 // 更新処理
@@ -83,6 +89,9 @@ SceneType InGame::Update(float delta)
 	}
 	if (m_elapsedTime > m_time || m_player->GetStamina() <= 0)
 	{
+		// SEを再生
+		PlaySoundMem(m_TimeUpSe, DX_PLAYTYPE_BACK);
+
 		return SceneType::resutart;
 	}
 
@@ -249,6 +258,9 @@ void InGame::Finalize()
 {
 	ObjectManager& object = ObjectManager::GetInstance();
 	object.DestroyAllObjects();
+
+	// BGM停止
+	StopSoundMem(m_Bgm);
 }
 
 // 現在のシーンタイプ取得
