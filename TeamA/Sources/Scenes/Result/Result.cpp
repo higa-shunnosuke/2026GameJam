@@ -32,22 +32,20 @@ void Result::Initialize()
 
 	ResourceManager& rm = ResourceManager::GetInstance();
 
-	m_background = rm.GetImageResource("Assets/Textures/InGame/Sky3.PNG")[0];
+	m_backrockImage = rm.GetImageResource("Assets/Sprites/Title/Rock.PNG")[0];
 
 	m_jewelImage = rm.GetImageResource("Assets/Sprites/Jewel/emerald/emerald1.PNG")[0];
 
 	m_scoreImage = rm.GetImageResource("Assets/Sprites/Result/スコア.PNG")[0];
 
-	m_restartImage = rm.GetImageResource("Assets/Sprites/Result/タイトル.PNG")[0];
+	m_restartImage = rm.GetImageResource("Assets/Sprites/Result/リスタート.PNG")[0];
 
-	m_titleImage = rm.GetImageResource("Assets/Sprites/Result/リスタート.PNG")[0];
+	m_titleImage = rm.GetImageResource("Assets/Sprites/Result/タイトル.PNG")[0];
 
-	m_haikeiImage[0] = rm.GetImageResource("Assets/Sprites/Result/背景１.PNG")[0]; //  食事モグラ読み込み
-	m_haikeiImage[1] = rm.GetImageResource("Assets/Sprites/Result/背景２.PNG")[0]; //  食事モグラ読み込み
+	m_haikeiImage[0] = rm.GetImageResource("Assets/Sprites/Result/背景１.PNG")[0]; //  背景読み込み
+	m_haikeiImage[1] = rm.GetImageResource("Assets/Sprites/Result/背景２.PNG")[0]; //  背景読み込み
 
-	m_moguraImage[0] = rm.GetImageResource("Assets/Sprites/Player/Down1.PNG")[0]; //  下向きドリルモグラ読み込み
-	m_moguraImage[1] = rm.GetImageResource("Assets/Sprites/Player/Down2.PNG")[0]; //  下向きドリルモグラ読み込み
-	m_moguraImage[2] = rm.GetImageResource("Assets/Sprites/Player/Down3.PNG")[0]; //  下向きドリルモグラ読み込み
+	m_moguraImage = rm.GetImageResource("Assets/Sprites/Result/モグラ.PNG")[0]; //  モグラ読み込み
 
 	m_effectImage[0] = rm.GetImageResource("Assets/Sprites/Effect/Effect1.PNG")[0]; //  ドリルエフェクト読み込み
 	m_effectImage[1] = rm.GetImageResource("Assets/Sprites/Effect/Effect2.PNG")[0]; //  ドリルエフェクト読み込み
@@ -179,14 +177,14 @@ SceneType Result::Update(float delta)
 void Result::Draw() const
 {
 	//	リザルト表示
-	DrawRotaGraph(640, 360, 0.5, 0, m_haikeiImage[m_haikeiCount % 2], TRUE);
+	DrawRotaGraph(640, 360, 0.5, 0, m_haikeiImage[m_haikeiCount % 2], TRUE);  //背景描画
 
-	DrawRotaGraph(390, 350, 0.05, 0, m_jewelImage, TRUE);
+	DrawRotaGraph(390, 350, 0.05, 0, m_jewelImage, TRUE);  //エメラルド描画
 
 	SetFontSize(64);
 	//DrawFormatString(460, 200, 0xffffff, "ResultScore");
 
-	DrawRotaGraph(620, 250, 0.2, 0, m_scoreImage, TRUE);
+	DrawRotaGraph(620, 250, 0.2, 0, m_scoreImage, TRUE); //スコア文字描画
 
 	SetFontSize(40);
 	DrawFormatString(480, 330, 0xffffff, "獲得ジュエル表示");
@@ -195,9 +193,13 @@ void Result::Draw() const
 
 	SetFontSize(50);
 
-	DrawRotaGraph(340, 620, 0.15, 0, m_titleImage, TRUE);
+	DrawRotaGraph(340, 620, 0.15, 0, m_backrockImage, TRUE); // 　岩背景描画
 
-	DrawRotaGraph(960, 620, 0.15, 0, m_restartImage, TRUE);
+	DrawRotaGraph(960, 620, 0.15, 0, m_backrockImage, TRUE); // 　岩背景描画
+
+	DrawRotaGraph(340, 620, 0.15, 0, m_restartImage, TRUE); // リスタート文字描画
+
+	DrawRotaGraph(960, 615, 0.15, 0, m_titleImage, TRUE); // タイトル文字描画
 
 	//DrawFormatString(230, 600, 0xffffff, "RESTART");
 	//DrawFormatString(540, 600, 0xffffff, "RANKING");
@@ -213,13 +215,12 @@ void Result::Draw() const
 
 	if (m_clickFlag)
 	{
-		DrawRotaGraphF(cursorx, 550 + 20, 0.07, 0.0, m_moguraImage[m_animeCount % 3], TRUE);
+		DrawRotaGraphF(cursorx, 580 + 20, 0.07, 0.0, m_moguraImage, TRUE);
 
-		DrawRotaGraph(cursorx + 5.6f, 550 - 7.0f + 20 , 0.07, 1.65 * 3.14, m_effectImage[m_animeCount % 3], TRUE);//ドリルエフェクト描画
 	}
 	else
 	{
-		DrawRotaGraph(cursorx, 550, 0.07, 0, m_moguraImage[m_taikiCount % 3], TRUE);//カーソルモグラ描画
+		DrawRotaGraph(cursorx, 580, 0.07, 0, m_moguraImage, TRUE);//カーソルモグラ描画
 	}
 }
 
