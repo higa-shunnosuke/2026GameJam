@@ -87,14 +87,14 @@ void MapData::Draw() const
 			}
 
 #if _DEBUG
-			// デバッグ
-			unsigned int debug_color = 0xffffff;
-			if (ch == 'r') debug_color = GetColor(0, 255, 0);
-			else if (ch == 's') debug_color = GetColor(255, 0, 0);
-			else if (ch == 'w') debug_color = GetColor(0, 0, 255);
+			//// デバッグ
+			//unsigned int debug_color = 0xffffff;
+			//if (ch == 'r') debug_color = GetColor(0, 255, 0);
+			//else if (ch == 's') debug_color = GetColor(255, 0, 0);
+			//else if (ch == 'w') debug_color = GetColor(0, 0, 255);
 
-			DrawBoxAA(position.x, position.y, position.x + size, position.y + size, debug_color, FALSE);
-			DrawFormatString(position.x, position.y, 0xffffff, "%c(%d,%d)", ch, (int)x, (int)y);
+			//DrawBoxAA(position.x, position.y, position.x + size, position.y + size, debug_color, FALSE);
+			//DrawFormatString(position.x, position.y, 0xffffff, "%c(%d,%d)", ch, (int)x, (int)y);
 #endif
 
 		}
@@ -103,23 +103,25 @@ void MapData::Draw() const
 
 bool MapData::DestroySoil(const Vector2D& worldPos, const e_Direction& derection)
 {
-	GridPos grid = WorldToGrid(worldPos);
+	Vector2D location = worldPos;
 
 	switch (derection)
 	{
-	case e_Direction::up:
-		grid.y--;
-		break;
-	case e_Direction::down:
-		grid.y++;
-		break;
 	case e_Direction::left:
-		grid.x--;
+		location.x -= D_BOX_SIZE * 0.5f;
 		break;
 	case e_Direction::right:
-		grid.x++;
+		location.x += D_BOX_SIZE * 0.5f;
+		break;
+	case e_Direction::up:
+		location.y -= D_BOX_SIZE * 0.5f;
+		break;
+	case e_Direction::down:
+		location.y += D_BOX_SIZE * 0.5f;
 		break;
 	}
+
+	GridPos grid = WorldToGrid(location);
 
 	// 配列範囲内か確認
 	if (IsGridInBounds(grid))
