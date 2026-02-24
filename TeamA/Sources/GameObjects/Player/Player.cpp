@@ -6,8 +6,9 @@
 #include <math.h>
 #include <algorithm>
 
-#define D_POTATO_CALORIE	(20)	// ポテトの回復量
-#define D_POTATO_STOCK		(2)		// 初期ポテト
+#define D_POTATO_CALORIE	(100)	// ポテトの回復量
+#define D_POTATO_STOCK		(2)		// 初期の所持ポテト
+#define D_DIG_COST			(-10)	// 採掘のスタミナ消費量
 
 Player::Player()
 {
@@ -44,10 +45,8 @@ void Player::Initialize()
 	m_maxSpeed = D_BOX_SIZE * 3;
 
 	// フラグ
-	m_walkingFlag = FALSE;
 	m_diggingFlag = FALSE;
 	m_breakFlag = FALSE;
-	m_flipFlag = TRUE;
 
 	// アニメーション
 	m_walkAnimTime = 0.0f;
@@ -55,10 +54,12 @@ void Player::Initialize()
 	m_diggingAnimTime = 0.0f;
 	m_diggingAnimCount = 0;
 
+	// 最初の向き
 	m_direction = e_Direction::right;
+	m_animState = e_AnimationState::move;
 
-	// 画像のずらす値
-	m_offset = { 35.0f, 15.0f };
+	m_isStartAnimFinished = false;
+	m_isEndAnimFinished = false;
 
 	// 画像読み込み
 	ResourceManager& rm = ResourceManager::GetInstance();
@@ -81,6 +82,11 @@ void Player::Initialize()
 	m_downImage[1] = rm.GetImageResource("Assets/Sprites/Player/Down2.PNG")[0];
 	m_downImage[2] = rm.GetImageResource("Assets/Sprites/Player/Down3.PNG")[0];
 
+	// 食べている画像
+	m_eatImage[0] = rm.GetImageResource("Assets/Sprites/Player/Eat1.PNG")[0];
+	m_eatImage[1] = rm.GetImageResource("Assets/Sprites/Player/Eat2.PNG")[0];
+	m_eatImage[2] = rm.GetImageResource("Assets/Sprites/Player/Eat3.PNG")[0];
+
 	// ドリル
 	// ドリル画像読み込み
 	m_drillImage[0] = rm.GetImageResource("Assets/Sprites/Drill/Drill1.PNG")[0];
@@ -102,9 +108,41 @@ void Player::Initialize()
 
 void Player::Update(float delta)
 {
+	// スタート時の処理
+	if (!m_isStartAnimFinished)
+	{
+		m_location.x += 100 * delta;
+		// 歩くアニメ
+		m_walkAnimTime += delta;
+		if (m_walkAnimTime > 0.2f)
+		{
+			m_walkAnimTime = 0.0f;
+			m_walkAnimCount++;
+		}
+		if (m_location.x >= D_BOX_SIZE * 0.5f)
+		{
+			m_isStartAnimFinished = true;
+		}
+		return;
+	}
+
+	// 終了時の処理
+	if (m_animState == e_AnimationState::dead)
+	{
+		// アニメが終了したら
+		m_isEndAnimFinished = true;
+		return;
+	}
+
 	if (m_animTimer < 0.0f)
 	{
 		m_animTimer = 0.0f;
+		if (m_animState == e_AnimationState::eat)
+		{
+			// ポテトを使用する
+			StaminaManager(D_POTATO_CALORIE);
+			m_potatoStock--;
+		}
 		m_animState = e_AnimationState::idle;
 	}
 	else
@@ -112,19 +150,55 @@ void Player::Update(float delta)
 		m_animTimer -= delta;
 	}
 
+	// 食べてる間じゃなければ
 	if (m_animState != e_AnimationState::eat)
 	{
-		// 対応入力の変数化
-		ApplyInput();
 		// アニメーション
 		LapseAnimation(delta);
-		// 操作
-		PlayerOperate(delta);
+		// 移動処理
+		UpdatePlayerState(delta);
+	}
+	else
+	{
+		m_eatTimer += delta;
+		if (m_eatTimer > 0.3f)
+		{
+			m_eatCount = (++m_eatCount) % 3;
+		}
 	}
 }
 
 void Player::Draw() const
 {
+	bool flipFlag = false;
+	Vector2D 	offset = { 0.0f, 15.0f };
+
+	// 向きによって反転フラグとオフセットを変更する
+	switch (m_direction)
+	{
+	case e_Direction::left:
+		// 左に反転
+		flipFlag = false;
+		offset.x = -35.0f;
+		break;
+	case e_Direction::right:
+		// 右に反転
+		flipFlag = true;
+		offset.x = 35.0f;
+		break;
+	}
+
+	if (m_animState == e_AnimationState::eat)
+	{
+		float offsetx = (flipFlag) ? 35.0f : -35.0f;
+		float offsety = 15.0f;
+
+		DrawRotaGraphF(m_location.x + offsetx, m_location.y + 15.0f, 0.1f, 0.0, m_eatImage[m_eatCount], TRUE, flipFlag);
+		return;
+	}
+
+	if (offset.x == 0) offset.x= 35.0f;
+
 	// 座標を見やすく、int型に
 	float x = m_location.x;
 	float y = m_location.y;
@@ -134,11 +208,11 @@ void Player::Draw() const
 	{
 	case e_Direction::up:
 
-		y += m_offset.y;
+		y += offset.y;
 		y -= 30.0f;
 
 		// モグラ表示
-		if (m_walkingFlag || m_diggingFlag)
+		if (m_animState == e_AnimationState::move || m_diggingFlag)
 		{
 			DrawRotaGraphF(x, y, 0.1, 0.0, m_upImage[m_walkAnimCount % 3], TRUE);
 		}
@@ -167,11 +241,11 @@ void Player::Draw() const
 		break;
 	case e_Direction::down:
 
-		y += m_offset.y;
+		y += offset.y;
 		y += 5.0f;
 
 		// モグラ表示
-		if (m_walkingFlag || m_diggingFlag)
+		if (m_animState == e_AnimationState::move || m_diggingFlag)
 		{
 			DrawRotaGraphF(x, y, 0.1, 0.0, m_downImage[m_walkAnimCount % 3], TRUE);
 		}
@@ -203,33 +277,33 @@ void Player::Draw() const
 	case e_Direction::left:
 	case e_Direction::right:
 
-		x += m_offset.x;
-		y += m_offset.y;
+		x += offset.x;
+		y += offset.y;
 
 		// モグラ表示
-		if (m_walkingFlag || m_diggingFlag)
+		if (m_animState == e_AnimationState::move || m_diggingFlag)
 		{
-			DrawRotaGraphF(x, y, 0.1, 0.0, m_walkImage[m_walkAnimCount % 2], TRUE, m_flipFlag);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_walkImage[m_walkAnimCount % 2], TRUE, flipFlag);
 		}
 		else
 		{
-			DrawRotaGraphF(x, y, 0.1, 0.0, m_idleImage, TRUE, m_flipFlag);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_idleImage, TRUE, flipFlag);
 		}
 
 		// ドリル表示
 		if (m_diggingFlag)
 		{
-			DrawRotaGraphF(x, y, 0.1, 0.0, m_drillImage[m_diggingAnimCount % 3], TRUE, m_flipFlag);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_drillImage[m_diggingAnimCount % 3], TRUE, flipFlag);
 		}
 		else
 		{
-			DrawRotaGraphF(x, y, 0.1, 0.0, m_drillImage[0], TRUE, m_flipFlag);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_drillImage[0], TRUE, flipFlag);
 		}
 
 		// エフェクト表示
 		if (m_breakFlag)
 		{
-			DrawRotaGraphF(x, y, 0.1, 0.0, m_effectImage[m_diggingAnimCount % 3], TRUE, m_flipFlag);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_effectImage[m_diggingAnimCount % 3], TRUE, flipFlag);
 		}
 
 		break;
@@ -312,13 +386,17 @@ void Player::StaminaManager(int value)
 		// ポテトストックがあれば
 		if (m_potatoStock > 0)
 		{
-			// ポテトを使用する
-			m_stamina += D_POTATO_CALORIE;
-			m_potatoStock--;
-
 			// 状態を変更
 			m_animState = e_AnimationState::eat;
-			m_animTimer = 2.0f;
+			m_animTimer = 1.0f;
+#if _DEBUG
+			// スタミナが0でのリザルト遷移対策
+			m_stamina++;
+#endif
+		}
+		else
+		{
+			m_animState = e_AnimationState::dead;
 		}
 	}
 }
@@ -334,40 +412,6 @@ void Player::ScoreManager(int value)
 	}
 }
 
-void Player::ApplyInput()
-{
-	InputManager& input = InputManager::GetInstance();
-
-	int getInput[3];
-	
-	getInput[0] = KEY_INPUT_UP;
-	getInput[1] = KEY_INPUT_W;
-	getInput[2] = XINPUT_BUTTON_DPAD_UP;
-	m_up = input.ApplyOneInput(getInput, 3);
-
-	getInput[0] = KEY_INPUT_DOWN;
-	getInput[1] = KEY_INPUT_S;
-	getInput[2] = XINPUT_BUTTON_DPAD_DOWN;
-	m_down = input.ApplyOneInput(getInput, 3);
-
-	getInput[0] = KEY_INPUT_LEFT;
-	getInput[1] = KEY_INPUT_A;
-	getInput[2] = XINPUT_BUTTON_DPAD_LEFT;
-	m_left = input.ApplyOneInput(getInput, 3);
-
-	getInput[0] = KEY_INPUT_RIGHT;
-	getInput[1] = KEY_INPUT_D;
-	getInput[2] = XINPUT_BUTTON_DPAD_RIGHT;
-	m_right = input.ApplyOneInput(getInput, 3);
-
-	getInput[0] = KEY_INPUT_SPACE;
-	getInput[1] = XINPUT_BUTTON_A;
-	getInput[2] = XINPUT_BUTTON_B;
-	m_digButton = input.ApplyOneInput(getInput, 3);
-
-	
-}
-
 void Player::LapseAnimation(float deltaSecond)
 {
 	// 歩くアニメーション
@@ -379,18 +423,20 @@ void Player::LapseAnimation(float deltaSecond)
 	}
 
 	// ドリルのアニメーション
-	if (m_diggingAnimCount <= 1 || m_digButton == eInputState::Hold)
+
+	// 1以下
+	if (m_diggingAnimCount <= 1)
 	{
 		m_diggingAnimTime += deltaSecond;
 		if (m_diggingAnimTime > 0.1)
 		{
 			m_diggingAnimTime = 0.0f;
-			m_diggingAnimCount += 1;
+			m_diggingAnimCount = (++m_diggingAnimCount) % 3;
 		}
 	}
 	else if(m_diggingFlag)
 	{
-		// 掘るり終わる処理
+		// 掘り終わる処理
 		m_diggingFlag = FALSE;
 		// 土を壊し終わる処理
 		m_breakFlag = FALSE;
@@ -403,32 +449,19 @@ void Player::LapseAnimation(float deltaSecond)
 	}
 }
 
-void Player::PlayerOperate(float deltaSecond)
+void Player::UpdatePlayerState(float deltaSecond)
 {
-	InputManager& input = InputManager::GetInstance();
-
 	// 加速度の設定
 	float acceleration = m_maxSpeed * 4 * deltaSecond;
 	// 減速度の設定
 	float deceleration = m_maxSpeed * 3 * deltaSecond;
 
+	// 減速
 	PlayerDeceleration(deceleration);
 
-	// 掘っていない時にのみ、移動・方向転換処理を受け付ける
-	if (!m_diggingFlag)
-	{
-		PlayerWalkingOperation(acceleration);
-		PlayerChangeDirection();
+	// 入力から加速、方向転換
+	UpdateMovementFromInput(acceleration);
 
-		// 移動・方向転換処理の最後
-	}
-
-	// 掘り始める処理
-	if (m_digButton == eInputState::Pressed)
-	{
-		m_diggingFlag = TRUE;
-		m_diggingAnimCount = 0;
-	}
 	if (m_diggingFlag)
 	{
 		// 土を壊す処理
@@ -437,13 +470,8 @@ void Player::PlayerOperate(float deltaSecond)
 			m_breakFlag = TRUE;
 
 			// スタミナを消費
-			StaminaManager(-5);
+			StaminaManager(D_DIG_COST);
 		}
-	}
-
-	if (m_diggingFlag)
-	{
-		MoveInTheDiggingDirection(acceleration);
 	}
 
 	// 世界の限界
@@ -509,155 +537,81 @@ void Player::PlayerDeceleration(float deceleration)
 	}
 }
 
-void Player::PlayerWalkingOperation(float acceleration)
+void Player::UpdateMovementFromInput(float acceleration)
 {
-	// 加速
-	if (m_left == eInputState::Hold && m_moveSpeed.x > -m_maxSpeed)
-	{
-		m_moveSpeed.x -= acceleration;
-	}
-	if (m_right == eInputState::Hold && m_moveSpeed.x < m_maxSpeed)
-	{
-		m_moveSpeed.x += acceleration;
-	}
-	if (m_up == eInputState::Hold && m_moveSpeed.y > -m_maxSpeed)
-	{
-		m_moveSpeed.y -= acceleration;
-	}
-	if (m_down == eInputState::Hold && m_moveSpeed.y < m_maxSpeed)
-	{
-		m_moveSpeed.y += acceleration;
-	}
+	InputManager& input = InputManager::GetInstance();
 
-	if (m_left == eInputState::Hold || m_right == eInputState::Hold ||
-		m_up == eInputState::Hold || m_down == eInputState::Hold)
+	// コントローラー自動採掘
+	bool inputDig = input.GetButtonState(XINPUT_BUTTON_A) == eInputState::Hold || input.GetButtonState(XINPUT_BUTTON_B) == eInputState::Hold;
+
+	// コントローラー上下左右Hold
+	bool leftHold = input.GetButtonState(XINPUT_BUTTON_DPAD_LEFT) == eInputState::Hold;
+	bool rightHold = input.GetButtonState(XINPUT_BUTTON_DPAD_RIGHT) == eInputState::Hold;
+	bool upHold = input.GetButtonState(XINPUT_BUTTON_DPAD_UP) == eInputState::Hold;
+	bool downHold = input.GetButtonState(XINPUT_BUTTON_DPAD_DOWN) == eInputState::Hold;
+
+	// コントローラー上下左右Press
+	bool leftPress = input.GetButtonState(XINPUT_BUTTON_DPAD_LEFT) == eInputState::Pressed;
+	bool rightPress = input.GetButtonState(XINPUT_BUTTON_DPAD_RIGHT) == eInputState::Pressed;
+	bool upPress = input.GetButtonState(XINPUT_BUTTON_DPAD_UP) == eInputState::Pressed;
+	bool downPress = input.GetButtonState(XINPUT_BUTTON_DPAD_DOWN) == eInputState::Pressed;
+
+#if _DEBUG
+
+	// キー自動採掘
+	if (!inputDig)inputDig = (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Hold);
+
+	// キー上下左右Hold
+	if (!leftHold)leftHold = (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Hold || input.GetKeyState(KEY_INPUT_A) == eInputState::Hold);
+	if (!rightHold)rightHold = (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Hold || input.GetKeyState(KEY_INPUT_D) == eInputState::Hold);
+	if (!upHold)upHold = (input.GetKeyState(KEY_INPUT_UP) == eInputState::Hold || input.GetKeyState(KEY_INPUT_W) == eInputState::Hold);
+	if (!downHold)downHold = (input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Hold || input.GetKeyState(KEY_INPUT_S) == eInputState::Hold);
+
+	// キー上下左右Press
+	if (!leftPress)leftPress = (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Pressed || input.GetKeyState(KEY_INPUT_A) == eInputState::Pressed);
+	if (!rightPress)rightPress = (input.GetKeyState(KEY_INPUT_RIGHT) == eInputState::Pressed || input.GetKeyState(KEY_INPUT_D) == eInputState::Pressed);
+	if (!upPress)upPress = (input.GetKeyState(KEY_INPUT_UP) == eInputState::Pressed || input.GetKeyState(KEY_INPUT_W) == eInputState::Pressed);
+	if (!downPress)downPress = (input.GetKeyState(KEY_INPUT_DOWN) == eInputState::Pressed || input.GetKeyState(KEY_INPUT_S) == eInputState::Pressed);
+
+#endif
+
+	// 加速処理
+	if (inputDig)
 	{
-		// 歩く
-		m_walkingFlag = TRUE;
+		// 自動採掘
+		MoveInTheDiggingDirection(acceleration);
+		m_diggingFlag = TRUE;
+		m_diggingAnimCount = 0;
 	}
 	else
 	{
-		// 歩いていない
-		m_walkingFlag = FALSE;
+		if (leftHold) m_moveSpeed.x -= acceleration;
+		if (rightHold) m_moveSpeed.x += acceleration;
+		if (upHold) m_moveSpeed.y -= acceleration;
+		if (downHold) m_moveSpeed.y += acceleration;
 	}
-}
 
-void Player::PlayerChangeDirection()
-{
-	ChangeOneDirection(e_Direction::left, m_left);
-	ChangeOneDirection(e_Direction::right, m_right);
-	ChangeOneDirection(e_Direction::up, m_up);
-	ChangeOneDirection(e_Direction::down, m_down);
-}
+	// 入力に応じて方向転換
+	if (leftPress) m_direction = e_Direction::left;
+	if (rightPress) m_direction = e_Direction::right;
+	if (upPress) m_direction = e_Direction::up;
+	if (downPress) m_direction = e_Direction::down;
 
-void Player::ChangeOneDirection(e_Direction direction, eInputState inputState)
-{
-	// その入力があるとき
-	if (inputState == eInputState::Hold)
-	{
-		switch (direction)
-		{
-		case e_Direction::up:
-			// 移動が下方向
-			if (m_moveSpeed.y >= 0.0f)
-			{
-				// 処理を終了する
-				return;
-			}
-			// 向いている方向が下ではない
-			if (m_direction != e_Direction::down)
-			{
-				// 左右が押されているとき
-				if (m_left != eInputState::None || m_right != eInputState::None)
-				{
-					// 処理を終了する
-					return;
-				}
-			}
-			break;
 
-		case e_Direction::down:
-			// 移動が上方向
-			if (m_moveSpeed.y <= 0.0f)
-			{
-				// 処理を終了する
-				return;
-			}
-			// 向いている方向が上ではない
-			if (m_direction != e_Direction::up)
-			{
-				// 左右が押されているとき
-				if (m_left != eInputState::None || m_right != eInputState::None)
-				{
-					// 処理を終了する
-					return;
-				}
-			}
-			break;
+	// 速度制限
+	if (m_moveSpeed.x > m_maxSpeed)  m_moveSpeed.x = m_maxSpeed;
+	if (m_moveSpeed.x < -m_maxSpeed)  m_moveSpeed.x = -m_maxSpeed;
+	if (m_moveSpeed.y > m_maxSpeed)  m_moveSpeed.y = m_maxSpeed;
+	if (m_moveSpeed.y < -m_maxSpeed)  m_moveSpeed.y = -m_maxSpeed;
 
-		case e_Direction::left:
-			// 移動が右方向
-			if (m_moveSpeed.x >= 0.0f)
-			{
-				// 処理を終了する
-				return;
-			}
-			// 向いている方向が右ではない
-			if (m_direction != e_Direction::right)
-			{
-				// 上下が押されているとき
-				if (m_up != eInputState::None || m_down != eInputState::None)
-				{
-					// 処理を終了する
-					return;
-				}
-			}
-			break;
+	// 斜め移動を禁じる
+	if (m_direction == e_Direction::up || m_direction == e_Direction::down) m_moveSpeed.x = 0.0f;
+	else if (m_direction == e_Direction::left || m_direction == e_Direction::right) m_moveSpeed.y = 0.0f;
 
-		case e_Direction::right:
-			// 移動が左方向
-			if (m_moveSpeed.x <= 0.0f)
-			{
-				// 処理を終了する
-				return;
-			}
-			// 向いている方向が左ではない
-			if (m_direction != e_Direction::left)
-			{
-				// 上下が押されているとき
-				if (m_up != eInputState::None || m_down != eInputState::None)
-				{
-					// 処理を終了する
-					return;
-				}
-			}
-			break;
-		}
+	// 移動中にする
+	if (inputDig || leftHold || rightHold || upHold || downHold)
+		m_animState = e_AnimationState::move;
 
-		// その方向に向ける
-		m_direction = direction;
-
-		switch (direction)
-		{
-		case e_Direction::left:
-			// 左に反転
-			m_flipFlag = FALSE;
-			if (m_offset.x > 0.0f)
-			{
-				m_offset.x *= -1;
-			}
-			break;
-
-		case e_Direction::right:
-			// 右に反転
-			m_flipFlag = TRUE;
-			if (m_offset.x < 0.0f)
-			{
-				m_offset.x *= -1;
-			}
-			break;
-		}
-	}
 }
 
 void Player::MoveInTheDiggingDirection(float acceleration)
@@ -797,6 +751,16 @@ const int& Player::GetStamina() const
 const int& Player::GetScore() const
 {
 	return m_score;
+}
+
+bool Player::IsStartAnimFinished() const
+{
+	return m_isStartAnimFinished;
+}
+
+bool Player::IsEndAnimFinished() const
+{
+	return m_isEndAnimFinished;
 }
 
 void Player::SetMap(MapData* mapdata)

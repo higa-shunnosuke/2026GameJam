@@ -12,9 +12,10 @@ private:
 	// キャラクターの現在の動作種別を表す列挙型
 	enum class e_AnimationState
 	{
-		idle,
-		walk,
-		eat
+		idle,	// 待機
+		move,	// 移動
+		eat,	// 食事
+		dead	// 死亡
 	};
 
 	MapData* m_pMap;		// マップ
@@ -25,41 +26,33 @@ private:
 	int m_potatoStock;		// 所持しているポテトの数
 	float m_invincibleTime;	// スタミナが減少無効果時間
 
-
-	// 入力
-	eInputState m_up;
-	eInputState m_down;
-	eInputState m_left;
-	eInputState m_right;
-	eInputState m_digButton;
-
 	// 移動
 	Vector2D m_moveSpeed;	// 速度
 	float m_maxSpeed;		// 速度の最大
 	e_Direction m_direction;// 向き
-
-	bool m_walkingFlag;		// 歩きフラグ
 	bool m_diggingFlag;		// 掘るフラグ
 	bool m_breakFlag;		// 壊すフラグ
-	bool m_flipFlag;		// 反転フラグ
+
 
 	// アニメーション
+	e_AnimationState m_animState;	// 現在再生している動作
+	float m_animTimer;				// 動作切り替え用の経過時間
+
 	float m_walkAnimTime;
 	int m_walkAnimCount;
 	float m_diggingAnimTime;
 	int m_diggingAnimCount;
-
-	e_AnimationState m_animState;	// 現在再生している動作の種類
-	float m_animTimer;				// フレーム切り替え用の経過時間
-
-
-	Vector2D m_offset;		// 画像のずらす位置
+	float m_eatTimer;				// 食べるアニメのフレームカウント
+	int   m_eatCount;				// 食べるアニメの画像番号
+	bool m_isStartAnimFinished;		// true:開始演出が終了した
+	bool m_isEndAnimFinished;		// true:終了演出が終了した
 
 	// プレイヤーの画像情報
 	int m_idleImage;
 	int m_walkImage[2];
 	int m_upImage[3];
 	int m_downImage[3];
+	int m_eatImage[3];
 
 	// ドリルの画像情報
 	int m_drillImage[3];
@@ -121,7 +114,7 @@ private:
 	/// <summary>
 	/// 全ての入力を各対応変数にまとめる
 	/// </summary>
-	void ApplyInput();
+	//void ApplyInput();
 
 	/// <summary>
 	/// アニメーション時間の経過
@@ -129,10 +122,10 @@ private:
 	void LapseAnimation(float deltaTime);
 
 	/// <summary>
-	/// プレイヤーの操作
+	/// プレイヤーの移動・採掘処理および衝突判定を更新する
 	/// </summary>
-	/// <param name="deltaSecond">フレーム秒</param>
-	void PlayerOperate(float deltaSecond);
+	/// <param name="deltaSecond">経過時間（秒）</param>
+	void UpdatePlayerState(float deltaSecond);
 
 	/// <summary>
 	/// プレイヤーの減速
@@ -141,22 +134,10 @@ private:
 	void PlayerDeceleration(float deceleration);
 
 	/// <summary>
-	/// プレイヤーの移動操作
+	/// 入力に基づいて移動速度と向きを更新する
 	/// </summary>
 	/// <param name="acceleration">加速度</param>
-	void PlayerWalkingOperation(float acceleration);
-
-	/// <summary>
-	/// プレイヤーの方向転換処理
-	/// </summary>
-	void PlayerChangeDirection();
-
-	/// <summary>
-	/// プレイヤーを特定の方向に転換する処理
-	/// </summary>
-	/// <param name="direction">向き</param>
-	/// <param name="inputState">入力状態</param>
-	void ChangeOneDirection(e_Direction direction, eInputState inputState);
+	void UpdateMovementFromInput(float acceleration);
 
 	/// <summary>
 	/// 掘っている方向に移動する
@@ -197,6 +178,20 @@ public:
 	/// </summary>
 	/// <returns></returns>
 	const int& GetScore() const;
+
+	/// <summary>
+	/// 開始演出が終了したか
+	/// </summary>
+	/// <returns>true:終了した</returns>
+	bool IsStartAnimFinished() const;
+
+	/// <summary>
+	/// 終了演出が終了したか
+	/// </summary>
+	/// <returns>true:終了した</returns>
+	bool IsEndAnimFinished() const;
+
+public:
 
 	/// <summary>
 	/// マップのインスタンスを受け取る

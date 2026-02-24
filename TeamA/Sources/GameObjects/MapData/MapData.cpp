@@ -74,6 +74,7 @@ void MapData::Draw() const
 				{ position.x + 96.0f, position.y + 96.0f }, // RD
 			};
 
+
 			if (ch == 'r')
 			{
 				const int mask = GetRoadMask(GridPos{ (int)x, (int)y });
@@ -433,6 +434,12 @@ int MapData::GetRoadMask(GridPos gridPos) const
 		{
 			mask |= bit[i];
 		}
+	}
+
+	// スタート位置なら左に道があると認識
+	if (gridPos.x == 0 && gridPos.y == D_START_Y - 1)
+	{
+		mask |= 8;
 	}
 
 	return mask;
