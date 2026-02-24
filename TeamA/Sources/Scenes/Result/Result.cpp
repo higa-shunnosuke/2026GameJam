@@ -27,29 +27,33 @@ void Result::Initialize()
 	m_animeCount = 0;
 	m_clickFlag = FALSE;
 
+    m_eatTime = 0.0f;
+	m_eatCount = 0;
+
 	ResourceManager& rm = ResourceManager::GetInstance();
 
 	m_background = rm.GetImageResource("Assets/Textures/InGame/Sky3.PNG")[0];
 
 	m_jewelImage = rm.GetImageResource("Assets/Sprites/Jewel/emerald/emerald1.PNG")[0];
 
+	m_moguraImage[0] = rm.GetImageResource("Assets/Sprites/Player/eat1.PNG")[0]; //  食事モグラ読み込み
+	m_moguraImage[1] = rm.GetImageResource("Assets/Sprites/Player/eat2.PNG")[0]; //  食事モグラ読み込み
+	m_moguraImage[2] = rm.GetImageResource("Assets/Sprites/Player/eat3.PNG")[0]; //  食事モグラ読み込み
+
 	m_moguraImage[0] = rm.GetImageResource("Assets/Sprites/Player/Down1.PNG")[0]; //  下向きドリルモグラ読み込み
-
 	m_moguraImage[1] = rm.GetImageResource("Assets/Sprites/Player/Down2.PNG")[0]; //  下向きドリルモグラ読み込み
-
 	m_moguraImage[2] = rm.GetImageResource("Assets/Sprites/Player/Down3.PNG")[0]; //  下向きドリルモグラ読み込み
 
 	m_effectImage[0] = rm.GetImageResource("Assets/Sprites/Effect/Effect1.PNG")[0]; //  ドリルエフェクト読み込み
-
 	m_effectImage[1] = rm.GetImageResource("Assets/Sprites/Effect/Effect2.PNG")[0]; //  ドリルエフェクト読み込み
-
 	m_effectImage[2] = rm.GetImageResource("Assets/Sprites/Effect/Effect3.PNG")[0]; //  ドリルエフェクト読み込み
+
 	m_cursorNumber = 0;
 
 	// サウンド
 	m_resultBgm = rm.GetSoundResource("Assets/Sounds/BGM/Title.mp3");
-	m_selectSe = rm.GetSoundResource("Assets/Sounds/SE/Click2.mp3");
-	m_decisionSe = rm.GetSoundResource("Assets/Sounds/SE/Click1.mp3");
+	m_selectSe = rm.GetSoundResource("Assets/Sounds/SE/Select.mp3");
+	m_decisionSe = rm.GetSoundResource("Assets/Sounds/SE/Click.mp3");
 
 	// ファイルパス
 	const std::string path = "Resource/RankingData/Ranking.csv";
@@ -112,6 +116,12 @@ SceneType Result::Update(float delta)
 		m_animeTime = 0.0f;
 		m_animeCount = 0;
 	}
+	m_eatTime += delta;
+	if (m_eatTime = 0.2)
+	{
+		m_eatTime = 0.0f;
+		m_eatCount += 1;
+	}
 
 	if (m_clickFlag)
 	{
@@ -159,6 +169,8 @@ void Result::Draw() const
 	DrawRotaGraph(640, 250, 0.25, 0, m_background, TRUE);
 
 	DrawRotaGraph(390, 350, 0.05, 0, m_jewelImage, TRUE);
+
+	DrawRotaGraph(900, 400, 0.25, 0, m_eatImage[m_eatCount % 3], TRUE);
 
 	SetFontSize(64);
 	DrawFormatString(460, 200, 0xffffff, "ResultScore");

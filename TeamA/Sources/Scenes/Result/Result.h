@@ -11,6 +11,7 @@ private:
 	int m_background;
 	int m_jewelImage;
 	int m_cursorNumber;
+	int m_eatImage[3];
 	int m_moguraImage[3];
 	int m_effectImage[3];
 
@@ -18,6 +19,9 @@ private:
 	float m_animeTime;
 	int m_animeCount;
 	bool m_clickFlag;
+
+	float m_eatTime;
+	int m_eatCount;
 
 	// ランキング
 	std::vector<PlayData> m_ranking;	// ランキング格納配列
