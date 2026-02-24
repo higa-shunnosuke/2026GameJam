@@ -107,17 +107,17 @@ SceneType Result::Update(float delta)
 			m_animeCount += 1;
 		}
 
-		if (m_animeCount > 3)
+		if (m_animeCount > 2)
 		{
 			switch (m_cursorNumber)
 			{
 			case 0:
 				return SceneType::ingame; //インゲームシーンに遷移する
 
-			case 1:
-				return SceneType::ingame;//後でランキングに変更,ランキングシーンに遷移する
+			//case 1:
+			//	return SceneType::ingame;//後でランキングに変更,ランキングシーンに遷移する
 
-			case 2:
+			case 1:
 				return SceneType::title;//エンドシーンに遷移する
 
 			default:
@@ -136,14 +136,14 @@ SceneType Result::Update(float delta)
 
 		if (m_right == eInputState::Pressed)
 		{
-			m_cursorNumber = (m_cursorNumber + 1) % 3; // 右へ
+			m_cursorNumber = (m_cursorNumber + 1) % 2; // 右へ
 
 			// SEを再生
 			PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
 		}
 		if (m_left == eInputState::Pressed)
 		{
-			m_cursorNumber = (m_cursorNumber + 2) % 3; // 左へ
+			m_cursorNumber = (m_cursorNumber + 1) % 2; // 左へ
 
 			// SEを再生
 			PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
@@ -184,7 +184,9 @@ void Result::Draw() const
 	DrawRotaGraph(390, 350, 0.05, 0, m_jewelImage, TRUE);
 
 	SetFontSize(64);
-	DrawFormatString(460, 200, 0xffffff, "ResultScore");
+	//DrawFormatString(460, 200, 0xffffff, "ResultScore");
+
+	DrawRotaGraph(620, 250, 0.2, 0, m_scoreImage, TRUE);
 
 	SetFontSize(40);
 	DrawFormatString(480, 330, 0xffffff, "獲得ジュエル表示");
@@ -193,12 +195,9 @@ void Result::Draw() const
 
 	SetFontSize(50);
 
-	DrawRotaGraph(340, 620, 0.15, 0, m_restartImage, TRUE);
+	DrawRotaGraph(340, 620, 0.15, 0, m_titleImage, TRUE);
 
-	DrawRotaGraph(640, 620, 0.15, 0, m_scoreImage, TRUE);
-
-	DrawRotaGraph(960, 620, 0.15, 0, m_titleImage, TRUE);
-
+	DrawRotaGraph(960, 620, 0.15, 0, m_restartImage, TRUE);
 
 	//DrawFormatString(230, 600, 0xffffff, "RESTART");
 	//DrawFormatString(540, 600, 0xffffff, "RANKING");
@@ -208,8 +207,8 @@ void Result::Draw() const
 	switch (m_cursorNumber)
 	{
 	case 0: cursorx = 335; break; // RESTART
-	case 1: cursorx = 640; break; // RANKING
-	case 2: cursorx = 960; break; // TITLE
+	//case 1: cursorx = 640; break; // RANKING
+	case 1: cursorx = 960; break; // TITLE
 	}
 
 	if (m_clickFlag)
