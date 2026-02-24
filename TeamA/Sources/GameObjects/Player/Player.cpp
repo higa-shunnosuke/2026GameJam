@@ -124,7 +124,8 @@ void Player::Initialize()
 	m_digSe = rm.GetSoundResource("Assets/Sounds/SE/Dig.mp3");
 
 	// 音量
-	ChangeVolumeSoundMem(255, m_drillSe);
+	ChangeVolumeSoundMem(255 * 2, m_walkSe);
+
 }
 
 void Player::Update(float delta)
@@ -175,8 +176,8 @@ void Player::Update(float delta)
 			// ポテトを使用する
 			StaminaManager(D_POTATO_CALORIE);
 			m_potatoStock--;
+			m_animState = e_AnimationState::idle;
 		}
-		m_animState = e_AnimationState::idle;
 	}
 	else
 	{
