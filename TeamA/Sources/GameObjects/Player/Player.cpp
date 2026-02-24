@@ -7,8 +7,8 @@
 #include <algorithm>
 
 #define D_POTATO_CALORIE	(100)	// ポテトの回復量
-#define D_POTATO_STOCK		(0)		// 初期の所持ポテト
-#define D_DIG_COST			(-50)	// 採掘のスタミナ消費量
+#define D_POTATO_STOCK		(2)		// 初期の所持ポテト
+#define D_DIG_COST			(-15)	// 採掘のスタミナ消費量
 
 Player::Player()
 {
@@ -116,7 +116,6 @@ void Player::Initialize()
 	m_endAnimImage[8] = rm.GetImageResource("Assets/Sprites/Player/end9.PNG")[0];
 	m_endAnimImage[9] = rm.GetImageResource("Assets/Sprites/Player/end10.PNG")[0];
 	m_endAnimImage[10] = rm.GetImageResource("Assets/Sprites/Player/end11.PNG")[0];
-	m_endDrillImage = rm.GetImageResource("Assets/Sprites/Player/drill.PNG")[0];
 
 	// サウンド
 	m_walkSe = rm.GetSoundResource("Assets/Sounds/SE/Walk.mp3");
@@ -152,12 +151,12 @@ void Player::Update(float delta)
 	if (m_animState == e_AnimationState::dead)
 	{
 		// 倒れるアニメ
-		m_walkAnimTime += delta;
-		if (m_walkAnimTime > 0.3f)
+		m_deadTimer += delta;
+		if (m_deadTimer > 0.3f)
 		{
-			m_walkAnimTime = 0.0f;
-			m_walkAnimCount++;
-			if (m_walkAnimCount > 18)
+			m_deadTimer = 0.0f;
+			m_deadCount++;
+			if (m_deadCount > 9)
 			{
 				// アニメが終了したら
 				m_isEndAnimFinished = true;
@@ -235,9 +234,7 @@ void Player::Draw() const
 		float offsetx = (flipFlag) ? 35.0f : -35.0f;
 		float offsety = 15.0f;
 
-		DrawRotaGraphF(m_location.x + offsetx, m_location.y + 15.0f, 0.267f, 0.0, m_endAnimImage[m_walkAnimCount % 11], true, flipFlag);
-		// ドリル
-		//DrawRotaGraphF(m_location.x + offsetx, m_location.y + 15.0f, 0.1f, 0.0, m_endDrillImage, true, flipFlag);
+		DrawRotaGraphF(m_location.x + offsetx, m_location.y + 15.0f, 0.267f, 0.0, m_endAnimImage[m_deadCount % 11], true, flipFlag);
 		return;
 	}
 
@@ -399,7 +396,7 @@ void Player::OnHitCollision(ObjectBase& other)
 	case e_ObjectType::jewel:
 
 		// スコアを加算
-		ScoreManager(100);
+		ScoreManager(1);
 
 		break;
 	}

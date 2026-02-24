@@ -47,6 +47,9 @@ private:
 	int   m_eatCount;				// 食べるアニメの画像番号
 	bool m_isStartAnimFinished;		// true:開始演出が終了した
 	bool m_isEndAnimFinished;		// true:終了演出が終了した
+	float m_deadTimer;				// 食べるアニメのフレームカウント
+	int   m_deadCount;				// 食べるアニメの画像番号
+
 
 	// プレイヤーの画像情報
 	int m_idleImage;
@@ -60,7 +63,6 @@ private:
 	int m_drillUpImage[3];
 	int m_drillDownImage[3];
 	int m_endAnimImage[11];		// スタミナ切れ時のアニメーション
-	int m_endDrillImage;		// スタミナ切れ時のドリル
 
 	// エフェクトの画像情報
 	int m_effectImage[3];
