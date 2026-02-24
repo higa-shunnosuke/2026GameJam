@@ -19,6 +19,14 @@ private:
 	std::vector<PlayData> m_ranking;	// ランキング格納配列
 	PlayData m_currentData;				// 今回のプレイデータ
 
+	// サウンド
+	// リザルトBGM
+	int m_resultBgm;
+	// 選択SE
+	int m_selectSe;
+	// 決定SE
+	int m_decisionSe;
+
 	// 入力
 	// 左
 	eInputState m_left;

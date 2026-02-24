@@ -34,6 +34,10 @@ void Result::Initialize()
 	m_moguraImage[2] = rm.GetImageResource("Assets/Sprites/Player/Down1.PNG")[0]; //  下向きドリルモグラ読み込み
 	m_cursorNumber = 0;
 
+	// サウンド
+	m_resultBgm = rm.GetSoundResource("Assets/Sounds/BGM/Title.mp3");
+	m_selectSe = rm.GetSoundResource("Assets/Sounds/SE/Click2.mp3");
+	m_decisionSe = rm.GetSoundResource("Assets/Sounds/SE/Click1.mp3");
 
 	// ファイルパス
 	const std::string path = "Resource/RankingData/Ranking.csv";
@@ -60,6 +64,9 @@ void Result::Initialize()
 	{
 		std::cout << m_ranking[i].score << "," << m_ranking[i].date << std::endl;
 	}
+
+	// BGM再生
+	PlaySoundMem(m_resultBgm, DX_PLAYTYPE_LOOP);
 }
 
 // 更新
@@ -73,13 +80,22 @@ SceneType Result::Update(float delta)
 	if (m_right == eInputState::Pressed)
 	{
 		m_cursorNumber = (m_cursorNumber + 1) % 3; // 右へ
+
+		// SEを再生
+		PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
 	}
 	if (m_left == eInputState::Pressed)
 	{
 		m_cursorNumber = (m_cursorNumber + 2) % 3; // 左へ
+
+		// SEを再生
+		PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
 	}
 	if (m_decision == eInputState::Pressed)//決定が押されたら
 	{
+		// SEを再生
+		PlaySoundMem(m_decisionSe, DX_PLAYTYPE_BACK);
+
 		switch (m_cursorNumber)
 		{
 		case 0:
@@ -141,7 +157,8 @@ void Result::Draw() const
 // 終了
 void Result::Finalize()
 {
-
+	// BGM停止
+	StopSoundMem(m_resultBgm);
 }
 
 // 現在のシーンタイプ取得
