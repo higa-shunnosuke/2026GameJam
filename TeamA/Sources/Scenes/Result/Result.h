@@ -12,9 +12,10 @@ private:
 	int m_jewelImage;
 	int m_cursorNumber;
 	int m_haikeiImage[2];
-	int m_moguraImage[3];
+	int m_moguraImage;
 	int m_effectImage[3];
 
+	int m_backrockImage;
 	int m_scoreImage;
 	int m_titleImage;
 	int m_restartImage;
