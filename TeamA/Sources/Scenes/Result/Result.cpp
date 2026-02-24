@@ -136,14 +136,14 @@ SceneType Result::Update(float delta)
 
 		if (m_right == eInputState::Pressed)
 		{
-			m_cursorNumber = (m_cursorNumber + 1) % 2; // 右へ
+			m_cursorNumber = (m_cursorNumber + 1) % 3; // 右へ
 
 			// SEを再生
 			PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
 		}
 		if (m_left == eInputState::Pressed)
 		{
-			m_cursorNumber = (m_cursorNumber + 2) % 2; // 左へ
+			m_cursorNumber = (m_cursorNumber + 2) % 3; // 左へ
 
 			// SEを再生
 			PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
@@ -184,7 +184,7 @@ void Result::Draw() const
 	DrawRotaGraph(390, 350, 0.05, 0, m_jewelImage, TRUE);
 
 	SetFontSize(64);
-	/*DrawFormatString(460, 200, 0xffffff, "ResultScore");*/
+	DrawFormatString(460, 200, 0xffffff, "ResultScore");
 
 	SetFontSize(40);
 	DrawFormatString(480, 330, 0xffffff, "獲得ジュエル表示");
@@ -195,7 +195,7 @@ void Result::Draw() const
 
 	DrawRotaGraph(340, 620, 0.15, 0, m_restartImage, TRUE);
 
-	DrawRotaGraph(640, 250, 0.2, 0, m_scoreImage, TRUE);
+	DrawRotaGraph(640, 620, 0.15, 0, m_scoreImage, TRUE);
 
 	DrawRotaGraph(960, 620, 0.15, 0, m_titleImage, TRUE);
 
@@ -208,8 +208,8 @@ void Result::Draw() const
 	switch (m_cursorNumber)
 	{
 	case 0: cursorx = 335; break; // RESTART
-	//case 1: cursorx = 640; break; // RANKING
-	case 1: cursorx = 960; break; // TITLE
+	case 1: cursorx = 640; break; // RANKING
+	case 2: cursorx = 960; break; // TITLE
 	}
 
 	if (m_clickFlag)
