@@ -56,7 +56,7 @@ void InGame::Initialize()
 	ObjectManager& object = ObjectManager::GetInstance();
 	// マップの初期化
 	m_map = object.RequestSpawn<MapData>({ 0,0 });
-	m_player = object.RequestSpawn<Player>(Vector2D(64.0f, D_BOX_SIZE * D_START_Y - D_BOX_SIZE / 2));
+	m_player = object.RequestSpawn<Player>(Vector2D(-D_BOX_SIZE, D_BOX_SIZE * D_START_Y - D_BOX_SIZE / 2));
 	m_player->SetMap(m_map);
 
 	// カメラを生成
@@ -76,9 +76,7 @@ void InGame::Initialize()
 SceneType InGame::Update(float delta)
 {
 	// タイマーの更新
-#ifndef _DEBUG
-	__super::Timer(delta);
-#endif
+	if (m_player->IsStartAnimFinished()) __super::Timer(delta);
 
 	//インスタンス取得
 	InputManager& input = InputManager::GetInstance();
@@ -87,7 +85,7 @@ SceneType InGame::Update(float delta)
 	{
 		return SceneType::resutart;
 	}
-	if (m_elapsedTime > m_time || m_player->GetStamina() <= 0)
+	if (m_elapsedTime > m_time || m_player->IsEndAnimFinished())
 	{
 		// SEを再生
 		PlaySoundMem(m_TimeUpSe, DX_PLAYTYPE_BACK);
@@ -236,15 +234,15 @@ void InGame::Draw() const
 		// 枠（前面）
 		DrawRotaGraph(D_STAMINA_POS_X, D_STAMINA_POS_Y, imageSize, 0, m_staminaFlameImg[1], TRUE);
 
-		//// アイコン	
-		//imageSize = 0.065f;
-		//if (rate > 0.6f) {
-		//	DrawRotaGraph(64, D_STAMINA_POS_Y, imageSize, 0, m_moleIconImg[0], TRUE);
-		//} else if (rate > 0.3f) {
-		//	DrawRotaGraph(64, D_STAMINA_POS_Y, imageSize, 0, m_moleIconImg[1], TRUE);
-		//} else {
-		//	DrawRotaGraph(64, D_STAMINA_POS_Y, imageSize, 0, m_moleIconImg[2], TRUE);
-		//}
+		// アイコン	
+		imageSize = 0.065f;
+		if (rate > 0.6f) {
+			DrawRotaGraph(64, D_STAMINA_POS_Y, imageSize, 0, m_moleIconImg[0], TRUE);
+		} else if (rate > 0.3f) {
+			DrawRotaGraph(64, D_STAMINA_POS_Y, imageSize, 0, m_moleIconImg[1], TRUE);
+		} else {
+			DrawRotaGraph(64, D_STAMINA_POS_Y, imageSize, 0, m_moleIconImg[2], TRUE);
+		}
 	}
 
 	SetFontSize(64);

@@ -8,7 +8,7 @@
 
 #define D_POTATO_CALORIE	(100)	// ポテトの回復量
 #define D_POTATO_STOCK		(2)		// 初期の所持ポテト
-#define D_DIG_COST			(-10)	// 採掘のスタミナ消費量
+#define D_DIG_COST			(-15)	// 採掘のスタミナ消費量
 
 Player::Player()
 {
@@ -45,8 +45,8 @@ void Player::Initialize()
 	m_maxSpeed = D_BOX_SIZE * 3;
 
 	// フラグ
-	m_diggingFlag = FALSE;
-	m_breakFlag = FALSE;
+	m_diggingFlag = false;
+	m_breakFlag = false;
 
 	// アニメーション
 	m_walkAnimTime = 0.0f;
@@ -111,7 +111,7 @@ void Player::Update(float delta)
 	// スタート時の処理
 	if (!m_isStartAnimFinished)
 	{
-		m_location.x += 100 * delta;
+		m_location.x += 100.0f * delta;
 		// 歩くアニメ
 		m_walkAnimTime += delta;
 		if (m_walkAnimTime > 0.2f)
@@ -137,6 +137,8 @@ void Player::Update(float delta)
 	if (m_animTimer < 0.0f)
 	{
 		m_animTimer = 0.0f;
+
+		// 食事のアニメーションが終わったら
 		if (m_animState == e_AnimationState::eat)
 		{
 			// ポテトを使用する
@@ -193,7 +195,7 @@ void Player::Draw() const
 		float offsetx = (flipFlag) ? 35.0f : -35.0f;
 		float offsety = 15.0f;
 
-		DrawRotaGraphF(m_location.x + offsetx, m_location.y + 15.0f, 0.1f, 0.0, m_eatImage[m_eatCount], TRUE, flipFlag);
+		DrawRotaGraphF(m_location.x + offsetx, m_location.y + 15.0f, 0.1f, 0.0, m_eatImage[m_eatCount], true, flipFlag);
 		return;
 	}
 
@@ -214,20 +216,20 @@ void Player::Draw() const
 		// モグラ表示
 		if (m_animState == e_AnimationState::move || m_diggingFlag)
 		{
-			DrawRotaGraphF(x, y, 0.1, 0.0, m_upImage[m_walkAnimCount % 3], TRUE);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_upImage[m_walkAnimCount % 3], true);
 		}
 		else
 		{
-			DrawRotaGraphF(x, y, 0.1, 0.0, m_upImage[0], TRUE);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_upImage[0], true);
 		}
 		// ドリル表示
 		if (m_diggingFlag)
 		{
-			DrawRotaGraphF(x, y, 0.1, 0.0, m_drillUpImage[m_diggingAnimCount % 3], TRUE);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_drillUpImage[m_diggingAnimCount], true);
 		}
 		else
 		{
-			DrawRotaGraphF(x, y, 0.1, 0.0, m_drillUpImage[0], TRUE);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_drillUpImage[0], true);
 		}
 
 		// エフェクト表示
@@ -235,7 +237,7 @@ void Player::Draw() const
 		{
 			x -= 5.0f;
 			
-			DrawRotaGraphF(x - 5, y, 0.1, 0.65 * 3.14, m_effectImage[m_diggingAnimCount % 3], TRUE);
+			DrawRotaGraphF(x - 5, y, 0.1, 0.65 * 3.14, m_effectImage[m_diggingAnimCount], true);
 		}
 
 		break;
@@ -247,21 +249,21 @@ void Player::Draw() const
 		// モグラ表示
 		if (m_animState == e_AnimationState::move || m_diggingFlag)
 		{
-			DrawRotaGraphF(x, y, 0.1, 0.0, m_downImage[m_walkAnimCount % 3], TRUE);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_downImage[m_walkAnimCount % 3], true);
 		}
 		else
 		{
-			DrawRotaGraphF(x, y, 0.1, 0.0, m_downImage[0], TRUE);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_downImage[0], true);
 		}
 
 		// ドリル表示
 		if (m_diggingFlag)
 		{
-			//DrawRotaGraphF(x, y, 0.1, 0.0, m_drillDownImage[m_diggingAnimCount % 3], TRUE);
+			//DrawRotaGraphF(x, y, 0.1, 0.0, m_drillDownImage[m_diggingAnimCount % 3], true);
 		}
 		else
 		{
-			//DrawRotaGraphF(x, y, 0.1, 0.0, m_drillDownImage[0], TRUE);
+			//DrawRotaGraphF(x, y, 0.1, 0.0, m_drillDownImage[0], true);
 		}
 
 		// エフェクト表示
@@ -270,7 +272,7 @@ void Player::Draw() const
 			x += 8.0f;
 			y -= 10.0f;
 
-			DrawRotaGraphF(x, y, 0.1, 1.65 * 3.14, m_effectImage[m_diggingAnimCount % 3], TRUE);
+			DrawRotaGraphF(x, y, 0.1, 1.65 * 3.14, m_effectImage[m_diggingAnimCount], true);
 		}
 		
 		break;
@@ -283,27 +285,27 @@ void Player::Draw() const
 		// モグラ表示
 		if (m_animState == e_AnimationState::move || m_diggingFlag)
 		{
-			DrawRotaGraphF(x, y, 0.1, 0.0, m_walkImage[m_walkAnimCount % 2], TRUE, flipFlag);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_walkImage[m_walkAnimCount % 2], true, flipFlag);
 		}
 		else
 		{
-			DrawRotaGraphF(x, y, 0.1, 0.0, m_idleImage, TRUE, flipFlag);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_idleImage, true, flipFlag);
 		}
 
 		// ドリル表示
 		if (m_diggingFlag)
 		{
-			DrawRotaGraphF(x, y, 0.1, 0.0, m_drillImage[m_diggingAnimCount % 3], TRUE, flipFlag);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_drillImage[m_diggingAnimCount], true, flipFlag);
 		}
 		else
 		{
-			DrawRotaGraphF(x, y, 0.1, 0.0, m_drillImage[0], TRUE, flipFlag);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_drillImage[0], true, flipFlag);
 		}
 
 		// エフェクト表示
 		if (m_breakFlag)
 		{
-			DrawRotaGraphF(x, y, 0.1, 0.0, m_effectImage[m_diggingAnimCount % 3], TRUE, flipFlag);
+			DrawRotaGraphF(x, y, 0.1, 0.0, m_effectImage[m_diggingAnimCount], true, flipFlag);
 		}
 
 		break;
@@ -311,9 +313,9 @@ void Player::Draw() const
 
 #ifdef _DEBUG
 	// 中心地
-	DrawCircleAA(m_location.x,m_location.y, 1.5,30, 0x000000, TRUE);
+	DrawCircleAA(m_location.x,m_location.y, 1.5,30, 0x000000, true);
 	// 当たり判定
-	DrawCircleAA(m_location.x, m_location.y, m_collision.m_radius, 30, GetColor(255, 0, 0), FALSE);
+	DrawCircleAA(m_location.x, m_location.y, m_collision.m_radius, 30, GetColor(255, 0, 0), false);
 
 	SetFontSize(30);
 	DrawFormatStringF(m_location.x, m_location.y - 75.0f, 0xffffff, "%d", m_potatoStock);
@@ -389,10 +391,9 @@ void Player::StaminaManager(int value)
 			// 状態を変更
 			m_animState = e_AnimationState::eat;
 			m_animTimer = 1.0f;
-#if _DEBUG
-			// スタミナが0でのリザルト遷移対策
-			m_stamina++;
-#endif
+
+			// ドリルと土煙のエフェクトをなくす
+			m_diggingFrameTimer = 0.0f;
 		}
 		else
 		{
@@ -422,24 +423,23 @@ void Player::LapseAnimation(float deltaSecond)
 		m_walkAnimCount += 1;
 	}
 
-	// ドリルのアニメーション
-
-	// 1以下
-	if (m_diggingAnimCount <= 1)
+	// ドリル/土エフェクト
+	if (m_diggingFrameTimer > 0.0f)
 	{
 		m_diggingAnimTime += deltaSecond;
-		if (m_diggingAnimTime > 0.1)
+		if (m_diggingAnimTime > 0.1f)
 		{
 			m_diggingAnimTime = 0.0f;
-			m_diggingAnimCount = (++m_diggingAnimCount) % 3;
+			m_diggingAnimCount = (m_diggingAnimCount + 1) % 3;
 		}
 	}
-	else if(m_diggingFlag)
+
+	// 土煙を出す時間
+	m_diggingFrameTimer -= deltaSecond;
+	if (m_diggingFrameTimer <= 0.0f)
 	{
-		// 掘り終わる処理
-		m_diggingFlag = FALSE;
 		// 土を壊し終わる処理
-		m_breakFlag = FALSE;
+		m_breakFlag = false;
 	}
 
 	// 無敵の時間
@@ -467,7 +467,8 @@ void Player::UpdatePlayerState(float deltaSecond)
 		// 土を壊す処理
 		if (m_pMap->DestroySoil(m_location, m_direction))
 		{
-			m_breakFlag = TRUE;
+			m_diggingFrameTimer = 0.4f;
+			m_breakFlag = true;
 
 			// スタミナを消費
 			StaminaManager(D_DIG_COST);
@@ -541,8 +542,8 @@ void Player::UpdateMovementFromInput(float acceleration)
 {
 	InputManager& input = InputManager::GetInstance();
 
-	// コントローラー自動採掘
-	bool inputDig = input.GetButtonState(XINPUT_BUTTON_A) == eInputState::Hold || input.GetButtonState(XINPUT_BUTTON_B) == eInputState::Hold;
+	// コントローラー自動採掘Hold
+	bool digHold = input.GetButtonState(XINPUT_BUTTON_A) == eInputState::Hold || input.GetButtonState(XINPUT_BUTTON_B) == eInputState::Hold;
 
 	// コントローラー上下左右Hold
 	bool leftHold = input.GetButtonState(XINPUT_BUTTON_DPAD_LEFT) == eInputState::Hold;
@@ -559,7 +560,7 @@ void Player::UpdateMovementFromInput(float acceleration)
 #if _DEBUG
 
 	// キー自動採掘
-	if (!inputDig)inputDig = (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Hold);
+	if (!digHold)digHold = (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Hold);
 
 	// キー上下左右Hold
 	if (!leftHold)leftHold = (input.GetKeyState(KEY_INPUT_LEFT) == eInputState::Hold || input.GetKeyState(KEY_INPUT_A) == eInputState::Hold);
@@ -575,13 +576,13 @@ void Player::UpdateMovementFromInput(float acceleration)
 
 #endif
 
+	m_diggingFlag = false;
 	// 加速処理
-	if (inputDig)
+	if (digHold)
 	{
 		// 自動採掘
 		MoveInTheDiggingDirection(acceleration);
-		m_diggingFlag = TRUE;
-		m_diggingAnimCount = 0;
+		m_diggingFlag = true;
 	}
 	else
 	{
@@ -609,7 +610,7 @@ void Player::UpdateMovementFromInput(float acceleration)
 	else if (m_direction == e_Direction::left || m_direction == e_Direction::right) m_moveSpeed.y = 0.0f;
 
 	// 移動中にする
-	if (inputDig || leftHold || rightHold || upHold || downHold)
+	if (digHold || leftHold || rightHold || upHold || downHold)
 		m_animState = e_AnimationState::move;
 
 }
@@ -735,12 +736,12 @@ bool Player::PlayerPushingByBlocks(Vector2D position, float deltaSecond)
 			m_location.x += (diff.x / distance) * overlap;
 			m_location.y += (diff.y / distance) * overlap;
 
-			return TRUE;
+			return true;
 		}
 
 	}
 
-	return FALSE;
+	return false;
 }
 
 const int& Player::GetStamina() const

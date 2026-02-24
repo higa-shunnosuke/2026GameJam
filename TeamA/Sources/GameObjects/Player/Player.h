@@ -40,6 +40,7 @@ private:
 
 	float m_walkAnimTime;
 	int m_walkAnimCount;
+	float m_diggingFrameTimer;
 	float m_diggingAnimTime;
 	int m_diggingAnimCount;
 	float m_eatTimer;				// 食べるアニメのフレームカウント
