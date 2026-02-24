@@ -670,7 +670,7 @@ void Player::UpdateMovementFromInput(float acceleration)
 	}
 
 	// “ü—Í‚É‰ž‚¶‚Ä•ûŒü“]Š·
-	if (leftPress || rightPress || rightHold || upPress || downPress)
+	if (leftPress || rightPress || upPress || downPress)
 	{
 		if (leftPress) m_direction = e_Direction::left;
 		if (rightPress) m_direction = e_Direction::right;
