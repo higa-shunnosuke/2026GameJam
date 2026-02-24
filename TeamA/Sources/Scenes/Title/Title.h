@@ -9,6 +9,7 @@ private:
 
 	// カーソル
 	int m_cursorNumber;
+	bool m_clickFlag;
 
 	// アニメーション
 	int m_animeCount;
@@ -22,8 +23,8 @@ private:
 	// モグラ画像
 	int m_soilImage1;	//横向きのモグラ
 	int m_drillImage;	//横向きのドリル
-	int m_soilImage2;	//下向きのモグラ
-	int m_effectImage;	//採掘エフェクト
+	int m_downImage[3];	//下向きのモグラ
+	int m_effectImage[3];	//採掘エフェクト
 
 	// その他オブジェクト画像
 	int m_leaves_nekkoImage;//根と葉画像

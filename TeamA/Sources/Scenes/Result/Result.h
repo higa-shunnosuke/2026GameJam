@@ -12,8 +12,12 @@ private:
 	int m_jewelImage;
 	int m_cursorNumber;
 	int m_moguraImage[3];
+	int m_effectImage[3];
+
+	//アニメーション
 	float m_animeTime;
 	int m_animeCount;
+	bool m_clickFlag;
 
 	// ランキング
 	std::vector<PlayData> m_ranking;	// ランキング格納配列

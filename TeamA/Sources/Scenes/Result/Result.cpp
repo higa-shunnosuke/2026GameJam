@@ -21,17 +21,29 @@ Result::Result()
 // 初期化
 void Result::Initialize()
 {
+
+	// アニメーション
+	m_animeTime = 0.0f;
+	m_animeCount = 0;
+	m_clickFlag = FALSE;
+
 	ResourceManager& rm = ResourceManager::GetInstance();
 
 	m_background = rm.GetImageResource("Assets/Textures/InGame/Sky3.PNG")[0];
 
 	m_jewelImage = rm.GetImageResource("Assets/Sprites/Jewel/emerald/emerald1.PNG")[0];
 
-	m_moguraImage[0] = rm.GetImageResource("Assets/Sprites/Player/Down3.PNG")[0]; //  下向きドリルモグラ読み込み
+	m_moguraImage[0] = rm.GetImageResource("Assets/Sprites/Player/Down1.PNG")[0]; //  下向きドリルモグラ読み込み
 
 	m_moguraImage[1] = rm.GetImageResource("Assets/Sprites/Player/Down2.PNG")[0]; //  下向きドリルモグラ読み込み
 
-	m_moguraImage[2] = rm.GetImageResource("Assets/Sprites/Player/Down1.PNG")[0]; //  下向きドリルモグラ読み込み
+	m_moguraImage[2] = rm.GetImageResource("Assets/Sprites/Player/Down3.PNG")[0]; //  下向きドリルモグラ読み込み
+
+	m_effectImage[0] = rm.GetImageResource("Assets/Sprites/Effect/Effect1.PNG")[0]; //  ドリルエフェクト読み込み
+
+	m_effectImage[1] = rm.GetImageResource("Assets/Sprites/Effect/Effect2.PNG")[0]; //  ドリルエフェクト読み込み
+
+	m_effectImage[2] = rm.GetImageResource("Assets/Sprites/Effect/Effect3.PNG")[0]; //  ドリルエフェクト読み込み
 	m_cursorNumber = 0;
 
 	// サウンド
@@ -91,31 +103,49 @@ SceneType Result::Update(float delta)
 		// SEを再生
 		PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
 	}
-	if (m_decision == eInputState::Pressed)//決定が押されたら
+	if (m_decision == eInputState::Pressed)//決定ボタンが押されたら
 	{
 		// SEを再生
 		PlaySoundMem(m_decisionSe, DX_PLAYTYPE_BACK);
 
-		switch (m_cursorNumber)
+		m_clickFlag = TRUE;
+		m_animeTime = 0.0f;
+		m_animeCount = 0;
+	}
+
+	if (m_clickFlag)
+	{
+		m_animeTime += delta;
+		if (m_animeTime > 0.2)
 		{
-		case 0:
-			return SceneType::ingame; //インゲームシーンに遷移する
+			m_animeTime = 0.0f;
+			m_animeCount += 1;
+		}
 
-		case 1:
-			return SceneType::ingame;//後でランキングに変更,ランキングシーンに遷移する
+		if (m_animeCount > 3)
+		{
+			switch (m_cursorNumber)
+			{
+			case 0:
+				return SceneType::ingame; //インゲームシーンに遷移する
 
-		case 2:
-			return SceneType::title;//タイトルシーンに遷移する
+			case 1:
+				return SceneType::ingame;//後でランキングに変更,ランキングシーンに遷移する
 
-		default:
-			break;//error時
+			case 2:
+				return SceneType::end;//エンドシーンに遷移する
+
+			default:
+				break;//error時
+			}
 		}
 	}
+
 	// エンドシーンに遷移する
-	if (m_decision == eInputState::Pressed)
-	{
-		return SceneType::end;
-	}
+	//if (m_decision == eInputState::Pressed)
+	//{
+	//	return SceneType::end;
+	//}
 
 	// 親クラスの更新
 	return __super::Update(delta);
@@ -151,7 +181,17 @@ void Result::Draw() const
 	case 2: cursorx = 950; break; // END
 	}
 
-	DrawRotaGraph(cursorx, 550, 0.07, 0, m_moguraImage[0], TRUE);//カーソルモグラ描画
+	if (m_clickFlag)
+	{
+		float tortalAnimeTime = 0.2 * m_animeCount + m_animeTime;
+		DrawRotaGraphF(cursorx, 550 + tortalAnimeTime, 0.07, 0.0, m_moguraImage[m_animeCount % 3], TRUE);
+
+		DrawRotaGraph(cursorx + 5.6f, 550 - 7.0f + tortalAnimeTime, 0.07, 1.65 * 3.14, m_effectImage[m_animeCount % 3], TRUE);//ドリルエフェクト描画
+	}
+	else
+	{
+		DrawRotaGraph(cursorx, 550, 0.07, 0, m_moguraImage[2], TRUE);//カーソルモグラ描画
+	}
 }
 
 // 終了

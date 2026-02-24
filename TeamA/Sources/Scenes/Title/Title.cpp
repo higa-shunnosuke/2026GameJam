@@ -18,6 +18,7 @@ void Title::Initialize()
 	// アニメーション
 	m_animeTime = 0.0f;
 	m_animeCount = 0;
+	m_clickFlag = FALSE;
 
 	// 画像読み込み
 	// モグラ画像
@@ -26,9 +27,13 @@ void Title::Initialize()
 	// 待機のドリル
 	m_drillImage = rm.GetImageResource("Assets/Sprites/Drill/Drill1.PNG")[0];
 	// 下向き
-	m_soilImage2 = rm.GetImageResource("Assets/Sprites/Player/Down3.PNG")[0];
+	m_downImage[0] = rm.GetImageResource("Assets/Sprites/Player/Down1.PNG")[0];
+	m_downImage[1] = rm.GetImageResource("Assets/Sprites/Player/Down2.PNG")[0];
+	m_downImage[2] = rm.GetImageResource("Assets/Sprites/Player/Down3.PNG")[0];
 	// 採掘エフェクト
-	m_effectImage = rm.GetImageResource("Assets/Sprites/Effect/Effect1.PNG")[0];
+	m_effectImage[0] = rm.GetImageResource("Assets/Sprites/Effect/Effect1.PNG")[0];
+	m_effectImage[1] = rm.GetImageResource("Assets/Sprites/Effect/Effect2.PNG")[0];
+	m_effectImage[2] = rm.GetImageResource("Assets/Sprites/Effect/Effect3.PNG")[0];
 
 	// 土
 	m_tutiImage[0] = rm.GetImageResource("Assets/Sprites/soil/soil1.PNG")[0];
@@ -76,13 +81,6 @@ SceneType Title::Update(float delta)
 
 	input.TitleApplyInput(m_left, m_right, m_decision);
 
-	m_animeTime += delta;
-	if (m_animeTime > 0.2)
-	{
-		m_animeTime = 0.0f;
-		m_animeCount += 1;
-	}
-
 	if (m_right == eInputState::Pressed) 
 	{
 		m_cursorNumber += 1; // 右へ
@@ -105,19 +103,36 @@ SceneType Title::Update(float delta)
 		// SEを再生
 		PlaySoundMem(m_decisionSe, DX_PLAYTYPE_BACK);
 
-		switch (m_cursorNumber)
+		m_clickFlag = TRUE;
+		m_animeTime = 0.0f;
+		m_animeCount = 0;
+	}
+
+	if (m_clickFlag)
+	{
+		m_animeTime += delta;
+		if (m_animeTime > 0.2)
 		{
-		case 0:
-			return SceneType::ingame; //インゲームシーンに遷移する
+			m_animeTime = 0.0f;
+			m_animeCount += 1;
+		}
 
-		case 1:
-			return SceneType::ingame;//後でランキングに変更,ランキングシーンに遷移する
+		if (m_animeCount > 3)
+		{
+			switch (m_cursorNumber)
+			{
+			case 0:
+				return SceneType::ingame; //インゲームシーンに遷移する
 
-		case 2:
-			return SceneType::end;//エンドシーンに遷移する
+			case 1:
+				return SceneType::ingame;//後でランキングに変更,ランキングシーンに遷移する
 
-		default:
-			break;//error時
+			case 2:
+				return SceneType::end;//エンドシーンに遷移する
+
+			default:
+				break;//error時
+			}
 		}
 	}
 	//// インゲームシーンに遷移する
@@ -170,7 +185,7 @@ void Title::Draw() const
 
 	DrawRotaGraph(soilx, soily, 0.1, 0, m_drillImage, TRUE, TRUE);//ドリル描画
 
-	DrawRotaGraph(soilx, soily, 0.1, 0, m_effectImage, TRUE,TRUE);//ドリルエフェクト描画
+	DrawRotaGraph(soilx, soily, 0.1, 0, m_effectImage[0], TRUE, TRUE);//ドリルエフェクト描画
 
 	DrawRotaGraph(nekkox, nekkoy, 0.3, 0, m_leaves_nekkoImage, TRUE);//真ん中根と葉描画
 
@@ -193,6 +208,7 @@ void Title::Draw() const
 	// タイトルを表示
 	DrawRotaGraph(240, 100, 0.2, 0, m_titlerogoImage, TRUE);//タイトル描画
 
+
 	SetFontSize(40);
 
 	SetFontSize(50);
@@ -208,7 +224,18 @@ void Title::Draw() const
 	case 2: cursorx = 970; break; // END
 	}
 
-	DrawRotaGraph(cursorx, 550, 0.07, 0, m_soilImage2, TRUE);//カーソルモグラ描画
+	if (m_clickFlag)
+	{
+
+		float tortalAnimeTime = 0.2 * m_animeCount + m_animeTime;
+		DrawRotaGraphF(cursorx, 550 + tortalAnimeTime, 0.07, 0.0, m_downImage[m_animeCount % 3], TRUE);
+
+		DrawRotaGraph(cursorx + 5.6f, 550 - 7.0f + tortalAnimeTime, 0.07, 1.65 * 3.14, m_effectImage[m_animeCount % 3], TRUE);//ドリルエフェクト描画
+	}
+	else
+	{
+		DrawRotaGraph(cursorx, 550, 0.07, 0, m_downImage[2], TRUE);//カーソルモグラ描画
+	}
 
 }
 
