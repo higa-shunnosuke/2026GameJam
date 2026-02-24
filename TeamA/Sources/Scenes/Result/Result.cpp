@@ -143,7 +143,7 @@ SceneType Result::Update(float delta)
 				return SceneType::ingame;//後でランキングに変更,ランキングシーンに遷移する
 
 			case 2:
-				return SceneType::end;//エンドシーンに遷移する
+				return SceneType::title;//エンドシーンに遷移する
 
 			default:
 				break;//error時
@@ -181,9 +181,9 @@ void Result::Draw() const
 	DrawFormatString(480, 390, 0xffffff, "スコア表示");
 
 	SetFontSize(50);
-	DrawFormatString(250, 600, 0xffffff, "RESTART");
-	DrawFormatString(560, 600, 0xffffff, "RANKING");
-	DrawFormatString(905, 600, 0xffffff, "TITLE");
+	DrawFormatString(230, 600, 0xffffff, "RESTART");
+	DrawFormatString(540, 600, 0xffffff, "RANKING");
+	DrawFormatString(885, 600, 0xffffff, "TITLE");
 
 	int cursorx = 0;
 	switch (m_cursorNumber)
