@@ -18,6 +18,10 @@ void Title::Initialize()
 
 	m_animeCount = 0;
 
+	m_tutiImage[0] = rm.GetImageResource("Assets/Sprites/soil/soil1.PNG")[0];
+
+	m_tutiImage[1] = rm.GetImageResource("Assets/Sprites/soil/soil2.PNG")[0];
+
 	m_groundImage = rm.GetImageResource("Assets/Textures/InGame/Ground.PNG")[0]; // 地下背景読み込み
 
 	m_skyImage = rm.GetImageResource("Assets/Textures/InGame/Sky1.PNG")[0]; //　空背景読み込み
@@ -39,6 +43,8 @@ void Title::Initialize()
 	m_potatoImage = rm.GetImageResource("Assets/Sprites/Potato/NormalPotato.PNG")[0]; //  ジャガイモ読み込み
 
 	m_leaves_nekkoImage = rm.GetImageResource("Assets/Sprites/Potato/Leaves_Nekko1.PNG")[0]; //  根と葉画像読み込み
+
+	m_titlerogoImage = rm.GetImageResource("Assets/Sprites/Title/Title.PNG")[0]; // タイトル画像読み込み
 
 	//  ジャガイモ読み込み
 
@@ -101,8 +107,8 @@ SceneType Title::Update(float delta)
 // 描画
 void Title::Draw() const
 {
-	int soilx = 200;
-	int soily = 380;
+	int soilx = 250;
+	int soily = 400;
 
 	int emeraldx = 500;
 	int emeraldy = 600;
@@ -114,7 +120,27 @@ void Title::Draw() const
 
 	DrawRotaGraph(640, 880, 0.23, 0, m_groundImage, TRUE);//地下描画
 
-	DrawRotaGraph(soilx, 380, 0.13, 0, m_soilImage1, TRUE,TRUE);//横向きモグラ描画
+	DrawRotaGraph(soilx - 40 , soily - 70, 2, 0, m_tutiImage[0], TRUE, TRUE);//道土描画
+
+	DrawRotaGraph(soilx - 40, soily + 50, 2, 3.15, m_tutiImage[0], TRUE, TRUE);//道土描画
+
+	DrawRotaGraph(soilx - 110, soily - 70, 2, 0, m_tutiImage[0], TRUE, TRUE);//道土描画
+
+	DrawRotaGraph(soilx - 110, soily + 50, 2, 3.15, m_tutiImage[0], TRUE, TRUE);//道土描画
+	
+	DrawRotaGraph(soilx - 170, soily - 70, 2, 0, m_tutiImage[0], TRUE, TRUE);//道土描画
+
+	DrawRotaGraph(soilx - 170, soily + 50, 2, 3.15, m_tutiImage[0], TRUE, TRUE);//道土描画
+
+	DrawRotaGraph(soilx - 230, soily - 70, 2, 0, m_tutiImage[0], TRUE, TRUE);//道土描画
+
+	DrawRotaGraph(soilx - 230, soily + 50, 2, 3.15, m_tutiImage[0], TRUE, TRUE);//道土描画
+
+	DrawRotaGraph(soilx + 85, soily - 70, 2, 0, m_tutiImage[1], TRUE, FALSE);//行き止まり土描画
+
+	DrawRotaGraph(soilx + 85 ,soily + 50, 2, 3.15, m_tutiImage[1], TRUE, TRUE);//行き止まり土描画
+
+	DrawRotaGraph(soilx, soily, 0.13, 0, m_soilImage1, TRUE,TRUE);//横向きモグラ描画
 
 	DrawRotaGraph(soilx, soily, 0.1, 0, m_drillImage, TRUE, TRUE);//ドリル描画
 
@@ -132,29 +158,28 @@ void Title::Draw() const
 
 	DrawRotaGraph(emeraldx, emeraldy, 0.06, 0, m_jewelImage, TRUE);//左エメラルド描画
 
-	DrawRotaGraph(emeraldx + 550, emeraldy + 50, 0.06, 0, m_jeweleffectImage, TRUE);//右エメラルドキラキラ描画
+	DrawRotaGraph(emeraldx + 640, emeraldy + 50, 0.06, 0, m_jeweleffectImage, TRUE);//右エメラルドキラキラ描画
 
-	DrawRotaGraph(emeraldx + 550, emeraldy + 50, 0.06, 0, m_jewelImage, TRUE);//右エメラルド描画
+	DrawRotaGraph(emeraldx + 640, emeraldy + 50, 0.06, 0, m_jewelImage, TRUE);//右エメラルド描画
 
-	DrawRotaGraph(800, 500, 0.15, 0, m_rockImage, TRUE);//岩描画
+	DrawRotaGraph(800, 500, 0.12, 0, m_rockImage, TRUE);//岩描画
 	
 	// タイトルを表示
-	SetFontSize(64);
-	DrawFormatString(10, 10, GetColor(253, 160, 0), "　ベジトレジャー");
+	DrawRotaGraph(240, 100, 0.2, 0, m_titlerogoImage, TRUE);//タイトル描画
 
 	SetFontSize(40);
 
 	SetFontSize(50);
-	DrawFormatString(220, 600, 0xffffff, "GAMESTART");
+	DrawFormatString(130, 600, 0xffffff, "GAMESTART");
 	DrawFormatString(565, 600, 0xffffff, "RANKING");
-	DrawFormatString(910, 600, 0xffffff, "END");
+	DrawFormatString(920, 600, 0xffffff, "END");
 
 	int cursorx = 0;
 	switch (m_cursorNumber)
 	{
-	case 0: cursorx = 340; break; // RESTART
-	case 1: cursorx = 650; break; // RANKING
-	case 2: cursorx = 950; break; // END
+	case 0: cursorx = 270; break; // RESTART
+	case 1: cursorx = 670; break; // RANKING
+	case 2: cursorx = 970; break; // END
 	}
 
 	DrawRotaGraph(cursorx, 550, 0.07, 0, m_soilImage2, TRUE);//カーソルモグラ描画

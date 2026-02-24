@@ -18,7 +18,7 @@ private:
 
 	int m_soilImage2;//下向きドリルモグラ
 
-	
+	int m_tutiImage[2];
 
 	int m_jewelImage;//エメラルド
 
@@ -35,6 +35,8 @@ private:
 	int m_jeweleffectImage;//エメラルドキラキラ画像
 
 	int m_cursorNumber;
+
+	int m_titlerogoImage;
 
 	eInputState m_left;
 	eInputState m_right;
