@@ -2,6 +2,7 @@
 #include "SceneBase.h"
 
 // 各シーンクラス
+#include "Load/Load.h"
 #include "Title/Title.h"
 #include "InGame/InGame.h"
 #include "Result/Result.h"
@@ -21,6 +22,8 @@ public:
 		// 各シーンの生成
 		switch (nextType)
 		{
+		case SceneType::load:
+			return dynamic_cast<SceneBase*>(new Load());
 		case SceneType::title:
 			return dynamic_cast<SceneBase*>(new Title());
 		case SceneType::ingame:

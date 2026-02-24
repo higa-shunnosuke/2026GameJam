@@ -10,6 +10,7 @@
 /// </summary>
 enum class SceneType
 {
+	load,
 	title,
 	ingame,
 	resutart,
@@ -21,8 +22,8 @@ enum class SceneType
 /// </summary>
 struct PlayData
 {
-	int score;			// スコア
-	std::string date;	// 日付
+	int score = 0;			// スコア
+	std::string date = "";	// 日付
 
 	bool operator==(const PlayData& other) const
 	{
@@ -34,10 +35,7 @@ struct PlayData
 // シーン基底クラス
 class SceneBase
 {
-public:
-
 protected:
-
 	float m_time;			// 制限時間
 	float m_elapsedTime;	// 経過時間
 
@@ -45,6 +43,7 @@ public:
 	// コンストラクタ
 	SceneBase()
 		: m_time()
+		, m_elapsedTime()
 	{
 
 	}
@@ -123,6 +122,4 @@ public:
 			m_elapsedTime = m_time;
 		}
 	}
-
-
 };

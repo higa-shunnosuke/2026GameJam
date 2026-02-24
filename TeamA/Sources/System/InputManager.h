@@ -33,12 +33,13 @@ private:
 	Vector2D stick[2];					// スティック入力値（-1.0f～1.0f）
 
 public:
+	InputManager();
+
 	/// <summary>
 	/// 更新処理
 	/// </summary>
 	void Update();
 
-public:
 	/// <summary>
 	/// キーボードの入力状態を確認する
 	/// </summary>

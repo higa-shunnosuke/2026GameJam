@@ -171,6 +171,7 @@
     <ClCompile Include="Sources\App\Application.cpp" />
     <ClCompile Include="Sources\Scenes\End\End.cpp" />
     <ClCompile Include="Sources\Scenes\InGame\InGame.cpp" />
+    <ClCompile Include="Sources\Scenes\Load\Load.cpp" />
     <ClCompile Include="Sources\Scenes\Result\Result.cpp" />
     <ClCompile Include="Sources\Scenes\SceneManager.cpp" />
     <ClCompile Include="Sources\Scenes\Title\Title.cpp" />
@@ -196,6 +197,7 @@
     <ClInclude Include="Sources\GameObjects\Rock\Rock.h" />
     <ClInclude Include="Sources\Scenes\End\End.h" />
     <ClInclude Include="Sources\Scenes\InGame\InGame.h" />
+    <ClInclude Include="Sources\Scenes\Load\Load.h" />
     <ClInclude Include="Sources\Scenes\Result\Result.h" />
     <ClInclude Include="Sources\Scenes\SceneBase.h" />
     <ClInclude Include="Sources\Scenes\SceneFactory.h" />

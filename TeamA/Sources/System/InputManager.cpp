@@ -1,5 +1,22 @@
 ﻿#include "InputManager.h"
 #include "DxLib.h"
+#include <algorithm>
+#include <cstring>
+
+// コンストラクタ
+InputManager::InputManager()
+{
+	// キー入力
+	std::memset(now_key, 0, sizeof(now_key));
+	std::memset(old_key, 0, sizeof(old_key));
+
+	// ボタン入力
+	std::memset(now_button, 0, sizeof(now_button));
+	std::memset(old_button, 0, sizeof(old_button));
+
+	// トリガー
+	std::fill(std::begin(trigger), std::end(trigger), 0.0f);
+}
 
 /// <summary>
 /// 更新処理
