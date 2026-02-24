@@ -7,8 +7,8 @@
 #include <algorithm>
 
 #define D_POTATO_CALORIE	(100)	// ポテトの回復量
-#define D_POTATO_STOCK		(2)		// 初期の所持ポテト
-#define D_DIG_COST			(-15)	// 採掘のスタミナ消費量
+#define D_POTATO_STOCK		(0)		// 初期の所持ポテト
+#define D_DIG_COST			(-50)	// 採掘のスタミナ消費量
 
 Player::Player()
 {
@@ -63,7 +63,7 @@ void Player::Initialize()
 
 	// 画像読み込み
 	ResourceManager& rm = ResourceManager::GetInstance();
-	
+
 	// プレイヤー
 	// 待機画像読み込み
 	m_idleImage = rm.GetImageResource("Assets/Sprites/Player/Idle1.PNG")[0];
@@ -104,6 +104,20 @@ void Player::Initialize()
 	m_effectImage[1] = rm.GetImageResource("Assets/Sprites/Effect/Effect2.PNG")[0];
 	m_effectImage[2] = rm.GetImageResource("Assets/Sprites/Effect/Effect3.PNG")[0];
 
+	// 倒れるアニメ
+	m_endAnimImage[0] = rm.GetImageResource("Assets/Sprites/Player/end1.PNG")[0];
+	m_endAnimImage[1] = rm.GetImageResource("Assets/Sprites/Player/end2.PNG")[0];
+	m_endAnimImage[2] = rm.GetImageResource("Assets/Sprites/Player/end3.PNG")[0];
+	m_endAnimImage[3] = rm.GetImageResource("Assets/Sprites/Player/end4.PNG")[0];
+	m_endAnimImage[4] = rm.GetImageResource("Assets/Sprites/Player/end5.PNG")[0];
+	m_endAnimImage[5] = rm.GetImageResource("Assets/Sprites/Player/end6.PNG")[0];
+	m_endAnimImage[6] = rm.GetImageResource("Assets/Sprites/Player/end7.PNG")[0];
+	m_endAnimImage[7] = rm.GetImageResource("Assets/Sprites/Player/end8.PNG")[0];
+	m_endAnimImage[8] = rm.GetImageResource("Assets/Sprites/Player/end9.PNG")[0];
+	m_endAnimImage[9] = rm.GetImageResource("Assets/Sprites/Player/end10.PNG")[0];
+	m_endAnimImage[10] = rm.GetImageResource("Assets/Sprites/Player/end11.PNG")[0];
+	m_endDrillImage = rm.GetImageResource("Assets/Sprites/Player/drill.PNG")[0];
+
 	// サウンド
 	m_walkSe = rm.GetSoundResource("Assets/Sounds/SE/Walk.mp3");
 	m_eatSe = rm.GetSoundResource("Assets/Sounds/SE/Eat.mp3");
@@ -111,7 +125,7 @@ void Player::Initialize()
 	m_digSe = rm.GetSoundResource("Assets/Sounds/SE/Dig.mp3");
 
 	// 音量
-	ChangeVolumeSoundMem(255 * 2, m_walkSe);
+	ChangeVolumeSoundMem(255, m_drillSe);
 }
 
 void Player::Update(float delta)
@@ -137,8 +151,18 @@ void Player::Update(float delta)
 	// 終了時の処理
 	if (m_animState == e_AnimationState::dead)
 	{
-		// アニメが終了したら
-		m_isEndAnimFinished = true;
+		// 倒れるアニメ
+		m_walkAnimTime += delta;
+		if (m_walkAnimTime > 0.3f)
+		{
+			m_walkAnimTime = 0.0f;
+			m_walkAnimCount++;
+			if (m_walkAnimCount > 18)
+			{
+				// アニメが終了したら
+				m_isEndAnimFinished = true;
+			}
+		}
 		return;
 	}
 
@@ -206,8 +230,18 @@ void Player::Draw() const
 		DrawRotaGraphF(m_location.x + offsetx, m_location.y + 15.0f, 0.1f, 0.0, m_eatImage[m_eatCount], true, flipFlag);
 		return;
 	}
+	else if (m_animState == e_AnimationState::dead)
+	{
+		float offsetx = (flipFlag) ? 35.0f : -35.0f;
+		float offsety = 15.0f;
 
-	if (offset.x == 0) offset.x= 35.0f;
+		DrawRotaGraphF(m_location.x + offsetx, m_location.y + 15.0f, 0.267f, 0.0, m_endAnimImage[m_walkAnimCount % 11], true, flipFlag);
+		// ドリル
+		//DrawRotaGraphF(m_location.x + offsetx, m_location.y + 15.0f, 0.1f, 0.0, m_endDrillImage, true, flipFlag);
+		return;
+	}
+
+	if (offset.x == 0) offset.x = 35.0f;
 
 	// 座標を見やすく、int型に
 	float x = m_location.x;
@@ -244,7 +278,7 @@ void Player::Draw() const
 		if (m_breakFlag)
 		{
 			x -= 5.0f;
-			
+
 			DrawRotaGraphF(x - 5, y, 0.1, 0.65 * 3.14, m_effectImage[m_diggingAnimCount], true);
 		}
 
@@ -282,7 +316,7 @@ void Player::Draw() const
 
 			DrawRotaGraphF(x, y, 0.1, 1.65 * 3.14, m_effectImage[m_diggingAnimCount], true);
 		}
-		
+
 		break;
 	case e_Direction::left:
 	case e_Direction::right:
@@ -321,7 +355,7 @@ void Player::Draw() const
 
 #ifdef _DEBUG
 	// 中心地
-	DrawCircleAA(m_location.x,m_location.y, 1.5,30, 0x000000, true);
+	DrawCircleAA(m_location.x, m_location.y, 1.5, 30, 0x000000, true);
 	// 当たり判定
 	DrawCircleAA(m_location.x, m_location.y, m_collision.m_radius, 30, GetColor(255, 0, 0), false);
 
@@ -399,7 +433,7 @@ void Player::StaminaManager(int value)
 			// 状態を変更
 			m_animState = e_AnimationState::eat;
 			m_animTimer = 1.0f;
-			
+
 			// SEを再生
 			PlaySoundMem(m_eatSe, DX_PLAYTYPE_BACK);
 
@@ -440,7 +474,6 @@ void Player::LapseAnimation(float deltaSecond)
 			{
 				if (m_walkAnimCount % 2 == 0)
 				{
-					StopSoundMem(m_walkSe);
 					// SEを再生
 					PlaySoundMem(m_walkSe, DX_PLAYTYPE_BACK);
 				}
@@ -639,11 +672,20 @@ void Player::UpdateMovementFromInput(float acceleration)
 	}
 
 	// 入力に応じて方向転換
-	if (leftPress) m_direction = e_Direction::left;
-	if (rightPress) m_direction = e_Direction::right;
-	if (upPress) m_direction = e_Direction::up;
-	if (downPress) m_direction = e_Direction::down;
-
+	if (leftPress || rightPress || rightHold || upPress || downPress)
+	{
+		if (leftPress) m_direction = e_Direction::left;
+		if (rightPress) m_direction = e_Direction::right;
+		if (upPress) m_direction = e_Direction::up;
+		if (downPress) m_direction = e_Direction::down;
+	}
+	else
+	{
+		if (leftHold) m_direction = e_Direction::left;
+		if (rightHold) m_direction = e_Direction::right;
+		if (upHold) m_direction = e_Direction::up;
+		if (downHold) m_direction = e_Direction::down;
+	}
 
 	// 速度制限
 	if (m_moveSpeed.x > m_maxSpeed)  m_moveSpeed.x = m_maxSpeed;
@@ -798,6 +840,11 @@ const int& Player::GetStamina() const
 const int& Player::GetScore() const
 {
 	return m_score;
+}
+
+const int& Player::GetPotatoStock() const
+{
+	return m_potatoStock;
 }
 
 bool Player::IsStartAnimFinished() const
