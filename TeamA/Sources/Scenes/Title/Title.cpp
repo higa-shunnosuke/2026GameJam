@@ -81,33 +81,6 @@ SceneType Title::Update(float delta)
 
 	input.TitleApplyInput(m_left, m_right, m_decision);
 
-	if (m_right == eInputState::Pressed) 
-	{
-		m_cursorNumber += 1; // 右へ
-		
-		// SEを再生
-		PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
-	}
-
-	if (m_left == eInputState::Pressed )
-	{
-		m_cursorNumber +=2; // 左へ
-
-		// SEを再生
-		PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
-	}
-	m_cursorNumber %= 3;
-
-	if (m_decision == eInputState::Pressed)//決定ボタンが押されたら
-	{
-		// SEを再生
-		PlaySoundMem(m_decisionSe, DX_PLAYTYPE_BACK);
-
-		m_clickFlag = TRUE;
-		m_animeTime = 0.0f;
-		m_animeCount = 0;
-	}
-
 	if (m_clickFlag)
 	{
 		m_animeTime += delta;
@@ -135,6 +108,36 @@ SceneType Title::Update(float delta)
 			}
 		}
 	}
+	else
+	{
+		if (m_right == eInputState::Pressed)
+		{
+			m_cursorNumber += 1; // 右へ
+
+			// SEを再生
+			PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
+		}
+
+		if (m_left == eInputState::Pressed)
+		{
+			m_cursorNumber += 2; // 左へ
+
+			// SEを再生
+			PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
+		}
+		m_cursorNumber %= 3;
+
+		if (m_decision == eInputState::Pressed)//決定ボタンが押されたら
+		{
+			// SEを再生
+			PlaySoundMem(m_decisionSe, DX_PLAYTYPE_BACK);
+
+			m_clickFlag = TRUE;
+			m_animeTime = 0.0f;
+			m_animeCount = 0;
+		}
+	}
+	
 	//// インゲームシーンに遷移する
 	//if (input.GetKeyState(KEY_INPUT_RETURN) == eInputState::Pressed)
 	//{

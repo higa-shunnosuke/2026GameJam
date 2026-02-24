@@ -93,36 +93,6 @@ SceneType Result::Update(float delta)
 
 	input.TitleApplyInput(m_left, m_right, m_decision);
 
-	if (m_right == eInputState::Pressed)
-	{
-		m_cursorNumber = (m_cursorNumber + 1) % 3; // 右へ
-
-		// SEを再生
-		PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
-	}
-	if (m_left == eInputState::Pressed)
-	{
-		m_cursorNumber = (m_cursorNumber + 2) % 3; // 左へ
-
-		// SEを再生
-		PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
-	}
-	if (m_decision == eInputState::Pressed)//決定ボタンが押されたら
-	{
-		// SEを再生
-		PlaySoundMem(m_decisionSe, DX_PLAYTYPE_BACK);
-
-		m_clickFlag = TRUE;
-		m_animeTime = 0.0f;
-		m_animeCount = 0;
-	}
-	m_eatTime += delta;
-	if (m_eatTime = 0.2)
-	{
-		m_eatTime = 0.0f;
-		m_eatCount += 1;
-	}
-
 	if (m_clickFlag)
 	{
 		m_animeTime += delta;
@@ -149,6 +119,38 @@ SceneType Result::Update(float delta)
 				break;//error時
 			}
 		}
+	}
+	else
+	{
+		if (m_right == eInputState::Pressed)
+		{
+			m_cursorNumber = (m_cursorNumber + 1) % 3; // 右へ
+
+			// SEを再生
+			PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
+		}
+		if (m_left == eInputState::Pressed)
+		{
+			m_cursorNumber = (m_cursorNumber + 2) % 3; // 左へ
+
+			// SEを再生
+			PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
+		}
+		if (m_decision == eInputState::Pressed)//決定ボタンが押されたら
+		{
+			// SEを再生
+			PlaySoundMem(m_decisionSe, DX_PLAYTYPE_BACK);
+
+			m_clickFlag = TRUE;
+			m_animeTime = 0.0f;
+			m_animeCount = 0;
+		}
+	}
+	m_eatTime += delta;
+	if (m_eatTime = 0.2)
+	{
+		m_eatTime = 0.0f;
+		m_eatCount += 1;
 	}
 
 	// エンドシーンに遷移する
@@ -190,7 +192,7 @@ void Result::Draw() const
 	{
 	case 0: cursorx = 340; break; // RESTART
 	case 1: cursorx = 650; break; // RANKING
-	case 2: cursorx = 950; break; // END
+	case 2: cursorx = 955; break; // TITLE
 	}
 
 	if (m_clickFlag)
