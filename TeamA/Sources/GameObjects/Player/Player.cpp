@@ -366,7 +366,7 @@ void Player::Draw() const
 
 void Player::Finalize()
 {
-
+	StopSoundMem(m_drillSe);
 }
 
 void Player::OnHitCollision(ObjectBase& other)
@@ -437,9 +437,11 @@ void Player::StaminaManager(int value)
 
 			// ドリルと土煙のエフェクトをなくす
 			m_diggingFrameTimer = 0.0f;
+			StopSoundMem(m_drillSe);
 		}
 		else
 		{
+			StopSoundMem(m_drillSe);
 			m_animState = e_AnimationState::dead;
 		}
 	}
@@ -694,6 +696,8 @@ void Player::UpdateMovementFromInput(float acceleration)
 	// 斜め移動を禁じる
 	if (m_direction == e_Direction::up || m_direction == e_Direction::down) m_moveSpeed.x = 0.0f;
 	else if (m_direction == e_Direction::left || m_direction == e_Direction::right) m_moveSpeed.y = 0.0f;
+
+	m_animState = e_AnimationState::idle;
 
 	// 移動中にする
 	if (digHold || leftHold || rightHold || upHold || downHold)

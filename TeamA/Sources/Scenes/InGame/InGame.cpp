@@ -76,7 +76,7 @@ void InGame::Initialize()
 	m_back_buffer = MakeScreen(D_STAGE_WIDTH, D_STAGE_HEIGHT, TRUE);
 
 	// 制限時間の初期化
-	m_time = 60.0f;
+	m_time = 10.0f;
 
 	// BGM再生
 	PlaySoundMem(m_Bgm, DX_PLAYTYPE_LOOP);
@@ -88,14 +88,32 @@ SceneType InGame::Update(float delta)
 	// タイマーの更新
 	if (m_player->IsStartAnimFinished()) __super::Timer(delta);
 
+	// 時間切れなら
+	if (m_elapsedTime > m_time)
+	{
+		// finish描画時間
+		m_finishAnimeTime = 2.0f;
+	}
+		
+	if (m_finishAnimeTime > 0.0f)
+	{
+		m_finishAnimeTime -= delta;
+		return __super::Update(delta);
+	}
+
 	//インスタンス取得
 	InputManager& input = InputManager::GetInstance();
+
+#if _DEBUG
 	// リザルトシーンに遷移する
 	if (input.GetKeyState(KEY_INPUT_RETURN) == eInputState::Pressed)
 	{
 		return SceneType::resutart;
 	}
-	if (m_elapsedTime > m_time || m_player->IsEndAnimFinished())
+
+#endif
+
+	if (m_finishAnimeTime < 0.0f || m_player->IsEndAnimFinished())
 	{
 		// SEを再生
 		PlaySoundMem(m_TimeUpSe, DX_PLAYTYPE_BACK);
@@ -283,6 +301,11 @@ void InGame::Draw() const
 	// 所持ジュエル
 	DrawFormatString(D_JEWEL_POS_X + 40, D_JEWEL_POS_Y - 25, 0xffffff, "×");
 	DrawFormatString(D_JEWEL_POS_X + 80, D_JEWEL_POS_Y - 25, 0xffffff, "%d", m_player->GetScore());
+	// 宝石を集めろ
+	if (!m_player->IsStartAnimFinished()) DrawFormatString(640 - 7 * 32, 250, 0xffffff, "宝石を集めろ！");
+	// FINISH
+	if (m_finishAnimeTime > 0.0f) DrawFormatString(640 - 3.5 * 32, 250, 0xffffff, "FINISH!");
+
 	SetFontSize(32);
 
 }

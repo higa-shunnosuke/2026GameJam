@@ -21,6 +21,8 @@ private:
 	int m_potatoImg;			// ポテトの画像
 	int m_jewelImg;				// ジュエルの画像
 
+	float m_finishAnimeTime;		// finish描画時間
+
 	// サウンド
 	int m_Bgm;
 	int m_TimeUpSe;
