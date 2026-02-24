@@ -63,7 +63,11 @@ private:
 	// エフェクトの画像情報
 	int m_effectImage[3];
 
-
+	// サウンド情報
+	int m_walkSe;
+	int m_eatSe;
+	int m_drillSe;
+	int m_digSe;
 
 public:
 	Player();

@@ -104,6 +104,14 @@ void Player::Initialize()
 	m_effectImage[1] = rm.GetImageResource("Assets/Sprites/Effect/Effect2.PNG")[0];
 	m_effectImage[2] = rm.GetImageResource("Assets/Sprites/Effect/Effect3.PNG")[0];
 
+	// サウンド
+	m_walkSe = rm.GetSoundResource("Assets/Sounds/SE/Walk.mp3");
+	m_eatSe = rm.GetSoundResource("Assets/Sounds/SE/Eat.mp3");
+	m_drillSe = rm.GetSoundResource("Assets/Sounds/SE/Drill.mp3");
+	m_digSe = rm.GetSoundResource("Assets/Sounds/SE/Dig.mp3");
+
+	// 音量
+	ChangeVolumeSoundMem(255, m_drillSe);
 }
 
 void Player::Update(float delta)
@@ -391,6 +399,9 @@ void Player::StaminaManager(int value)
 			// 状態を変更
 			m_animState = e_AnimationState::eat;
 			m_animTimer = 1.0f;
+			
+			// SEを再生
+			PlaySoundMem(m_eatSe, DX_PLAYTYPE_BACK);
 
 			// ドリルと土煙のエフェクトをなくす
 			m_diggingFrameTimer = 0.0f;
@@ -421,6 +432,27 @@ void Player::LapseAnimation(float deltaSecond)
 	{
 		m_walkAnimTime = 0.0f;
 		m_walkAnimCount += 1;
+
+		if (m_animState == e_AnimationState::move)
+		{
+			// SEを再生
+			if (m_direction == e_Direction::left || m_direction == e_Direction::right)
+			{
+				if (m_walkAnimCount % 2 == 0)
+				{
+					// SEを再生
+					PlaySoundMem(m_walkSe, DX_PLAYTYPE_BACK);
+				}
+			}
+			else
+			{
+				if (m_walkAnimCount % 3 == 0)
+				{
+					// SEを再生
+					PlaySoundMem(m_walkSe, DX_PLAYTYPE_BACK);
+				}
+			}
+		}
 	}
 
 	// ドリル/土エフェクト
@@ -431,6 +463,8 @@ void Player::LapseAnimation(float deltaSecond)
 		{
 			m_diggingAnimTime = 0.0f;
 			m_diggingAnimCount = (m_diggingAnimCount + 1) % 3;
+
+
 		}
 	}
 
@@ -472,6 +506,9 @@ void Player::UpdatePlayerState(float deltaSecond)
 
 			// スタミナを消費
 			StaminaManager(D_DIG_COST);
+
+			// SEを再生
+			PlaySoundMem(m_digSe, DX_PLAYTYPE_BACK);
 		}
 	}
 
@@ -580,12 +617,20 @@ void Player::UpdateMovementFromInput(float acceleration)
 	// 加速処理
 	if (digHold)
 	{
+		if (!CheckSoundMem(m_drillSe))
+		{
+			// ドリルのSEを再生
+			PlaySoundMem(m_drillSe, DX_PLAYTYPE_BACK);
+		}
 		// 自動採掘
 		MoveInTheDiggingDirection(acceleration);
 		m_diggingFlag = true;
 	}
 	else
 	{
+		// ドリルのSEを停止
+		StopSoundMem(m_drillSe);
+
 		if (leftHold) m_moveSpeed.x -= acceleration;
 		if (rightHold) m_moveSpeed.x += acceleration;
 		if (upHold) m_moveSpeed.y -= acceleration;
