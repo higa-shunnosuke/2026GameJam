@@ -11,17 +11,21 @@ private:
 	int m_background;
 	int m_jewelImage;
 	int m_cursorNumber;
-	int m_eatImage[3];
+	int m_haikeiImage[2];
 	int m_moguraImage[3];
 	int m_effectImage[3];
+
+	int m_scoreImage;
+	int m_titleImage;
+	int m_restartImage;
 
 	//アニメーション
 	float m_animeTime;
 	int m_animeCount;
 	bool m_clickFlag;
 
-	float m_eatTime;
-	int m_eatCount;
+	float m_haikeiTime;
+	int m_haikeiCount;
 
 	float m_taikiTime;
 	int m_taikiCount;

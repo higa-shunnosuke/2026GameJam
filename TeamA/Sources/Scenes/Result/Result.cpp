@@ -27,8 +27,8 @@ void Result::Initialize()
 	m_animeCount = 0;
 	m_clickFlag = FALSE;
 
-    m_eatTime = 0.0f;
-	m_eatCount = 0;
+    m_haikeiTime = 0.0f;
+	m_haikeiCount = 0;
 
 	ResourceManager& rm = ResourceManager::GetInstance();
 
@@ -36,9 +36,14 @@ void Result::Initialize()
 
 	m_jewelImage = rm.GetImageResource("Assets/Sprites/Jewel/emerald/emerald1.PNG")[0];
 
-	m_eatImage[0] = rm.GetImageResource("Assets/Sprites/Player/eat1.PNG")[0]; //  食事モグラ読み込み
-	m_eatImage[1] = rm.GetImageResource("Assets/Sprites/Player/eat2.PNG")[0]; //  食事モグラ読み込み
-	m_eatImage[2] = rm.GetImageResource("Assets/Sprites/Player/eat3.PNG")[0]; //  食事モグラ読み込み
+	m_scoreImage = rm.GetImageResource("Assets/Sprites/Result/スコア.PNG")[0];
+
+	m_restartImage = rm.GetImageResource("Assets/Sprites/Result/タイトル.PNG")[0];
+
+	m_titleImage = rm.GetImageResource("Assets/Sprites/Result/リスタート.PNG")[0];
+
+	m_haikeiImage[0] = rm.GetImageResource("Assets/Sprites/Result/背景１.PNG")[0]; //  食事モグラ読み込み
+	m_haikeiImage[1] = rm.GetImageResource("Assets/Sprites/Result/背景２.PNG")[0]; //  食事モグラ読み込み
 
 	m_moguraImage[0] = rm.GetImageResource("Assets/Sprites/Player/Down1.PNG")[0]; //  下向きドリルモグラ読み込み
 	m_moguraImage[1] = rm.GetImageResource("Assets/Sprites/Player/Down2.PNG")[0]; //  下向きドリルモグラ読み込み
@@ -153,11 +158,11 @@ SceneType Result::Update(float delta)
 			m_animeCount = 0;
 		}
 	}
-	m_eatTime += delta;
-	if (m_eatTime > 0.15)
+	m_haikeiTime += delta;
+	if (m_haikeiTime > 0.6)
 	{
-		m_eatTime = 0.0f;
-		m_eatCount += 1;
+		m_haikeiTime = 0.0f;
+		m_haikeiCount += 1;
 	}
 
 	// エンドシーンに遷移する
@@ -174,12 +179,9 @@ SceneType Result::Update(float delta)
 void Result::Draw() const
 {
 	//	リザルト表示
-
-	DrawRotaGraph(640, 250, 0.25, 0, m_background, TRUE);
+	DrawRotaGraph(640, 360, 0.5, 0, m_haikeiImage[m_haikeiCount % 2], TRUE);
 
 	DrawRotaGraph(390, 350, 0.05, 0, m_jewelImage, TRUE);
-
-	DrawRotaGraph(900, 400, 0.15, 0, m_eatImage[m_eatCount % 3], TRUE);
 
 	SetFontSize(64);
 	DrawFormatString(460, 200, 0xffffff, "ResultScore");
@@ -190,16 +192,24 @@ void Result::Draw() const
 	DrawFormatString(480, 390, 0xffffff, "スコア表示");
 
 	SetFontSize(50);
-	DrawFormatString(230, 600, 0xffffff, "RESTART");
-	DrawFormatString(540, 600, 0xffffff, "RANKING");
-	DrawFormatString(885, 600, 0xffffff, "TITLE");
+
+	DrawRotaGraph(340, 620, 0.15, 0, m_restartImage, TRUE);
+
+	DrawRotaGraph(640, 620, 0.15, 0, m_scoreImage, TRUE);
+
+	DrawRotaGraph(960, 620, 0.15, 0, m_titleImage, TRUE);
+
+
+	//DrawFormatString(230, 600, 0xffffff, "RESTART");
+	//DrawFormatString(540, 600, 0xffffff, "RANKING");
+	//DrawFormatString(885, 600, 0xffffff, "TITLE");
 
 	int cursorx = 0;
 	switch (m_cursorNumber)
 	{
-	case 0: cursorx = 340; break; // RESTART
-	case 1: cursorx = 650; break; // RANKING
-	case 2: cursorx = 955; break; // TITLE
+	case 0: cursorx = 335; break; // RESTART
+	case 1: cursorx = 640; break; // RANKING
+	case 2: cursorx = 960; break; // TITLE
 	}
 
 	if (m_clickFlag)
