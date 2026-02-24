@@ -6,37 +6,49 @@
 class Title : public SceneBase
 {
 private:
-	int m_animeCount;
 
-	float m_animeTime;
-
-	int m_groundImage;//地下背景
-
-	int m_skyImage;//空背景
-
-	int m_soilImage1;//横向きモグラ
-
-	int m_soilImage2;//下向きドリルモグラ
-
-	int m_tutiImage[2];
-
-	int m_jewelImage;//エメラルド
-
-	int m_effectImage;//採掘エフェクト
-
-	int m_rockImage;//岩画像
-
-	int m_leaves_nekkoImage;//根と葉画像
-
-	int m_potatoImage; //ジャガイモ画像
-
-	int m_drillImage; //横向きモグラに着けるドリル
-
-	int m_jeweleffectImage;//エメラルドキラキラ画像
-
+	// カーソル
 	int m_cursorNumber;
 
+	// アニメーション
+	int m_animeCount;
+	float m_animeTime;
+	
+
+	// 画像
+	// タイトル画像
+	int m_tutiImage[2];
+
+	// モグラ画像
+	int m_soilImage1;	//横向きのモグラ
+	int m_drillImage;	//横向きのドリル
+	int m_soilImage2;	//下向きのモグラ
+	int m_effectImage;	//採掘エフェクト
+
+	// その他オブジェクト画像
+	int m_leaves_nekkoImage;//根と葉画像
+	int m_potatoImage;		//ジャガイモ画像
+	int m_jewelImage;		//エメラルド
+	int m_jeweleffectImage;	//エメラルドキラキラ画像
+	int m_rockImage;		//岩画像
+
+	// タイトルロゴ画像
 	int m_titlerogoImage;
+
+	// 背景画像
+	// 地下画像
+	int m_groundImage;
+	// 空画像
+	int m_skyImage;
+
+
+	// サウンド
+	// タイトルBGM
+	int m_titleBgm;
+	// 選択SE
+	int m_selectSe;
+	// 決定SE
+	int m_decisionSe;
 
 	// 入力
 	// 左

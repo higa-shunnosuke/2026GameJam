@@ -14,41 +14,58 @@ void Title::Initialize()
 {
 
 	ResourceManager& rm = ResourceManager::GetInstance();
-	m_animeTime = 0.0f;
 
+	// アニメーション
+	m_animeTime = 0.0f;
 	m_animeCount = 0;
 
-	m_tutiImage[0] = rm.GetImageResource("Assets/Sprites/soil/soil1.PNG")[0];
+	// 画像読み込み
+	// モグラ画像
+	// 待機
+	m_soilImage1 = rm.GetImageResource("Assets/Sprites/Player/Idle1.PNG")[0];
+	// 待機のドリル
+	m_drillImage = rm.GetImageResource("Assets/Sprites/Drill/Drill1.PNG")[0];
+	// 下向き
+	m_soilImage2 = rm.GetImageResource("Assets/Sprites/Player/Down3.PNG")[0];
+	// 採掘エフェクト
+	m_effectImage = rm.GetImageResource("Assets/Sprites/Effect/Effect1.PNG")[0];
 
+	// 土
+	m_tutiImage[0] = rm.GetImageResource("Assets/Sprites/soil/soil1.PNG")[0];
 	m_tutiImage[1] = rm.GetImageResource("Assets/Sprites/soil/soil2.PNG")[0];
 
-	m_groundImage = rm.GetImageResource("Assets/Textures/InGame/Ground.PNG")[0]; // 地下背景読み込み
+	// その他オブジェクト画像
+	// ジャガイモ
+	m_potatoImage = rm.GetImageResource("Assets/Sprites/Potato/NormalPotato.PNG")[0];
+	// 根と葉
+	m_leaves_nekkoImage = rm.GetImageResource("Assets/Sprites/Potato/Leaves_Nekko1.PNG")[0];
 
-	m_skyImage = rm.GetImageResource("Assets/Textures/InGame/Sky1.PNG")[0]; //　空背景読み込み
+	// エメラルド
+	m_jewelImage = rm.GetImageResource("Assets/Sprites/jewel/emerald/emerald1.PNG")[0];
+	// エメラルドのエフェクト
+	m_jeweleffectImage = rm.GetImageResource("Assets/Sprites/jewel/effect/キラキラ１.PNG")[0];
+	// 岩
+	m_rockImage = rm.GetImageResource("Assets/Sprites/Rock/Rock.PNG")[0];
 
-	m_soilImage1 = rm.GetImageResource("Assets/Sprites/Player/Idle1.PNG")[0]; //  待機モグラ読み込み
+	// 背景画像
+	// 地下
+	m_groundImage = rm.GetImageResource("Assets/Textures/InGame/Ground.PNG")[0];
+	// 空
+	m_skyImage = rm.GetImageResource("Assets/Textures/InGame/Sky1.PNG")[0];
 
-	m_drillImage = rm.GetImageResource("Assets/Sprites/Drill/Drill1.PNG")[0]; //  待機モグラに着けるドリル読み込み
+	// タイトルロゴ
+	m_titlerogoImage = rm.GetImageResource("Assets/Sprites/Title/Title.PNG")[0];
 
-	m_soilImage2 = rm.GetImageResource("Assets/Sprites/Player/Down3.PNG")[0]; //  下向きドリルモグラ読み込み
-
-	m_jewelImage = rm.GetImageResource("Assets/Sprites/jewel/emerald/emerald1.PNG")[0]; //エメラルド読み込み
-
-	m_jeweleffectImage = rm.GetImageResource("Assets/Sprites/jewel/effect/キラキラ１.PNG")[0]; //エメラルド読み込み7
-
-	m_effectImage = rm.GetImageResource("Assets/Sprites/Effect/Effect1.PNG")[0]; // 採掘エフェクト読み込み
-
-	m_rockImage = rm.GetImageResource("Assets/Sprites/Rock/Rock.PNG")[0]; // 岩読み込み
-
-	m_potatoImage = rm.GetImageResource("Assets/Sprites/Potato/NormalPotato.PNG")[0]; //  ジャガイモ読み込み
-
-	m_leaves_nekkoImage = rm.GetImageResource("Assets/Sprites/Potato/Leaves_Nekko1.PNG")[0]; //  根と葉画像読み込み
-
-	m_titlerogoImage = rm.GetImageResource("Assets/Sprites/Title/Title.PNG")[0]; // タイトル画像読み込み
-
-	//  ジャガイモ読み込み
+	
+	// サウンド
+	m_titleBgm = rm.GetSoundResource("Assets/Sounds/BGM/Title.mp3");
+	m_selectSe = rm.GetSoundResource("Assets/Sounds/SE/Click2.mp3");
+	m_decisionSe = rm.GetSoundResource("Assets/Sounds/SE/Click1.mp3");
 
 	m_cursorNumber = 0;
+
+	// BGM再生
+	PlaySoundMem(m_titleBgm, DX_PLAYTYPE_LOOP);
 }
 
 // 更新
@@ -69,16 +86,25 @@ SceneType Title::Update(float delta)
 	if (m_right == eInputState::Pressed) 
 	{
 		m_cursorNumber += 1; // 右へ
+		
+		// SEを再生
+		PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
 	}
 
 	if (m_left == eInputState::Pressed )
 	{
 		m_cursorNumber +=2; // 左へ
+
+		// SEを再生
+		PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
 	}
 	m_cursorNumber %= 3;
 
 	if (m_decision == eInputState::Pressed)//決定ボタンが押されたら
 	{
+		// SEを再生
+		PlaySoundMem(m_decisionSe, DX_PLAYTYPE_BACK);
+
 		switch (m_cursorNumber)
 		{
 		case 0:
@@ -189,7 +215,8 @@ void Title::Draw() const
 // 終了
 void Title::Finalize()
 {
-	
+	// BGM停止
+	StopSoundMem(m_titleBgm);
 }
 
 // 現在のシーンタイプ取得
