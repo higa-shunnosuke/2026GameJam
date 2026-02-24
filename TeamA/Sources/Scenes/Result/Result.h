@@ -7,18 +7,23 @@
 class Result : public SceneBase
 {
 private:
+	// ランキング
+	std::vector<PlayData> m_ranking;	// ランキング格納配列
+	PlayData m_currentData;				// 今回のプレイデータ
+	int m_rank;							// 圏外:0
+	int m_cursorNumber;					// カーソル番号
+	bool m_rankingDraw;					// true:ランキング描画
 
-	int m_background;
-	int m_jewelImage;
-	int m_cursorNumber;
-	int m_haikeiImage[2];
-	int m_moguraImage;
-	int m_effectImage[3];
-
-	int m_backrockImage;
-	int m_scoreImage;
-	int m_titleImage;
-	int m_restartImage;
+	// 画像
+	int m_haikeiImage[2];	// 背景
+	int m_scoreImage;		// RESURT SCORE文字
+	int m_jewelImage;		// 宝石
+	int m_backrockImage;	// ボタン背景
+	int m_restartImage;		// RESTART文字
+	int m_rankingImage;		// RANKING文字
+	int m_titleImage;		// TITLE文字
+	int m_moguraImage;		// カーソルアイコン
+	int m_rankingBackGround;	// ランキング背景
 
 	//アニメーション
 	float m_animeTime;
@@ -31,9 +36,6 @@ private:
 	float m_taikiTime;
 	int m_taikiCount;
 
-	// ランキング
-	std::vector<PlayData> m_ranking;	// ランキング格納配列
-	PlayData m_currentData;				// 今回のプレイデータ
 
 	// サウンド
 	// リザルトBGM
@@ -42,14 +44,6 @@ private:
 	int m_selectSe;
 	// 決定SE
 	int m_decisionSe;
-
-	// 入力
-	// 左
-	eInputState m_left;
-	// 右
-	eInputState m_right;
-	// 決定
-	eInputState m_decision;
 
 public:
 	// コンストラクタ
