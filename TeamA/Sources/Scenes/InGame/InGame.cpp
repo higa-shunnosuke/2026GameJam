@@ -76,7 +76,7 @@ void InGame::Initialize()
 	m_back_buffer = MakeScreen(D_STAGE_WIDTH, D_STAGE_HEIGHT, TRUE);
 
 	// 制限時間の初期化
-	m_time = 10.0f;
+	m_time = 60.0f;
 
 	// BGM再生
 	PlaySoundMem(m_Bgm, DX_PLAYTYPE_LOOP);
