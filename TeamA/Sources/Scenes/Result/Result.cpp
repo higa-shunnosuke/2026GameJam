@@ -195,10 +195,9 @@ void Result::Draw() const
 
 	if (m_clickFlag)
 	{
-		float tortalAnimeTime = 0.2 * m_animeCount + m_animeTime;
-		DrawRotaGraphF(cursorx, 550 + tortalAnimeTime, 0.07, 0.0, m_moguraImage[m_animeCount % 3], TRUE);
+		DrawRotaGraphF(cursorx, 550 + 20, 0.07, 0.0, m_moguraImage[m_animeCount % 3], TRUE);
 
-		DrawRotaGraph(cursorx + 5.6f, 550 - 7.0f + tortalAnimeTime, 0.07, 1.65 * 3.14, m_effectImage[m_animeCount % 3], TRUE);//ドリルエフェクト描画
+		DrawRotaGraph(cursorx + 5.6f, 550 - 7.0f + 20 , 0.07, 1.65 * 3.14, m_effectImage[m_animeCount % 3], TRUE);//ドリルエフェクト描画
 	}
 	else
 	{
