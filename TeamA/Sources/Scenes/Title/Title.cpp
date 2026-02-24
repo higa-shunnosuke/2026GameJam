@@ -1,7 +1,9 @@
 #include "Title.h"
 #include "../../System/ResourceManager.h"
 #include "../../System/InputManager.h"
+#include "../../Utilitys/ProjectConfig.h"
 
+#define D_TIME (60.0f)
 
 // コンストラクタ
 Title::Title()
@@ -12,70 +14,50 @@ Title::Title()
 // 初期化
 void Title::Initialize()
 {
-
+	// 画像う読み込み
 	ResourceManager& rm = ResourceManager::GetInstance();
-
-	// アニメーション
-	m_animeTime = 0.0f;
-	m_animeCount = 0;
-	m_clickFlag = FALSE;
-
-	m_taikiTime = 0.0f;
-	m_taikiCount = 0;
-
-	// 画像読み込み
 	// モグラ画像
-	// 待機
-	m_soilImage1 = rm.GetImageResource("Assets/Sprites/Player/Idle1.PNG")[0];
-	// 待機のドリル
-	m_drillImage = rm.GetImageResource("Assets/Sprites/Drill/Drill1.PNG")[0];
-	// 下向き
-	m_downImage[0] = rm.GetImageResource("Assets/Sprites/Player/Down1.PNG")[0];
-	m_downImage[1] = rm.GetImageResource("Assets/Sprites/Player/Down2.PNG")[0];
-	m_downImage[2] = rm.GetImageResource("Assets/Sprites/Player/Down3.PNG")[0];
+	m_moleImg = rm.GetImageResource("Assets/Sprites/Player/Idle1.PNG")[0];
+	// ドリル
+	m_drillImg[0] = rm.GetImageResource("Assets/Sprites/Drill/Drill1.PNG")[0];
+	m_drillImg[1] = rm.GetImageResource("Assets/Sprites/Drill/Drill2.PNG")[0];
+	m_drillImg[2] = rm.GetImageResource("Assets/Sprites/Drill/Drill3.PNG")[0];
 	// 採掘エフェクト
 	m_effectImage[0] = rm.GetImageResource("Assets/Sprites/Effect/Effect1.PNG")[0];
 	m_effectImage[1] = rm.GetImageResource("Assets/Sprites/Effect/Effect2.PNG")[0];
 	m_effectImage[2] = rm.GetImageResource("Assets/Sprites/Effect/Effect3.PNG")[0];
 
-	// 土
-	m_tutiImage[0] = rm.GetImageResource("Assets/Sprites/soil/soil1.PNG")[0];
-	m_tutiImage[1] = rm.GetImageResource("Assets/Sprites/soil/soil2.PNG")[0];
-
-	// その他オブジェクト画像
-	// ジャガイモ
-	m_potatoImage = rm.GetImageResource("Assets/Sprites/Potato/NormalPotato.PNG")[0];
-	// 根と葉
-	m_leaves_nekkoImage = rm.GetImageResource("Assets/Sprites/Potato/Leaves_Nekko1.PNG")[0];
-
-	// エメラルド
-	m_jewelImage = rm.GetImageResource("Assets/Sprites/jewel/emerald/emerald1.PNG")[0];
-	// エメラルドのエフェクト
-	m_jeweleffectImage = rm.GetImageResource("Assets/Sprites/jewel/effect/キラキラ１.PNG")[0];
-	// 岩
-	m_rockImage = rm.GetImageResource("Assets/Sprites/Rock/Rock.PNG")[0];
-
 	// 背景画像
 	// 地下
-	m_groundImage = rm.GetImageResource("Assets/Textures/InGame/Ground.PNG")[0];
+	m_groundImg = rm.GetImageResource("Assets/Textures/InGame/Ground.PNG")[0];
 	// 空
-	m_skyImage = rm.GetImageResource("Assets/Textures/InGame/Sky1.PNG")[0];
+	m_skyImg.push_back(rm.GetImageResource("Assets/Textures/InGame/Sky3.PNG")[0]);
+	m_skyImg.push_back(rm.GetImageResource("Assets/Textures/InGame/Sky2.PNG")[0]);
+	m_skyImg.push_back(rm.GetImageResource("Assets/Textures/InGame/Sky1.PNG")[0]);
 
-	// タイトルロゴ
-	m_titlerogoImage = rm.GetImageResource("Assets/Sprites/Title/Title.PNG")[0];
+	// ロゴ
+	m_logoImg = rm.GetImageResource("Assets/Sprites/Title/Title.PNG")[0];
 
+	// ボタン
 	m_buttonImage = rm.GetImageResource("Assets/Sprites/Title/Rock.PNG")[0];
 	m_uiImage[0] = rm.GetImageResource("Assets/Sprites/Title/GAMESTART.PNG")[0];
 	m_uiImage[1] = rm.GetImageResource("Assets/Sprites/Title/RANKING.PNG")[0];
 	m_uiImage[2] = rm.GetImageResource("Assets/Sprites/Title/END.PNG")[0];
-
 	
 	// サウンド
 	m_titleBgm = rm.GetSoundResource("Assets/Sounds/BGM/Title.mp3");
 	m_selectSe = rm.GetSoundResource("Assets/Sounds/SE/Select.mp3");
 	m_decisionSe = rm.GetSoundResource("Assets/Sounds/SE/Click.mp3");
 
+	// アニメーション
+	m_animeTime = 0.0f;
+	m_animeCount = 0;
+	m_clickFlag = FALSE;
+
 	m_cursorNumber = 0;
+
+	m_time = D_TIME;
+	m_elapsedTime = 0.0f;
 
 	// BGM再生
 	PlaySoundMem(m_titleBgm, DX_PLAYTYPE_LOOP);
@@ -84,15 +66,23 @@ void Title::Initialize()
 // 更新
 SceneType Title::Update(float delta)
 {
+	__super::Timer(delta);
+
+	if (m_elapsedTime >= m_time)
+	{
+		m_time = D_TIME;
+		m_elapsedTime = 0.0f;
+	}
+
 	//インスタンス取得
 	InputManager& input = InputManager::GetInstance();
 
-	input.TitleApplyInput(m_left, m_right, m_decision);
+	input.TitleApplyInput(m_up, m_down, m_decision);
 
 	if (m_clickFlag)
 	{
 		m_animeTime += delta;
-		if (m_animeTime > 0.2)
+		if (m_animeTime > 0.1)
 		{
 			m_animeTime = 0.0f;
 			m_animeCount += 1;
@@ -118,24 +108,17 @@ SceneType Title::Update(float delta)
 	}
 	else
 	{
-		m_taikiTime += delta;
-		if (m_taikiTime > 0.2)
+		if (m_down == eInputState::Pressed)
 		{
-			m_taikiTime = 0.0f;
-			m_taikiCount += 1;
-		}
-
-		if (m_right == eInputState::Pressed)
-		{
-			m_cursorNumber += 1; // 右へ
+			m_cursorNumber += 1;
 
 			// SEを再生
 			PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
 		}
 
-		if (m_left == eInputState::Pressed)
+		if (m_up == eInputState::Pressed)
 		{
-			m_cursorNumber += 2; // 左へ
+			m_cursorNumber += 2;
 
 			// SEを再生
 			PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
@@ -152,12 +135,6 @@ SceneType Title::Update(float delta)
 			m_animeCount = 0;
 		}
 	}
-	
-	//// インゲームシーンに遷移する
-	//if (input.GetKeyState(KEY_INPUT_RETURN) == eInputState::Pressed)
-	//{
-	//	return SceneType::ingame;
-	//}
 
 	// 親クラスの更新
 	return __super::Update(delta);
@@ -166,88 +143,92 @@ SceneType Title::Update(float delta)
 // 描画
 void Title::Draw() const
 {
-	int soilx = 250;
-	int soily = 400;
+	// 画像サイズ
+	float imageSize;
 
-	int emeraldx = 500;
-	int emeraldy = 600;
-
-	int nekkox = 690;
-	int nekkoy = 150;
-
-	DrawRotaGraph(640, 300, 0.25, 0, m_skyImage, TRUE);//空描画
-
-	DrawRotaGraph(640, 880, 0.23, 0, m_groundImage, TRUE);//地下描画
-
-	DrawRotaGraph(soilx - 40 , soily - 70, 2, 0, m_tutiImage[0], TRUE, TRUE);//道土描画
-
-	DrawRotaGraph(soilx - 40, soily + 50, 2, 3.15, m_tutiImage[0], TRUE, TRUE);//道土描画
-
-	DrawRotaGraph(soilx - 110, soily - 70, 2, 0, m_tutiImage[0], TRUE, TRUE);//道土描画
-
-	DrawRotaGraph(soilx - 110, soily + 50, 2, 3.15, m_tutiImage[0], TRUE, TRUE);//道土描画
-	
-	DrawRotaGraph(soilx - 170, soily - 70, 2, 0, m_tutiImage[0], TRUE, TRUE);//道土描画
-
-	DrawRotaGraph(soilx - 170, soily + 50, 2, 3.15, m_tutiImage[0], TRUE, TRUE);//道土描画
-
-	DrawRotaGraph(soilx - 230, soily - 70, 2, 0, m_tutiImage[0], TRUE, TRUE);//道土描画
-
-	DrawRotaGraph(soilx - 230, soily + 50, 2, 3.15, m_tutiImage[0], TRUE, TRUE);//道土描画
-
-	DrawRotaGraph(soilx + 85, soily - 70, 2, 0, m_tutiImage[1], TRUE, FALSE);//行き止まり土描画
-
-	DrawRotaGraph(soilx + 85 ,soily + 50, 2, 3.15, m_tutiImage[1], TRUE, TRUE);//行き止まり土描画
-
-	DrawRotaGraph(soilx, soily, 0.13, 0, m_soilImage1, TRUE,TRUE);//横向きモグラ描画
-
-	DrawRotaGraph(soilx, soily, 0.1, 0, m_drillImage, TRUE, TRUE);//ドリル描画
-
-	DrawRotaGraph(soilx, soily, 0.1, 0, m_effectImage[0], TRUE, TRUE);//ドリルエフェクト描画
-
-	DrawRotaGraph(nekkox, nekkoy, 0.3, 0, m_leaves_nekkoImage, TRUE);//真ん中根と葉描画
-
-	DrawRotaGraph(nekkox + 40, nekkoy + 210, 0.03, 0, m_potatoImage, TRUE);//真ん中ジャガイモ描画
-
-	DrawRotaGraph(nekkox + 410, nekkoy, 0.3, 0, m_leaves_nekkoImage, TRUE);//右端根と葉描画
-	
-	DrawRotaGraph(nekkox + 450, nekkoy + 210, 0.03, 0, m_potatoImage, TRUE);//右ジャガイモ描画
-
-	DrawRotaGraph(emeraldx, emeraldy, 0.06, 0, m_jeweleffectImage, TRUE);//左エメラルドキラキラ描画
-
-	DrawRotaGraph(emeraldx, emeraldy, 0.06, 0, m_jewelImage, TRUE);//左エメラルド描画
-
-	DrawRotaGraph(emeraldx + 640, emeraldy + 50, 0.06, 0, m_jeweleffectImage, TRUE);//右エメラルドキラキラ描画
-
-	DrawRotaGraph(emeraldx + 640, emeraldy + 50, 0.06, 0, m_jewelImage, TRUE);//右エメラルド描画
-
-	DrawRotaGraph(800, 500, 0.12, 0, m_rockImage, TRUE);//岩描画
-	
-	// タイトルを表示
-	DrawRotaGraph(240, 100, 0.2, 0, m_titlerogoImage, TRUE);//タイトル描画
-
-
-	SetFontSize(40);
-
-	SetFontSize(50);
-
-	for (int i = 0;i < 3;i++)
+	// 背景
 	{
-		DrawRotaGraph(300 + i*350, 630, 0.15,0.0, m_buttonImage,TRUE);
-		DrawRotaGraph(300 + i*350, 630, 0.1,0.0, m_uiImage[i],TRUE);
+		int offset;
+
+		// 空
+		offset = -256;
+		DrawExtendGraph(0, offset, D_STAGE_WIDTH, D_STAGE_HEIGHT / 2 + offset, m_skyImg[m_skyImg.size() - 1], TRUE);
+		for (int i = 0; i < m_skyImg.size(); i++)
+		{
+			// フェード間隔
+			float fadeInterval = m_time / m_skyImg.size();
+			// フェード比率(20%)
+			float fadeRatio = 0.2f;
+			// フェード時間
+			float fadeTime = fadeInterval * fadeRatio;
+			// フェード終了時間
+			float fadeEnd = m_time - (fadeInterval * i);
+			// フェード開始時間
+			float fadeStart = fadeEnd - fadeTime;
+			// アルファ
+			int alpha = 255;
+
+			if (m_elapsedTime >= fadeEnd) continue;
+
+			// フェード経過時間を測定(InGameの経過時間 - フェード開始時間)
+			float fadeElapsed = m_elapsedTime - fadeStart;
+
+			// アルファを計算
+			alpha -= static_cast<int>(255 / fadeTime * fadeElapsed);
+
+			// アルファブレンド
+			SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
+			// 経過時間に応じて空を描画
+			DrawExtendGraph(0, offset, D_STAGE_WIDTH, D_STAGE_HEIGHT / 2 + offset, m_skyImg[i], TRUE);
+			// ブレンドモードを戻す
+			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		}
+
+		// 地面
+		offset = 128;
+		DrawExtendGraph(0, offset, D_WIN_WIDTH, D_WIN_HEIGHT + offset, m_groundImg, TRUE);
+
 	}
 
-	int cursorx = 300 + m_cursorNumber * 350;
+	// タイトル表示
+	imageSize = 0.45;
+	DrawRotaGraph(D_WIN_WIDTH / 2, D_WIN_HEIGHT / 4, imageSize, 0, m_logoImg, TRUE);	//タイトル描画
+
+
+	// ボタン表示
+	for (int i = 0; i < 3; i++)
+	{
+		if (m_cursorNumber == i)
+		{
+			imageSize = 0.16;
+		}
+		else
+		{
+			imageSize = 0.15;
+		}
+
+		DrawRotaGraph(D_WIN_WIDTH / 2, D_WIN_HEIGHT / 2 + 72 + i * 88, imageSize, 0.0, m_buttonImage,TRUE);
+
+		if (i == 0)
+		{
+			imageSize -= 0.03;
+		}
+		DrawRotaGraph(D_WIN_WIDTH / 2, D_WIN_HEIGHT / 2 + 72 + i * 88, imageSize, 0.0, m_uiImage[i],TRUE);
+	}
+
+	int cursorY = D_WIN_HEIGHT / 2 + 72 + m_cursorNumber * 88;
+	imageSize = 0.07;
 	if (m_clickFlag)
 	{
 
-		DrawRotaGraphF(cursorx, 550 + 20, 0.07, 0.0, m_downImage[m_animeCount % 3], TRUE);
-
-		DrawRotaGraph(cursorx + 5.6f, 550 - 7.0f + 20, 0.07, 1.65 * 3.14, m_effectImage[m_animeCount % 3], TRUE);//ドリルエフェクト描画
+		DrawRotaGraph(440, cursorY, imageSize, 0.0, m_moleImg, TRUE, TRUE);
+		DrawRotaGraph(440, cursorY, imageSize, 0.0, m_drillImg[m_animeCount % 3], TRUE, TRUE);
+		DrawRotaGraph(440, cursorY, imageSize, 0.0, m_effectImage[m_animeCount % 3], TRUE, TRUE);
 	}
 	else
 	{
-		DrawRotaGraph(cursorx, 550, 0.07, 0, m_downImage[m_taikiCount % 3], TRUE);//カーソルモグラ描画
+		DrawRotaGraph(445, cursorY, imageSize, 0, m_moleImg, TRUE, TRUE);//カーソルモグラ描画
+		DrawRotaGraph(445, cursorY, imageSize, 0, m_drillImg[0], TRUE, TRUE);//カーソルドリル描画
 	}
 
 }

@@ -53,7 +53,7 @@ SceneType Load::Update(float delta)
 		else if (item.type == "Sounds/")
 		{
 			// ファイルパス
-			std::string Path = "Assets/Audio/" + item.path + ".mp3";
+			std::string Path = "Assets/" + item.type + item.path + ".mp3";
 
 			if (!rm.GetSoundResource(Path.c_str()))
 			{
@@ -81,9 +81,10 @@ SceneType Load::Update(float delta)
 void Load::Draw() const
 {
 	// UI描画
-	DrawString(50, 580, "Now Loading...", GetColor(255, 255, 255));
+	SetFontSize(48);
+	DrawString(500, 630, "Now Loading...", GetColor(255, 255, 255));
 
-	// ゲージバーの描画
+	// バーの描画
 	float rate = (float)count / size;
 	int barWidth = 400;
 	int barHeight = 20;

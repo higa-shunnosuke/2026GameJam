@@ -15,53 +15,33 @@ private:
 	int m_animeCount;
 	float m_animeTime;
 	
-	int m_taikiCount;
-	float m_taikiTime;
-
-	// 画像
 	// タイトル画像
-	int m_tutiImage[2];
 	int m_buttonImage;
 	int m_uiImage[3];
 
-	// モグラ画像
-	int m_soilImage1;	//横向きのモグラ
-	int m_drillImage;	//横向きのドリル
-	int m_downImage[3];	//下向きのモグラ
+	// カーソル
+	int m_moleImg;		//横向きのモグラ
+	int m_drillImg[3];	//横向きのドリル
 	int m_effectImage[3];	//採掘エフェクト
 
-	// その他オブジェクト画像
-	int m_leaves_nekkoImage;//根と葉画像
-	int m_potatoImage;		//ジャガイモ画像
-	int m_jewelImage;		//エメラルド
-	int m_jeweleffectImage;	//エメラルドキラキラ画像
-	int m_rockImage;		//岩画像
+	// タイトルロゴ
+	int m_logoImg;
 
-	// タイトルロゴ画像
-	int m_titlerogoImage;
-
-	// 背景画像
-	// 地下画像
-	int m_groundImage;
-	// 空画像
-	int m_skyImage;
+	// 背景
+	int m_groundImg;			// 地面
+	std::vector<int> m_skyImg;	// 空画像
 
 
 	// サウンド
-	// タイトルBGM
-	int m_titleBgm;
-	// 選択SE
-	int m_selectSe;
-	// 決定SE
-	int m_decisionSe;
+	int m_titleBgm;		// BGM
+	int m_selectSe;		// カーソルSE
+	int m_decisionSe;	// 決定SE
 
 	// 入力
-	// 左
-	eInputState m_left;
-	// 右
-	eInputState m_right;
-	// 決定
+	eInputState m_up;
+	eInputState m_down;
 	eInputState m_decision;
+
 public:
 	// コンストラクタ
 	Title();

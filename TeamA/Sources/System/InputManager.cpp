@@ -256,14 +256,14 @@ void InputManager::TitleApplyInput(eInputState& left, eInputState& right, eInput
 {
 	int getInput[3];
 
-	getInput[0] = XINPUT_BUTTON_DPAD_LEFT;
-	getInput[1] = KEY_INPUT_LEFT;
-	getInput[2] = KEY_INPUT_A;
+	getInput[0] = XINPUT_BUTTON_DPAD_UP;
+	getInput[1] = KEY_INPUT_UP;
+	getInput[2] = KEY_INPUT_W;
 	left = ApplyOneInput(getInput, 3);
 
-	getInput[0] = XINPUT_BUTTON_DPAD_RIGHT;
-	getInput[1] = KEY_INPUT_RIGHT;
-	getInput[2] = KEY_INPUT_D;
+	getInput[0] = XINPUT_BUTTON_DPAD_DOWN;
+	getInput[1] = KEY_INPUT_DOWN;
+	getInput[2] = KEY_INPUT_S;
 	right = ApplyOneInput(getInput, 3);
 
 	getInput[0] = XINPUT_BUTTON_A;

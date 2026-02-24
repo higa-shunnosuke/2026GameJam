@@ -25,6 +25,11 @@ private:
 		
 		// タイトル
 		{"Sprites","Title/Title"},
+		{"Sprites","Title/Rock"},
+		{"Sprites","Title/GAMESTART"},
+		{"Sprites","Title/RANKING"},
+		{"Sprites","Title/RANKING"},
+		{"Sprites","Title/END"},
 
 		// インゲーム
 		// 背景
@@ -64,6 +69,9 @@ private:
 		{"Sprites/","Player/Down1"},
 		{"Sprites/","Player/Down2"},
 		{"Sprites/","Player/Down3"},
+		{"Sprites/","Player/Eat1"},
+		{"Sprites/","Player/Eat2"},
+		{"Sprites/","Player/Eat3"},
 		{"Sprites/","Drill/Drill1"},
 		{"Sprites/","Drill/Drill2"},
 		{"Sprites/","Drill/Drill3"},
@@ -73,17 +81,44 @@ private:
 		{"Sprites/","Effect/Effect1"},
 		{"Sprites/","Effect/Effect2"},
 		{"Sprites/","Effect/Effect3"},
+		{"Sprites/","Player/end1"},
+		{"Sprites/","Player/end2"},
+		{"Sprites/","Player/end3"},
+		{"Sprites/","Player/end4"},
+		{"Sprites/","Player/end5"},
+		{"Sprites/","Player/end6"},
+		{"Sprites/","Player/end7"},
+		{"Sprites/","Player/end8"},
+		{"Sprites/","Player/end9"},
+		{"Sprites/","Player/end10"},
+		{"Sprites/","Player/end11"},
 		{"Sprites/","Potato/PoisonPotato"},
 		{"Sprites/","Potato/NormalPotato"},
 		{"Sprites/","Potato/RainbowPotato"},
 		{"Sprites/","Potato/Leaves_Nekko1"},
 		{"Sprites/","Potato/Leaves_Nekko2"},
 		{"Sprites/","Potato/Leaves_Nekko3"},
-		{"Sprites/","Rock/Rock"}
+		{"Sprites/","Rock/Rock"},
 
 		//------------------------------
 		// 音源
 		//------------------------------	
+
+		// タイトル
+		{ "Sounds/","BGM/Title"},
+		{ "Sounds/","SE/Select"},
+		{ "Sounds/","SE/Click"},
+
+		// インゲーム
+		{ "Sounds/","BGM/InGame"},
+		{ "Sounds/","SE/TimeUp"},
+
+		// プレイヤー
+		{ "Sounds/","SE/Walk"},
+		{ "Sounds/","SE/Eat"},
+		{ "Sounds/","SE/Drill"},
+		{ "Sounds/","SE/Dig"},
+
 	};
 
 public:
