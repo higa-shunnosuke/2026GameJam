@@ -20,6 +20,9 @@ void Title::Initialize()
 	m_animeCount = 0;
 	m_clickFlag = FALSE;
 
+	m_taikiTime = 0.0f;
+	m_taikiCount = 0;
+
 	// 画像読み込み
 	// モグラ画像
 	// 待機
@@ -110,6 +113,13 @@ SceneType Title::Update(float delta)
 	}
 	else
 	{
+		m_taikiTime += delta;
+		if (m_taikiTime > 0.2)
+		{
+			m_taikiTime = 0.0f;
+			m_taikiCount += 1;
+		}
+
 		if (m_right == eInputState::Pressed)
 		{
 			m_cursorNumber += 1; // 右へ
@@ -236,7 +246,7 @@ void Title::Draw() const
 	}
 	else
 	{
-		DrawRotaGraph(cursorx, 550, 0.07, 0, m_downImage[2], TRUE);//カーソルモグラ描画
+		DrawRotaGraph(cursorx, 550, 0.07, 0, m_downImage[m_taikiCount % 3], TRUE);//カーソルモグラ描画
 	}
 
 }

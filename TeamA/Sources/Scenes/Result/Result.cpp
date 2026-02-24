@@ -36,9 +36,9 @@ void Result::Initialize()
 
 	m_jewelImage = rm.GetImageResource("Assets/Sprites/Jewel/emerald/emerald1.PNG")[0];
 
-	m_moguraImage[0] = rm.GetImageResource("Assets/Sprites/Player/eat1.PNG")[0]; //  食事モグラ読み込み
-	m_moguraImage[1] = rm.GetImageResource("Assets/Sprites/Player/eat2.PNG")[0]; //  食事モグラ読み込み
-	m_moguraImage[2] = rm.GetImageResource("Assets/Sprites/Player/eat3.PNG")[0]; //  食事モグラ読み込み
+	m_eatImage[0] = rm.GetImageResource("Assets/Sprites/Player/eat1.PNG")[0]; //  食事モグラ読み込み
+	m_eatImage[1] = rm.GetImageResource("Assets/Sprites/Player/eat2.PNG")[0]; //  食事モグラ読み込み
+	m_eatImage[2] = rm.GetImageResource("Assets/Sprites/Player/eat3.PNG")[0]; //  食事モグラ読み込み
 
 	m_moguraImage[0] = rm.GetImageResource("Assets/Sprites/Player/Down1.PNG")[0]; //  下向きドリルモグラ読み込み
 	m_moguraImage[1] = rm.GetImageResource("Assets/Sprites/Player/Down2.PNG")[0]; //  下向きドリルモグラ読み込み
@@ -122,6 +122,13 @@ SceneType Result::Update(float delta)
 	}
 	else
 	{
+		m_taikiTime += delta;
+		if (m_taikiTime > 0.2)
+		{
+			m_taikiTime = 0.0f;
+			m_taikiCount += 1;
+		}
+
 		if (m_right == eInputState::Pressed)
 		{
 			m_cursorNumber = (m_cursorNumber + 1) % 3; // 右へ
@@ -147,7 +154,7 @@ SceneType Result::Update(float delta)
 		}
 	}
 	m_eatTime += delta;
-	if (m_eatTime = 0.2)
+	if (m_eatTime > 0.15)
 	{
 		m_eatTime = 0.0f;
 		m_eatCount += 1;
@@ -172,7 +179,7 @@ void Result::Draw() const
 
 	DrawRotaGraph(390, 350, 0.05, 0, m_jewelImage, TRUE);
 
-	DrawRotaGraph(900, 400, 0.25, 0, m_eatImage[m_eatCount % 3], TRUE);
+	DrawRotaGraph(900, 400, 0.15, 0, m_eatImage[m_eatCount % 3], TRUE);
 
 	SetFontSize(64);
 	DrawFormatString(460, 200, 0xffffff, "ResultScore");
@@ -203,7 +210,7 @@ void Result::Draw() const
 	}
 	else
 	{
-		DrawRotaGraph(cursorx, 550, 0.07, 0, m_moguraImage[2], TRUE);//カーソルモグラ描画
+		DrawRotaGraph(cursorx, 550, 0.07, 0, m_moguraImage[m_taikiCount % 3], TRUE);//カーソルモグラ描画
 	}
 }
 

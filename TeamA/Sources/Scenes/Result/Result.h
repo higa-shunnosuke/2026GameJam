@@ -23,6 +23,9 @@ private:
 	float m_eatTime;
 	int m_eatCount;
 
+	float m_taikiTime;
+	int m_taikiCount;
+
 	// ランキング
 	std::vector<PlayData> m_ranking;	// ランキング格納配列
 	PlayData m_currentData;				// 今回のプレイデータ

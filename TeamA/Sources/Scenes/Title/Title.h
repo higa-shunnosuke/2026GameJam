@@ -15,6 +15,8 @@ private:
 	int m_animeCount;
 	float m_animeTime;
 	
+	int m_taikiCount;
+	float m_taikiTime;
 
 	// ‰æ‘œ
 	// ƒ^ƒCƒgƒ‹‰æ‘œ
