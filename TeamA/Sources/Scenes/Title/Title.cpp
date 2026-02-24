@@ -64,8 +64,8 @@ void Title::Initialize()
 	
 	// ƒTƒEƒ“ƒh
 	m_titleBgm = rm.GetSoundResource("Assets/Sounds/BGM/Title.mp3");
-	m_selectSe = rm.GetSoundResource("Assets/Sounds/SE/Click2.mp3");
-	m_decisionSe = rm.GetSoundResource("Assets/Sounds/SE/Click1.mp3");
+	m_selectSe = rm.GetSoundResource("Assets/Sounds/SE/Select.mp3");
+	m_decisionSe = rm.GetSoundResource("Assets/Sounds/SE/Click.mp3");
 
 	m_cursorNumber = 0;
 
