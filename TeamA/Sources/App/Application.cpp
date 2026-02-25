@@ -71,7 +71,10 @@ void Application::MainLoop()
 
 		// ƒV[ƒ“ŠÇ—
 		SceneManager& manager = SceneManager::GetInstance();
-		manager.Update(m_delta);
+		if (!manager.Update(m_delta))
+		{
+			break;
+		}
 	}
 
 	DxLib_End();

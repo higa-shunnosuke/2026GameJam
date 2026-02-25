@@ -14,7 +14,8 @@ enum class SceneType
 	title,
 	ingame,
 	resutart,
-	end
+	end,
+	none
 };
 
 /// <summary>

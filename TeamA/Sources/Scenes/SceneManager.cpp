@@ -37,6 +37,12 @@ bool SceneManager::Update(float delta)
 	// シーンの更新
 	SceneType nextSceneType = currentScene->Update(delta);
 
+	// 次のシーンがなければ終わる
+	if (nextSceneType == SceneType::none)
+	{
+		return false;
+	}
+
 	// 描画処理
 	Draw();
 

@@ -1,4 +1,5 @@
 #include "End.h"
+#include "../../Utilitys/ProjectConfig.h"
 
 // コンストラクタ
 End::End()
@@ -8,17 +9,17 @@ End::End()
 // 初期化
 void End::Initialize()
 {
+	m_time = 3;
 }
 
 // 更新
 SceneType End::Update(float delta)
 {
-	//インスタンス取得
-	InputManager& input = InputManager::GetInstance();
-	// タイトルシーンに遷移する
-	if (input.GetKeyState(KEY_INPUT_RETURN) == eInputState::Pressed)
+	__super::Timer(delta);
+
+	if (m_elapsedTime > m_time)
 	{
-		return SceneType::title;
+		return SceneType::none;
 	}
 
 	// 親クラスの更新
@@ -29,7 +30,7 @@ SceneType End::Update(float delta)
 void End::Draw() const
 {
 	// エンドを表示
-	DrawFormatString(10, 10, 0xffffff, "End");
+	DrawFormatString(10, 10, 0xffffff, "Thank you for Playing!!");
 }
 
 // 終了
