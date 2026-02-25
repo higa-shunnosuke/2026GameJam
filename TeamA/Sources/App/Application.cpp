@@ -25,7 +25,7 @@ void Application::StartApp(const TCHAR* appName)
 void Application::InitWindow(const TCHAR* appName)
 {
 	// ウィンドウモードで起動する
-	ChangeWindowMode(TRUE);
+	ChangeWindowMode(FALSE);
 
 	// ウィンドウサイズの設定
 	SetGraphMode(D_WIN_WIDTH, D_WIN_HEIGHT, D_COLOR_BIT);

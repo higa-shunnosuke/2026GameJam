@@ -17,7 +17,7 @@ private:
 	
 	// タイトル画像
 	int m_buttonImage;
-	int m_uiImage[3];
+	int m_uiImage[2];
 
 	// カーソル
 	int m_moleImg;		//横向きのモグラ

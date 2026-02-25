@@ -41,8 +41,8 @@ void Title::Initialize()
 	// ボタン
 	m_buttonImage = rm.GetImageResource("Assets/Sprites/Title/Rock.PNG")[0];
 	m_uiImage[0] = rm.GetImageResource("Assets/Sprites/Title/GAMESTART.PNG")[0];
-	m_uiImage[1] = rm.GetImageResource("Assets/Sprites/Title/RANKING.PNG")[0];
-	m_uiImage[2] = rm.GetImageResource("Assets/Sprites/Title/END.PNG")[0];
+	//m_uiImage[1] = rm.GetImageResource("Assets/Sprites/Title/RANKING.PNG")[0];
+	m_uiImage[1] = rm.GetImageResource("Assets/Sprites/Title/END.PNG")[0];
 	
 	// サウンド
 	m_titleBgm = rm.GetSoundResource("Assets/Sounds/BGM/Title.mp3");
@@ -88,17 +88,17 @@ SceneType Title::Update(float delta)
 			m_animeCount += 1;
 		}
 
-		if (m_animeCount > 3)
+		if (m_animeCount > 2)
 		{
 			switch (m_cursorNumber)
 			{
 			case 0:
 				return SceneType::ingame; //インゲームシーンに遷移する
 
-			case 1:
-				return SceneType::ingame;//後でランキングに変更,ランキングシーンに遷移する
+			//case 1:
+			//	return SceneType::ingame;//後でランキングに変更,ランキングシーンに遷移する
 
-			case 2:
+			case 1:
 				return SceneType::end;//エンドシーンに遷移する
 
 			default:
@@ -118,12 +118,12 @@ SceneType Title::Update(float delta)
 
 		if (m_up == eInputState::Pressed)
 		{
-			m_cursorNumber += 2;
+			m_cursorNumber += 3;
 
 			// SEを再生
 			PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
 		}
-		m_cursorNumber %= 3;
+		m_cursorNumber %= 2;
 
 		if (m_decision == eInputState::Pressed)//決定ボタンが押されたら
 		{
@@ -196,7 +196,7 @@ void Title::Draw() const
 
 
 	// ボタン表示
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 2; i++)
 	{
 		if (m_cursorNumber == i)
 		{
