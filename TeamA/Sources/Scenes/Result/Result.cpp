@@ -7,13 +7,9 @@
 #include <algorithm>
 #include <DxLib.h>
 
-// デバッグ出力用
-#include <iostream>
-
-#define D_RANKING_MAX_COUNT (10)	// ランキング10位まで
-
 // コンストラクタ
 Result::Result()
+	:m_ranking(nullptr)
 {
 	
 }
@@ -40,8 +36,6 @@ void Result::Initialize()
 	m_rankingImage = rm.GetImageResource("Assets/Sprites/Title/RANKING.PNG")[0];
 	m_titleImage = rm.GetImageResource("Assets/Sprites/Result/タイトル.PNG")[0];
 	m_moguraImage = rm.GetImageResource("Assets/Sprites/Result/モグラ.PNG")[0];
-	m_rankingBackGround = rm.GetImageResource("Assets/Textures/InGame/Ground.PNG")[0];
-
 
 	m_cursorNumber = 0;
 
@@ -53,38 +47,19 @@ void Result::Initialize()
 	// ランキング順位
 	m_rank = 0;
 
-	// ファイルパス
-	const std::string path = "Resource/RankingData/Ranking.csv";
+	// ランキングデータを作成する
+	m_ranking = new Ranking();
+	m_ranking->Initialize();
 
-	// ファイルの読み込み
-	LoadRankingCsv(path);
-
-	// 配列に追加、ソート、11位以下切り捨て
-	if (AddAndSortRanking(m_currentData))
+	//今回の配列に追加、ソート、11位以下切り捨て
+	if (m_ranking->AddAndSortRanking(m_currentData))
 	{
 		// csvに保存
-		SaveRankingCsv(path);
+		m_ranking->SaveRankingCsv();
 
-		// 順位検索
-		for (size_t i = 0; i < m_ranking.size(); ++i)
-		{
-			if (m_ranking[i] == m_currentData)
-			{
-				m_rank = static_cast<int>(i) + 1;
-				break;
-			}
-		}
+		// 何位かを受け取る(0:圏外)
+		m_rank = m_ranking->GetCurrentRank(m_currentData);
 	}
-
-#if _DEBUG
-
-	std::cout << "\nスコア,yyyy-mm-dd hh:mm:ss" << std::endl;
-	for (int i = 0; i < (int)m_ranking.size(); i++)
-	{
-		std::cout << m_ranking[i].score << "," << m_ranking[i].date << std::endl;
-	}
-
-#endif
 
 	// BGM再生
 	PlaySoundMem(m_resultBgm, DX_PLAYTYPE_LOOP);
@@ -197,27 +172,7 @@ void Result::Draw() const
 	// ランキングを描画
 	if (m_rankingDraw)
 	{
-		// 背景
-		DrawExtendGraph(0, -128, 1280,720, m_rankingBackGround, TRUE);
-
-		// ランキング文字
-		DrawRotaGraph(640, 50, 0.15, 0, m_backrockImage, TRUE);	// 岩
-		DrawRotaGraph(640, 45, 0.15, 0, m_rankingImage, TRUE);		// 文字
-
-		// 順位
-		for (int i = 0; i < (int)m_ranking.size(); i++)
-		{
-			int x = ((i < 5) ? 420 : 860);
-			int y = 150 + 115 * (i % 5);
-			DrawRotaGraph(x, y, 0.2, 0, m_backrockImage, TRUE);
-			DrawFormatString(x - 140, y - 15, 0xffffff, "%d位", i + 1);
-			DrawRotaGraph(x - 40, y, 0.032, 0.0, m_jewelImage, TRUE);
-			SetFontSize(40);
-			DrawFormatString(x - 5, y - 20, 0xffffff, "×%d", m_ranking[i].score);
-			SetFontSize(20);
-			DrawFormatString(x + 20, y + 20, 0xffffff, "%.10s", m_ranking[i].date.c_str());
-			SetFontSize(32);
-		}
+		m_ranking->Draw();
 		return;
 	}
 
@@ -260,6 +215,10 @@ void Result::Draw() const
 // 終了
 void Result::Finalize()
 {
+	if (m_ranking != nullptr)
+	{
+		delete m_ranking;
+	}
 	// BGM停止
 	StopSoundMem(m_resultBgm);
 }
@@ -279,99 +238,4 @@ PlayData Result::TransitionData(const PlayData* prevdata)
 	m_currentData = *prevdata;
 
 	return PlayData();
-}
-
-bool Result::LoadRankingCsv(const std::string& path)
-{
-	m_ranking.clear();
-
-	std::ifstream file("Resource/RankingData/Ranking.csv");
-	if (!file.is_open())
-		return false;
-
-	std::string line;
-	while (std::getline(file, line))
-	{
-		if (line.empty())
-			continue;
-
-		std::stringstream ss(line);
-
-		std::string scoreStr;
-		std::string dateStr;
-
-		// score,date の2列を読む
-		if (!std::getline(ss, scoreStr, ','))
-			continue;
-		if (!std::getline(ss, dateStr))
-			continue;
-
-		// WindowsのCRLF対策（末尾に '\r' が付くことがある）
-		if (!dateStr.empty() && dateStr.back() == '\r')
-			dateStr.pop_back();
-
-		// score を int に変換（不正ならその行は捨てる）
-		int score = 0;
-		try
-		{
-			score = std::stoi(scoreStr);
-		}
-		catch (...)
-		{
-			continue;
-		}
-
-		m_ranking.push_back(PlayData{ score, dateStr });
-	}
-
-	return true;
-}
-
-bool Result::CompareRanking(const PlayData& a, const PlayData& b)
-{
-	// スコアを比較
-	if (a.score != b.score) return a.score > b.score;
-	// 同点なら日付が新しい順
-	return a.date > b.date;
-}
-
-bool Result::AddAndSortRanking(const PlayData& newData)
-{
-	// 変更前の状態を保持
-	std::vector<PlayData> before = m_ranking;
-
-	// 追加
-	m_ranking.push_back(newData);
-
-	// ソート
-	std::sort(m_ranking.begin(), m_ranking.end(),
-		[this](const PlayData& a, const PlayData& b)
-		{
-			return CompareRanking(a, b);
-		});
-
-	// 上位制限
-	if (m_ranking.size() > D_RANKING_MAX_COUNT)
-		m_ranking.resize(D_RANKING_MAX_COUNT);
-
-	// 変更があったか判定
-	return m_ranking != before;
-}
-
-bool Result::SaveRankingCsv(const std::string& path)
-{
-	// 既存を消して書き直す
-	std::ofstream file(path, std::ios::trunc);
-
-	if (!file.is_open())
-		return false;
-
-	// ヘッダ無し（必要なら書く：file << "Score,Date\n";）
-	for (const auto& r : m_ranking)
-	{
-		// score,date
-		file << r.score << "," << r.date << "\n";
-	}
-
-	return true;
 }

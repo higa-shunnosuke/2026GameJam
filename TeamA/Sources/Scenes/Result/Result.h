@@ -1,5 +1,6 @@
 #pragma once
 #include "../SceneBase.h"
+#include "../../System/Ranking.h"
 
 #include <string>
 #include <vector>
@@ -7,10 +8,10 @@
 class Result : public SceneBase
 {
 private:
-	// ランキング
-	std::vector<PlayData> m_ranking;	// ランキング格納配列
+
+	Ranking* m_ranking;					// ランキングデータ
 	PlayData m_currentData;				// 今回のプレイデータ
-	int m_rank;							// 圏外:0
+	int m_rank;							// 順位
 	int m_cursorNumber;					// カーソル番号
 	bool m_rankingDraw;					// true:ランキング描画
 
@@ -23,7 +24,6 @@ private:
 	int m_rankingImage;		// RANKING文字
 	int m_titleImage;		// TITLE文字
 	int m_moguraImage;		// カーソルアイコン
-	int m_rankingBackGround;	// ランキング背景
 
 	//アニメーション
 	float m_animeTime;
@@ -85,36 +85,5 @@ public:
 	/// <param name="data">受け取るデータ</param>
 	/// <returns>渡すデータ</returns>
 	virtual PlayData TransitionData(const PlayData* prevdata) override;
-
-private:
-
-	/// <summary>
-	/// csvファイルの読み込み
-	/// </summary>
-	/// <param name="path">ファイルパス</param>
-	/// <returns>true:成功</returns>
-	bool LoadRankingCsv(const std::string& path);
-
-	/// <summary>
-	/// データa,bを比較する
-	/// </summary>
-	/// <param name="a">1つ目のデータ</param>
-	/// <param name="b">2つ目のデータ</param>
-	/// <returns>true:aが大きい</returns>
-	bool CompareRanking(const PlayData& a, const PlayData& b);
-
-	/// <summary>
-	/// 配列にデータを挿入してソートする
-	/// </summary>
-	/// <param name="newData">追加するデータ</param>
-	/// <returns>true:変更あり</returns>
-	bool AddAndSortRanking(const PlayData& newData);
-
-	/// <summary>
-	/// csvを上書きする
-	/// </summary>
-	/// <param name="path">ファイルパス</param>
-	/// <returns>true:成功</returns>
-	bool SaveRankingCsv(const std::string& path);
 
 };

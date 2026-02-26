@@ -345,8 +345,8 @@ std::string InGame::GetCurrentDate()
 	GetDateTime(&date);
 
 	char buffer[32];
-	sprintf_s(buffer, "%04d-%02d-%02d %02d:%02d:%02d",
-		date.Year,
+	sprintf_s(buffer, "R%01d-%02d-%02d %02d:%02d:%02d",
+		date.Year-2018,
 		date.Mon,
 		date.Day,
 		date.Hour,

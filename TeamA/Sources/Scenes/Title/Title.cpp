@@ -7,6 +7,7 @@
 
 // コンストラクタ
 Title::Title()
+	:m_ranking(nullptr)
 {
 
 }
@@ -41,8 +42,8 @@ void Title::Initialize()
 	// ボタン
 	m_buttonImage = rm.GetImageResource("Assets/Sprites/Title/Rock.PNG")[0];
 	m_uiImage[0] = rm.GetImageResource("Assets/Sprites/Title/GAMESTART.PNG")[0];
-	//m_uiImage[1] = rm.GetImageResource("Assets/Sprites/Title/RANKING.PNG")[0];
-	m_uiImage[1] = rm.GetImageResource("Assets/Sprites/Title/END.PNG")[0];
+	m_uiImage[1] = rm.GetImageResource("Assets/Sprites/Title/RANKING.PNG")[0];
+	m_uiImage[2] = rm.GetImageResource("Assets/Sprites/Title/END.PNG")[0];
 	
 	// サウンド
 	m_titleBgm = rm.GetSoundResource("Assets/Sounds/BGM/Title.mp3");
@@ -59,6 +60,10 @@ void Title::Initialize()
 	m_time = D_TIME;
 	m_elapsedTime = 0.0f;
 
+	// ランキングデータを作成する
+	m_ranking = new Ranking();
+	m_ranking->Initialize();
+
 	// BGM再生
 	PlaySoundMem(m_titleBgm, DX_PLAYTYPE_LOOP);
 }
@@ -66,6 +71,27 @@ void Title::Initialize()
 // 更新
 SceneType Title::Update(float delta)
 {
+	//インスタンス取得
+	InputManager& input = InputManager::GetInstance();
+	// コントローラー
+	bool decisionPressed = input.GetButtonState(XINPUT_BUTTON_A) == eInputState::Pressed;
+
+#if _DEBUG
+	// キー
+	if (!decisionPressed)decisionPressed = (input.GetKeyState(KEY_INPUT_SPACE) == eInputState::Pressed);
+#endif
+
+	if (m_rankingDraw)
+	{
+		if (decisionPressed)
+		{
+			m_rankingDraw = false;
+			m_clickFlag = false;
+		}
+		// 親クラスの更新
+		return __super::Update(delta);
+	}
+
 	__super::Timer(delta);
 
 	if (m_elapsedTime >= m_time)
@@ -74,8 +100,6 @@ SceneType Title::Update(float delta)
 		m_elapsedTime = 0.0f;
 	}
 
-	//インスタンス取得
-	InputManager& input = InputManager::GetInstance();
 
 	input.TitleApplyInput(m_up, m_down, m_decision);
 
@@ -95,10 +119,12 @@ SceneType Title::Update(float delta)
 			case 0:
 				return SceneType::ingame; //インゲームシーンに遷移する
 
-			//case 1:
-			//	return SceneType::ingame;//後でランキングに変更,ランキングシーンに遷移する
-
 			case 1:
+				m_rankingDraw = true;
+				m_clickFlag = false;
+				break;
+
+			case 2:
 				return SceneType::end;//エンドシーンに遷移する
 
 			default:
@@ -118,12 +144,12 @@ SceneType Title::Update(float delta)
 
 		if (m_up == eInputState::Pressed)
 		{
-			m_cursorNumber += 3;
+			m_cursorNumber += 2;
 
 			// SEを再生
 			PlaySoundMem(m_selectSe, DX_PLAYTYPE_BACK);
 		}
-		m_cursorNumber %= 2;
+		m_cursorNumber %= 3;
 
 		if (m_decision == eInputState::Pressed)//決定ボタンが押されたら
 		{
@@ -143,6 +169,13 @@ SceneType Title::Update(float delta)
 // 描画
 void Title::Draw() const
 {
+	// ランキングを描画
+	if (m_rankingDraw)
+	{
+		m_ranking->Draw();
+		return;
+	}
+
 	// 画像サイズ
 	float imageSize;
 
@@ -196,7 +229,7 @@ void Title::Draw() const
 
 
 	// ボタン表示
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		if (m_cursorNumber == i)
 		{
@@ -236,6 +269,11 @@ void Title::Draw() const
 // 終了
 void Title::Finalize()
 {
+	if (m_ranking != nullptr)
+	{
+		delete m_ranking;
+	}
+
 	// BGM停止
 	StopSoundMem(m_titleBgm);
 }

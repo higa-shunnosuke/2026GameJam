@@ -1,11 +1,14 @@
 #pragma once
 #include "../SceneBase.h"
-
+#include "../../System/Ranking.h"
 
 // タイトル
 class Title : public SceneBase
 {
 private:
+
+	Ranking* m_ranking;		// ランキングデータ
+	bool m_rankingDraw;		// true:ランキング描画
 
 	// カーソル
 	int m_cursorNumber;
@@ -17,7 +20,7 @@ private:
 	
 	// タイトル画像
 	int m_buttonImage;
-	int m_uiImage[2];
+	int m_uiImage[3];
 
 	// カーソル
 	int m_moleImg;		//横向きのモグラ
