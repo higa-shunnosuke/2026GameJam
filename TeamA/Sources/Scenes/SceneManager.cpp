@@ -13,7 +13,7 @@ SceneManager::SceneManager()
 // 初期化処理
 void SceneManager::Initialize()
 {
-	// 最初のシーンをインゲーム画面にする
+	// 最初のシーンをロード画面にする
 	ChangeScene(SceneType::load);
 
 	// フォントデータを読み込む

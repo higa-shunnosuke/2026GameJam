@@ -29,8 +29,9 @@ SceneType End::Update(float delta)
 // 描画
 void End::Draw() const
 {
+	SetFontSize(48);
 	// エンドを表示
-	DrawFormatString(10, 10, 0xffffff, "Thank you for Playing!!");
+	DrawFormatString(330, D_WIN_HEIGHT/2, 0xffffff, "Thank you for Playing!!");
 }
 
 // 終了
