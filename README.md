@@ -96,7 +96,7 @@ const float GRAVITY = 9.8f;
 
 ### 関数名  
  ```bash
-UpperCamelCase（パスカルケース）  
+UpperCamelCase（キャメルケース）  
 void Update();  
 void Draw();  
 void TakeDamage(int damage);  
