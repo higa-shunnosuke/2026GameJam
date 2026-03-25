@@ -167,7 +167,7 @@ void InGame::Draw() const
 
 		// 空
 		offset = -192;
-		DrawExtendGraph(0, offset, D_STAGE_WIDTH, D_STAGE_HEIGHT / 2 + offset, m_skyImg[m_skyImg.size() - 1], TRUE);
+		DrawExtendGraph(0, offset, D_STAGE_WIDTH, D_STAGE_HEIGHT / 2 + offset, m_skyImg[0], TRUE);
 		for (int i = 0; i < m_skyImg.size(); i++)
 		{
 			// フェード間隔
